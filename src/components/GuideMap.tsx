@@ -37,7 +37,7 @@ function useLayout() {
 
     let cursor = -Math.PI / 2;
     pillars.forEach((pillar, i) => {
-      const sector = (weights[i] / total) * (Math.PI * 2 - gap * pillars.length);
+      const sector = ((weights[i] ?? 1) / total) * (Math.PI * 2 - gap * pillars.length);
       const start = cursor + gap / 2;
       const mid = start + sector / 2;
       cursor += sector + gap;
@@ -55,7 +55,7 @@ function useLayout() {
 
       let kidCursor = start;
       kids.forEach((kid, k) => {
-        const kidSector = (kidWeights[k] / kidTotal) * sector;
+        const kidSector = ((kidWeights[k] ?? 1) / kidTotal) * sector;
         const kidMid = kidCursor + kidSector / 2;
         kidCursor += kidSector;
 
