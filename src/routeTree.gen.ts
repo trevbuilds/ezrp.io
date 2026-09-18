@@ -10,12 +10,20 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as FrameworkRouteImport } from './routes/framework'
 import { Route as ApiChatRouteImport } from './routes/api/chat'
 import { Route as GuidesIndexRouteImport } from './routes/guides/index'
+import { Route as GuidesSlugRouteImport } from './routes/guides/$slug'
+import { Route as PillarsSlugRouteImport } from './routes/pillars/$slug'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const FrameworkRoute = FrameworkRouteImport.update({
+  id: '/framework',
+  path: '/framework',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ApiChatRoute = ApiChatRouteImport.update({
@@ -28,34 +36,75 @@ const GuidesIndexRoute = GuidesIndexRouteImport.update({
   path: '/guides/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const GuidesSlugRoute = GuidesSlugRouteImport.update({
+  id: '/guides/$slug',
+  path: '/guides/$slug',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PillarsSlugRoute = PillarsSlugRouteImport.update({
+  id: '/pillars/$slug',
+  path: '/pillars/$slug',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/framework': typeof FrameworkRoute
   '/api/chat': typeof ApiChatRoute
+  '/guides/$slug': typeof GuidesSlugRoute
+  '/pillars/$slug': typeof PillarsSlugRoute
   '/guides/': typeof GuidesIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/framework': typeof FrameworkRoute
   '/api/chat': typeof ApiChatRoute
+  '/guides/$slug': typeof GuidesSlugRoute
+  '/pillars/$slug': typeof PillarsSlugRoute
   '/guides': typeof GuidesIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/framework': typeof FrameworkRoute
   '/api/chat': typeof ApiChatRoute
+  '/guides/$slug': typeof GuidesSlugRoute
+  '/pillars/$slug': typeof PillarsSlugRoute
   '/guides/': typeof GuidesIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/api/chat' | '/guides/'
+  fullPaths:
+    | '/'
+    | '/framework'
+    | '/api/chat'
+    | '/guides/$slug'
+    | '/pillars/$slug'
+    | '/guides/'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/api/chat' | '/guides'
-  id: '__root__' | '/' | '/api/chat' | '/guides/'
+  to:
+    | '/'
+    | '/framework'
+    | '/api/chat'
+    | '/guides/$slug'
+    | '/pillars/$slug'
+    | '/guides'
+  id:
+    | '__root__'
+    | '/'
+    | '/framework'
+    | '/api/chat'
+    | '/guides/$slug'
+    | '/pillars/$slug'
+    | '/guides/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  FrameworkRoute: typeof FrameworkRoute
   ApiChatRoute: typeof ApiChatRoute
+  GuidesSlugRoute: typeof GuidesSlugRoute
+  PillarsSlugRoute: typeof PillarsSlugRoute
   GuidesIndexRoute: typeof GuidesIndexRoute
 }
 
@@ -66,6 +115,13 @@ declare module '@tanstack/react-router' {
       path: '/'
       fullPath: '/'
       preLoaderRoute: typeof IndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/framework': {
+      id: '/framework'
+      path: '/framework'
+      fullPath: '/framework'
+      preLoaderRoute: typeof FrameworkRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/api/chat': {
@@ -82,12 +138,29 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof GuidesIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/guides/$slug': {
+      id: '/guides/$slug'
+      path: '/guides/$slug'
+      fullPath: '/guides/$slug'
+      preLoaderRoute: typeof GuidesSlugRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/pillars/$slug': {
+      id: '/pillars/$slug'
+      path: '/pillars/$slug'
+      fullPath: '/pillars/$slug'
+      preLoaderRoute: typeof PillarsSlugRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  FrameworkRoute: FrameworkRoute,
   ApiChatRoute: ApiChatRoute,
+  GuidesSlugRoute: GuidesSlugRoute,
+  PillarsSlugRoute: PillarsSlugRoute,
   GuidesIndexRoute: GuidesIndexRoute,
 }
 export const routeTree = rootRouteImport
