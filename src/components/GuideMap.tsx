@@ -117,7 +117,7 @@ export function GuideMap() {
         <div className="h-[32rem] cursor-grab active:cursor-grabbing md:h-[38rem]">
           <motion.div drag dragMomentum={false} className="size-full">
             <svg
-              viewBox="-760 -760 1520 1520"
+              viewBox="-900 -820 1800 1640"
               className="size-full"
               style={{ transform: `scale(${zoom})` }}
             >
