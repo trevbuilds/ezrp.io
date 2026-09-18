@@ -12,33 +12,57 @@ type Node = {
   tier: 1 | 2 | 3;
 };
 
-const R1 = 300;
+const R1 = 250;
 const R2 = 470;
-const R3 = 600;
+const R3 = 650;
 
+/**
+ * Radial layout: each pillar owns an angular sector sized by how many
+ * descendants it has, so dense pillars get room and labels stop colliding.
+ */
 function useLayout() {
   return useMemo(() => {
     const nodes = new Map<string, Node>();
     const links: Array<[string, string]> = [];
 
+    const weight = (slug: string) => {
+      const kids = childrenOf(slug);
+      if (kids.length === 0) return 1;
+      return kids.reduce((sum, k) => sum + Math.max(1, childrenOf(k.slug).length), 0);
+    };
+
+    const weights = pillars.map((p) => weight(p.slug));
+    const total = weights.reduce((a, b) => a + b, 0);
+    const gap = 0.04;
+
+    let cursor = -Math.PI / 2;
     pillars.forEach((pillar, i) => {
-      const angle = (i / pillars.length) * Math.PI * 2 - Math.PI / 2;
+      const sector = (weights[i] / total) * (Math.PI * 2 - gap * pillars.length);
+      const start = cursor + gap / 2;
+      const mid = start + sector / 2;
+      cursor += sector + gap;
+
       nodes.set(pillar.slug, {
         guide: pillar,
-        x: Math.cos(angle) * R1,
-        y: Math.sin(angle) * R1,
+        x: Math.cos(mid) * R1,
+        y: Math.sin(mid) * R1,
         tier: 1,
       });
 
       const kids = childrenOf(pillar.slug);
-      const spread = Math.min(0.52, 0.16 + kids.length * 0.05);
+      const kidWeights = kids.map((k) => Math.max(1, childrenOf(k.slug).length));
+      const kidTotal = kidWeights.reduce((a, b) => a + b, 0) || 1;
+
+      let kidCursor = start;
       kids.forEach((kid, k) => {
-        const offset = kids.length === 1 ? 0 : (k / (kids.length - 1) - 0.5) * spread * 2;
-        const kidAngle = angle + offset;
+        const kidSector = (kidWeights[k] / kidTotal) * sector;
+        const kidMid = kidCursor + kidSector / 2;
+        kidCursor += kidSector;
+
         nodes.set(kid.slug, {
           guide: kid,
-          x: Math.cos(kidAngle) * R2,
-          y: Math.sin(kidAngle) * R2,
+          x: Math.cos(kidMid) * R2,
+          y: Math.sin(kidMid) * R2,
           tier: 2,
         });
         links.push([pillar.slug, kid.slug]);
@@ -46,7 +70,9 @@ function useLayout() {
         const grandKids = childrenOf(kid.slug);
         grandKids.forEach((gk, g) => {
           const gAngle =
-            kidAngle + (grandKids.length === 1 ? 0 : (g / (grandKids.length - 1) - 0.5) * 0.14);
+            grandKids.length === 1
+              ? kidMid
+              : kidMid + (g / (grandKids.length - 1) - 0.5) * kidSector * 0.8;
           nodes.set(gk.slug, {
             guide: gk,
             x: Math.cos(gAngle) * R3,
