@@ -44,8 +44,8 @@ function useLayout() {
 
       nodes.set(pillar.slug, {
         guide: pillar,
-        x: Math.cos(mid) * R1,
-        y: Math.sin(mid) * R1,
+        x: Math.round(Math.cos(mid) * R1),
+        y: Math.round(Math.sin(mid) * R1),
         tier: 1,
       });
 
@@ -61,8 +61,8 @@ function useLayout() {
 
         nodes.set(kid.slug, {
           guide: kid,
-          x: Math.cos(kidMid) * R2,
-          y: Math.sin(kidMid) * R2,
+          x: Math.round(Math.cos(kidMid) * R2),
+          y: Math.round(Math.sin(kidMid) * R2),
           tier: 2,
         });
         links.push([pillar.slug, kid.slug]);
@@ -75,8 +75,8 @@ function useLayout() {
               : kidMid + (g / (grandKids.length - 1) - 0.5) * kidSector * 0.8;
           nodes.set(gk.slug, {
             guide: gk,
-            x: Math.cos(gAngle) * R3,
-            y: Math.sin(gAngle) * R3,
+            x: Math.round(Math.cos(gAngle) * R3),
+            y: Math.round(Math.sin(gAngle) * R3),
             tier: 3,
           });
           links.push([kid.slug, gk.slug]);
