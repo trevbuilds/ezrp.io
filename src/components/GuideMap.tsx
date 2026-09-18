@@ -91,7 +91,7 @@ function useLayout() {
 export function GuideMap() {
   const { nodes, links } = useLayout();
   const [active, setActive] = useState<string | null>(null);
-  const [zoom, setZoom] = useState(1);
+  const [zoom, setZoom] = useState(1.35);
 
   const related = useMemo(() => {
     if (!active) return new Set<string>();
@@ -117,7 +117,7 @@ export function GuideMap() {
         <div className="h-[32rem] cursor-grab active:cursor-grabbing md:h-[38rem]">
           <motion.div drag dragMomentum={false} className="size-full">
             <svg
-              viewBox="-900 -820 1800 1640"
+              viewBox="-900 -780 1800 1560"
               className="size-full"
               style={{ transform: `scale(${zoom})` }}
             >
@@ -222,9 +222,9 @@ export function GuideMap() {
 
       <div className="absolute right-3 top-3 flex flex-col gap-1">
         {[
-          { icon: Plus, action: () => setZoom((z) => Math.min(2.2, z + 0.2)), label: "Zoom in" },
+          { icon: Plus, action: () => setZoom((z) => Math.min(2.6, z + 0.2)), label: "Zoom in" },
           { icon: Minus, action: () => setZoom((z) => Math.max(0.6, z - 0.2)), label: "Zoom out" },
-          { icon: Crosshair, action: () => setZoom(1), label: "Reset" },
+          { icon: Crosshair, action: () => setZoom(1.35), label: "Reset" },
         ].map(({ icon: Icon, action, label }) => (
           <button
             key={label}
