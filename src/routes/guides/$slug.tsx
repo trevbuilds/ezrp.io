@@ -49,6 +49,8 @@ function GuidePage() {
   const siblings = guide.parent
     ? childrenOf(guide.parent).filter((g) => g.slug !== guide.slug)
     : [];
+  const article = articleBySlug.get(guide.slug);
+  const flow = flowBySlug.get(guide.slug);
 
   return (
     <SiteShell>
@@ -86,7 +88,7 @@ function GuidePage() {
           </div>
         )}
 
-        {guide.definition ?? article ? (
+        {(guide.definition ?? article) ? (
           <p className="mt-5 text-lg text-muted-foreground">
             {guide.definition ?? article?.intro}
           </p>
