@@ -323,6 +323,6 @@ const apAutomation: Article = {
   ],
 };
 
-export const articles: Article[] = [apAutomation];
+export const articles: Article[] = [apAutomation, ...hcmArticles];
 
 export const articleBySlug = new Map(articles.map((a) => [a.slug, a]));
