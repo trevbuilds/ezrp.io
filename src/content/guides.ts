@@ -90,8 +90,10 @@ const raw: Array<Omit<Guide, "workflow"> & { workflow?: string | null }> = [
     topic: "Human Capital Management",
     parent: null,
     categories: ["Concept", "Module"],
-    definition: null,
-    workflow: null,
+    definition:
+      "Core employee records, payroll, time and attendance, talent, learning, benefits and compliance.",
+    workflow:
+      "Hire → Employee Record → Pay and Entitlements → Time and Attendance → Performance and Development → Exit",
     sourceUrl: null,
   },
   {
@@ -367,6 +369,188 @@ const raw: Array<Omit<Guide, "workflow"> & { workflow?: string | null }> = [
     definition: "Ensuring adherence to labor laws and regulations.",
     workflow:
       "Policy Dissemination → Compliance Monitoring → Incident Reporting → Corrective Action",
+    sourceUrl: null,
+  },
+  {
+    slug: "core-hr",
+    topic: "Core HR",
+    parent: "human-capital-management",
+    categories: ["Component", "Process"],
+    definition:
+      "The system of record for people: the employee master, the position and reporting structure, and the effective-dated history every other process reads from.",
+    workflow:
+      "Position Approval → Hire → Employee Record Created → Assignment and Reporting Line → Effective-Dated Changes → Termination",
+    sourceUrl: null,
+  },
+  {
+    slug: "org-and-position-management",
+    topic: "Org and Position Management",
+    parent: "core-hr",
+    categories: ["Component", "Process"],
+    definition:
+      "Legal entities, business units, cost centres, positions and the reporting lines that hang off them.",
+    workflow:
+      "Org Design → Position Creation → Funding and Grade → Reporting Line → Vacancy Release",
+    sourceUrl: null,
+  },
+  {
+    slug: "employee-self-service",
+    topic: "Employee Self Service",
+    parent: "core-hr",
+    categories: ["Component", "Technology"],
+    definition:
+      "The employee and manager front door to HR transactions, with approval routing behind it.",
+    workflow: "Request Raised → Validation → Approval → Record Updated → Notification",
+    sourceUrl: null,
+  },
+  {
+    slug: "onboarding",
+    topic: "Onboarding",
+    parent: "core-hr",
+    categories: ["Process"],
+    definition:
+      "Turning an accepted offer into a provisioned, paid, productive employee.",
+    workflow:
+      "Offer Acceptance → Pre-boarding → Day One → Provisioning → Probation Review",
+    sourceUrl: null,
+  },
+  {
+    slug: "offboarding",
+    topic: "Offboarding",
+    parent: "core-hr",
+    categories: ["Process"],
+    definition:
+      "Ending employment cleanly: final pay, access revocation, asset return and records retention.",
+    workflow:
+      "Notice → Final Pay Calculation → Access Revocation → Asset Return → Records Retention",
+    sourceUrl: null,
+  },
+  {
+    slug: "payroll",
+    topic: "Payroll",
+    parent: "human-capital-management",
+    categories: ["Component", "Process"],
+    definition:
+      "Calculating, approving, paying and reporting employee pay, deductions and statutory obligations.",
+    workflow:
+      "Input Cut-off → Calculation → Validation → Approval → Disbursement → Posting and Reporting",
+    sourceUrl: null,
+  },
+  {
+    slug: "payroll-automation",
+    topic: "Payroll Automation",
+    parent: "payroll",
+    categories: ["Solution", "Technology"],
+    definition:
+      "The layer that removes the handling between time capture, pay calculation, payment and statutory reporting.",
+    workflow: null,
+    sourceUrl: null,
+  },
+  {
+    slug: "superannuation",
+    topic: "Superannuation",
+    parent: "payroll",
+    categories: ["Component", "Local-AU"],
+    definition:
+      "Employer retirement contributions calculated on ordinary time earnings and paid to employee-nominated funds.",
+    workflow:
+      "Contribution Calculation → Fund Validation → Clearing House Submission → Reconciliation",
+    sourceUrl: null,
+  },
+  {
+    slug: "single-touch-payroll",
+    topic: "Single Touch Payroll",
+    parent: "payroll",
+    categories: ["Process", "Local-AU"],
+    definition:
+      "Reporting salary, withholding and superannuation to the ATO each time employees are paid.",
+    workflow:
+      "Pay Run Finalised → Pay Event Assembled → ATO Lodgement → Response Handling → EOFY Finalisation",
+    sourceUrl: null,
+  },
+  {
+    slug: "time-and-attendance",
+    topic: "Time and Attendance",
+    parent: "human-capital-management",
+    categories: ["Component", "Process"],
+    definition:
+      "Capturing worked time and converting it into pay, cost and compliance outcomes.",
+    workflow:
+      "Roster Published → Time Captured → Exceptions Cleared → Manager Approval → Interpretation → Payroll Input",
+    sourceUrl: null,
+  },
+  {
+    slug: "rostering-and-scheduling",
+    topic: "Rostering and Scheduling",
+    parent: "time-and-attendance",
+    categories: ["Component", "Process"],
+    definition:
+      "Planning who works when, against demand, skills, availability and rule constraints.",
+    workflow:
+      "Demand Forecast → Shift Build → Availability and Skills Match → Publish → Shift Swaps",
+    sourceUrl: null,
+  },
+  {
+    slug: "leave-management",
+    topic: "Leave Management",
+    parent: "time-and-attendance",
+    categories: ["Component", "Process"],
+    definition: "Accruing, requesting, approving and paying absence.",
+    workflow:
+      "Accrual → Request → Approval → Balance Update → Payroll Input",
+    sourceUrl: null,
+  },
+  {
+    slug: "award-interpretation",
+    topic: "Award Interpretation",
+    parent: "time-and-attendance",
+    categories: ["Process", "Local-AU"],
+    definition:
+      "Applying award, agreement and policy rules to raw worked time to produce payable hours.",
+    workflow:
+      "Raw Time → Rule Set Applied → Overtime and Penalties → Allowances → Payable Hours",
+    sourceUrl: null,
+  },
+  {
+    slug: "talent-acquisition",
+    topic: "Talent Acquisition",
+    parent: "human-capital-management",
+    categories: ["Component", "Process"],
+    definition: "Attracting, assessing and hiring people into approved positions.",
+    workflow:
+      "Vacancy Approval → Sourcing → Screening → Interview → Offer → Acceptance",
+    sourceUrl: null,
+  },
+  {
+    slug: "performance-management",
+    topic: "Performance Management",
+    parent: "human-capital-management",
+    categories: ["Component", "Process"],
+    definition: "Setting expectations, reviewing delivery and acting on the outcome.",
+    workflow:
+      "Goal Setting → Check-ins → Review → Calibration → Outcome and Development Plan",
+    sourceUrl: null,
+  },
+  {
+    slug: "learning-and-development",
+    topic: "Learning and Development",
+    parent: "human-capital-management",
+    categories: ["Component", "Process"],
+    definition:
+      "Assigning, delivering and evidencing training, including mandatory compliance training.",
+    workflow:
+      "Needs Analysis → Curriculum Assignment → Delivery → Completion Evidence → Compliance Reporting",
+    sourceUrl: null,
+  },
+  {
+    slug: "workforce-analytics",
+    topic: "Workforce Analytics",
+    parent: "human-capital-management",
+    categories: ["Component", "Process"],
+    definition:
+      "Headcount, turnover, cost and capability reporting drawn from the HR system of record.",
+    workflow:
+      "Data Consolidation → Measure Definition → Reporting → Workforce Planning",
     sourceUrl: null,
   },
 

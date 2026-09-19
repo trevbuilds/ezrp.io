@@ -27,6 +27,8 @@ export type Flow = {
   lanes: FlowLane[];
 };
 
+import { hcmFlows } from "./flows-hcm";
+
 const apAutomationFlow: Flow = {
   slug: "ap-automation",
   title: "ERP → Finance → AP → and beyond",
@@ -129,6 +131,6 @@ const apAutomationFlow: Flow = {
   ],
 };
 
-export const flows: Flow[] = [apAutomationFlow];
+export const flows: Flow[] = [apAutomationFlow, ...hcmFlows];
 
 export const flowBySlug = new Map(flows.map((f) => [f.slug, f]));
