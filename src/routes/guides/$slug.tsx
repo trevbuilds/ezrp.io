@@ -1,6 +1,10 @@
 import { createFileRoute, Link, notFound } from "@tanstack/react-router";
 
+import { ArticleBody } from "@/components/ArticleBody";
+import { EndToEndFlow } from "@/components/EndToEndFlow";
 import { SiteShell } from "@/components/SiteShell";
+import { articleBySlug } from "@/content/articles";
+import { flowBySlug } from "@/content/flows";
 import {
   ancestorsOf,
   childrenOf,
