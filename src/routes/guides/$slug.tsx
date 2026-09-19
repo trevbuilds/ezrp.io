@@ -86,8 +86,10 @@ function GuidePage() {
           </div>
         )}
 
-        {guide.definition ? (
-          <p className="mt-5 text-lg text-muted-foreground">{guide.definition}</p>
+        {guide.definition ?? article ? (
+          <p className="mt-5 text-lg text-muted-foreground">
+            {guide.definition ?? article?.intro}
+          </p>
         ) : (
           <p className="mt-5 text-sm text-muted-foreground">
             No written definition recorded for this topic yet — the map position and links
@@ -110,6 +112,10 @@ function GuidePage() {
             </ol>
           </section>
         )}
+
+        {flow && <EndToEndFlow flow={flow} />}
+
+        {article && <ArticleBody article={article} />}
 
         {kids.length > 0 && (
           <section className="mt-8">
