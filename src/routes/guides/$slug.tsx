@@ -24,6 +24,7 @@ export const Route = createFileRoute("/guides/$slug")({
     const title = guide ? `${guide.topic} — EZRP guide` : "Guide — EZRP";
     const description =
       guide?.definition ??
+      (guide ? articleBySlug.get(guide.slug)?.intro : undefined) ??
       (guide
         ? `Where ${guide.topic} sits in the EZRP delivery map, plus its recorded workflow and related guides.`
         : "EZRP guide");
