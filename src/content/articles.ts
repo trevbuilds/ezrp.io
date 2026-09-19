@@ -21,6 +21,8 @@ export type Article = {
   blocks: ArticleBlock[];
 };
 
+import { hcmArticles } from "./articles-hcm";
+
 const apAutomation: Article = {
   slug: "ap-automation",
   intro:

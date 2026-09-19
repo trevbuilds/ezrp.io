@@ -90,8 +90,10 @@ const raw: Array<Omit<Guide, "workflow"> & { workflow?: string | null }> = [
     topic: "Human Capital Management",
     parent: null,
     categories: ["Concept", "Module"],
-    definition: null,
-    workflow: null,
+    definition:
+      "Core employee records, payroll, time and attendance, talent, learning, benefits and compliance.",
+    workflow:
+      "Hire → Employee Record → Pay and Entitlements → Time and Attendance → Performance and Development → Exit",
     sourceUrl: null,
   },
   {
