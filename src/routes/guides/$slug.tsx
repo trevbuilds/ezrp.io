@@ -1,6 +1,10 @@
 import { createFileRoute, Link, notFound } from "@tanstack/react-router";
 
+import { ArticleBody } from "@/components/ArticleBody";
+import { EndToEndFlow } from "@/components/EndToEndFlow";
 import { SiteShell } from "@/components/SiteShell";
+import { articleBySlug } from "@/content/articles";
+import { flowBySlug } from "@/content/flows";
 import {
   ancestorsOf,
   childrenOf,
@@ -20,6 +24,7 @@ export const Route = createFileRoute("/guides/$slug")({
     const title = guide ? `${guide.topic} — EZRP guide` : "Guide — EZRP";
     const description =
       guide?.definition ??
+      (guide ? articleBySlug.get(guide.slug)?.intro : undefined) ??
       (guide
         ? `Where ${guide.topic} sits in the EZRP delivery map, plus its recorded workflow and related guides.`
         : "EZRP guide");
@@ -45,6 +50,8 @@ function GuidePage() {
   const siblings = guide.parent
     ? childrenOf(guide.parent).filter((g) => g.slug !== guide.slug)
     : [];
+  const article = articleBySlug.get(guide.slug);
+  const flow = flowBySlug.get(guide.slug);
 
   return (
     <SiteShell>
@@ -82,8 +89,10 @@ function GuidePage() {
           </div>
         )}
 
-        {guide.definition ? (
-          <p className="mt-5 text-lg text-muted-foreground">{guide.definition}</p>
+        {(guide.definition ?? article) ? (
+          <p className="mt-5 text-lg text-muted-foreground">
+            {guide.definition ?? article?.intro}
+          </p>
         ) : (
           <p className="mt-5 text-sm text-muted-foreground">
             No written definition recorded for this topic yet — the map position and links
@@ -106,6 +115,10 @@ function GuidePage() {
             </ol>
           </section>
         )}
+
+        {flow && <EndToEndFlow flow={flow} />}
+
+        {article && <ArticleBody article={article} />}
 
         {kids.length > 0 && (
           <section className="mt-8">
