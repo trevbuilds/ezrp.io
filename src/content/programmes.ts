@@ -107,9 +107,9 @@ export type Programme = {
 
 export const programmes: Programme[] = [
   {
-    slug: "yvw-finance-core",
+    slug: "water-utility-finance-core",
     name: "Replacing the legacy finance core",
-    organisation: "Yarra Valley Water",
+    organisation: "A Victorian water corporation",
     summary:
       "A water utility replacing its legacy finance system as the first step into an ERP — mapped against the model, with the parts it cannot change alone made explicit.",
     industry: "Utilities & Water",
@@ -117,7 +117,7 @@ export const programmes: Programme[] = [
     size: "200–2,000",
     country: "Australia",
     provenance:
-      "A worked plan, not a status report. It is built from the publicly known shape of a Victorian water corporation — economic regulation, the Financial Management Act, the capital programme — and from this library's model. It contains no internal information, and every derived section is computed from the same model the rest of the site runs on.",
+      "A composite, not a client. It is built from the publicly known shape of the sector — economic regulation, the Financial Management Act, a capital programme that dominates the spend — and from this library's model. No organisation is described, and every derived section is computed from the same model the rest of the site runs on.",
 
     situation: [
       "The finance core is the oldest system in the estate and the one everything else posts to. It holds the general ledger, payables, receivables control, cash and the fixed asset register, and it has been extended over enough years that nobody can now state its customisations without going to look.",
