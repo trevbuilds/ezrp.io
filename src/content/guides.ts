@@ -3,6 +3,12 @@
  *
  * Every field here mirrors the source record. Where the source has no
  * definition, workflow or URL, the field is null — never invented.
+ *
+ * The one exception is `workflow`, which is being re-modelled against
+ * published value streams (Lead-to-Cash, Issue-to-Resolution, and so on)
+ * rather than the ad-hoc sequence a wiki record happened to carry. Every
+ * such departure is marked with a comment naming the stream and the reason.
+ * Definitions are still never invented.
  */
 
 export type GuideCategory =
@@ -341,8 +347,11 @@ const raw: Array<Omit<Guide, "workflow"> & { workflow?: string | null }> = [
     parent: "customer-relationship-management",
     categories: ["Component", "Process"],
     definition: "Managing customer service operations.",
+    // Value stream: Issue-to-Resolution, taken from this topic's own wiki body.
+    // The wiki's Workflow field had the Sales Force Automation sequence
+    // duplicated onto it; support starts at a case, not a lead.
     workflow:
-      "Lead Capture → Lead Assignment → Opportunity Management → Order Closure",
+      "Inquiry Initiation → Ticket Generation → Assignment and Notification → Issue Resolution → Follow-up and Feedback",
     sourceUrl: null,
   },
   {
@@ -351,8 +360,11 @@ const raw: Array<Omit<Guide, "workflow"> & { workflow?: string | null }> = [
     parent: "customer-relationship-management",
     categories: ["Component", "Process"],
     definition: "Managing field service operations.",
+    // Issue-to-Resolution, on-site. Extended to billing per the wiki body:
+    // confirming the job is not the end of the stream, capturing the
+    // parts and labour that make it billable is.
     workflow:
-      "Service Request Receipt → Technician Dispatch → Service Provision → Service Confirmation",
+      "Service Request Creation → Service Order Management → Dispatching → Service Execution → Billing and Payment",
     sourceUrl: null,
   },
 
