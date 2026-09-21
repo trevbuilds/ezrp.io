@@ -290,34 +290,43 @@ function GuideLibrary() {
                     All concerns
                   </button>
                 </li>
-                {allConsiderations.map((concern) => {
-                  const localities = allScopes.filter((sc) =>
-                    guides.some(
-                      (g) => g.scope.includes(sc) && considerationsOf(g.slug).includes(concern),
-                    ),
-                  );
-                  return (
-                    <TreeBranch
-                      key={concern}
-                      id={`concern:${concern}`}
-                      label={concern}
-                      open={open}
-                      setOpen={setOpen}
-                      active={search.consideration === concern}
-                      onSelect={() => toggle("consideration", concern)}
-                    >
-                      {localities.map((sc) => (
-                        <TreeLeaf
-                          key={sc}
-                          label={sc}
-                          mono
-                          active={search.scope === sc && search.consideration === concern}
-                          onSelect={() => set({ consideration: concern, scope: sc })}
-                        />
-                      ))}
-                    </TreeBranch>
-                  );
-                })}
+                {allConsiderations.map((concern) => (
+                  <TreeLeaf
+                    key={concern}
+                    label={concern}
+                    size="sm"
+                    active={search.consideration === concern}
+                    onSelect={() => toggle("consideration", concern)}
+                  />
+                ))}
+              </ul>
+            </div>
+
+            <div>
+              <p className="label-xs">Applies</p>
+              <p className="mt-1 text-xs text-muted-foreground">
+                Where the guidance holds. Combines with any concern above.
+              </p>
+              <ul className="mt-3 space-y-0.5">
+                <li>
+                  <button
+                    onClick={() => set({ scope: undefined })}
+                    className={`py-0.5 text-sm transition hover:text-foreground ${
+                      search.scope ? "text-muted-foreground" : "font-semibold text-primary"
+                    }`}
+                  >
+                    Everywhere
+                  </button>
+                </li>
+                {allScopes.map((sc) => (
+                  <TreeLeaf
+                    key={sc}
+                    label={sc}
+                    mono
+                    active={search.scope === sc}
+                    onSelect={() => toggle("scope", sc)}
+                  />
+                ))}
               </ul>
             </div>
 
@@ -531,11 +540,13 @@ function TreeLeaf({
   active,
   onSelect,
   mono = false,
+  size = "xs",
 }: {
   label: string;
   active: boolean;
   onSelect: () => void;
   mono?: boolean;
+  size?: "xs" | "sm";
 }) {
   return (
     <li className="flex items-center gap-1">
@@ -543,7 +554,7 @@ function TreeLeaf({
       <button
         onClick={onSelect}
         className={`py-0.5 text-left transition hover:text-foreground ${
-          mono ? "font-mono text-[0.7rem] uppercase" : "text-xs"
+          mono ? "font-mono text-[0.7rem] uppercase" : size === "sm" ? "text-sm" : "text-xs"
         } ${active ? "font-semibold text-primary" : "text-muted-foreground"}`}
       >
         {label}

@@ -64,7 +64,15 @@ function StartPage() {
   const dial = industry ? dialUpFor(industry) : undefined;
   const size = search.size as OrgSize | undefined;
   const orgType = search.orgType as OrgType | undefined;
-  const country = search.country as Country | undefined;
+  const countries = parsePicks(search.country) as Country[];
+  const toggleCountry = (value: string) =>
+    set({
+      country: serialisePicks(
+        countries.includes(value as Country)
+          ? countries.filter((c) => c !== value)
+          : [...countries, value],
+      ),
+    });
 
   const raised = [
     ...new Set([
@@ -90,7 +98,7 @@ function StartPage() {
     ? dial.dominates.filter((slug) => changing.length > 0 && !changing.includes(slug))
     : [];
 
-  const answered = [industry, country, size, orgType].filter(Boolean).length;
+  const answered = [industry, size, orgType].filter(Boolean).length + countries.length;
 
   return (
     <SiteShell>
@@ -106,19 +114,35 @@ function StartPage() {
         </p>
 
         <div className="mt-8 space-y-6">
+          <div>
+            <div className="flex items-baseline gap-3">
+              <p className="label-xs">Where you operate</p>
+              <p className="text-xs text-muted-foreground">
+                Pick every country — each brings its own obligations
+              </p>
+            </div>
+            <div className="mt-2 flex flex-wrap gap-2">
+              {allCountries.map((option) => (
+                <button
+                  key={option}
+                  onClick={() => toggleCountry(option)}
+                  className={`rounded-full border px-3 py-1.5 text-sm transition ${
+                    countries.includes(option)
+                      ? "border-primary bg-primary text-primary-foreground"
+                      : "border-border text-muted-foreground hover:border-primary hover:text-foreground"
+                  }`}
+                >
+                  {option}
+                </button>
+              ))}
+            </div>
+          </div>
           <Question
             label="Industry"
             hint="Which sector's dial-ups apply"
             options={allIndustries}
             value={search.industry}
             onPick={(v) => set({ industry: v })}
-          />
-          <Question
-            label="Where you operate"
-            hint="Drives the statutory obligations"
-            options={allCountries}
-            value={search.country}
-            onPick={(v) => set({ country: v })}
           />
           <Question
             label="Size"
@@ -244,12 +268,26 @@ function StartPage() {
             </section>
           )}
 
-        {(size || orgType || country) && (
+        {(size || orgType || countries.length > 0) && (
           <section className="mt-6 space-y-3">
             <p className="label-xs">What your context adds</p>
             {size && <Modifier title={size} note={sizeModifier[size].note} />}
             {orgType && <Modifier title={orgType} note={orgTypeModifier[orgType].note} />}
-            {country && <Modifier title={country} note={countryModifier[country].note} />}
+            {countries.map((c) => (
+              <Modifier key={c} title={c} note={countryModifier[c].note} />
+            ))}
+            {countries.length > 1 && (
+              <div className="panel rounded-lg border-l-2 border-primary p-4">
+                <p className="font-display text-sm font-semibold">
+                  Operating in {countries.length} countries
+                </p>
+                <p className="mt-1 max-w-3xl text-sm text-muted-foreground">
+                  Multi-country means the standardise-versus-localise decision is unavoidable: one
+                  chart of accounts and one payroll model, or one per jurisdiction. Statutory
+                  reporting and payroll are the two that rarely standardise.
+                </p>
+              </div>
+            )}
           </section>
         )}
 
@@ -287,7 +325,7 @@ function StartPage() {
               >
                 Scope {scopePicks.length} {scopePicks.length === 1 ? "module" : "modules"} →
               </Link>
-              {country === "Australia" && (
+              {countries.includes("Australia") && (
                 <Link
                   to="/guides"
                   search={{ scope: "Local-AU" }}
