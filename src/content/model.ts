@@ -87,7 +87,7 @@ export const allScopes: Scope[] = ["Local-AU", "Common", "Global"];
 
 export type Band =
   | "Finance"
-  | "People"
+  | "People/HCM"
   | "Customer & Revenue"
   | "Operations"
   | "Assets"
@@ -96,7 +96,7 @@ export type Band =
 
 export const allBands: Band[] = [
   "Finance",
-  "People",
+  "People/HCM",
   "Customer & Revenue",
   "Operations",
   "Assets",
@@ -109,7 +109,9 @@ export const bandByModule: Record<string, Band> = {
   // Finance and People are separate functions, as are Operations and Assets.
   // This differs from the field guide, which combines each pair.
   "financial-accounting": "Finance",
-  "human-capital-management": "People",
+  // "People/HCM" rather than "People": the band would otherwise collide with
+  // the People consideration, which is a different axis entirely.
+  "human-capital-management": "People/HCM",
 
   "customer-relationship-management": "Customer & Revenue",
   "supply-chain-management": "Customer & Revenue",
