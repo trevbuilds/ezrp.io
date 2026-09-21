@@ -201,95 +201,156 @@ function GuideLibrary() {
         )}
 
         <div className="mt-8 grid gap-8 lg:grid-cols-[15rem_1fr]">
-          {/* Wiki-style contents tree */}
-          <nav className="lg:sticky lg:top-6 lg:self-start">
-            <p className="label-xs">Contents</p>
-            <ul className="mt-3 space-y-1">
-              <li>
-                <button
-                  onClick={() => set({ module: undefined })}
-                  className={`text-sm transition hover:text-foreground ${
-                    search.module ? "text-muted-foreground" : "font-semibold text-primary"
-                  }`}
-                >
-                  All areas
-                </button>
-              </li>
-              {pillars.map((p) => {
-                const open = search.module
-                  ? p.slug === search.module || inBranch(activeModule ?? p, p.slug)
-                  : false;
-                return (
-                  <li key={p.slug}>
-                    <button
-                      onClick={() => toggle("module", p.slug)}
-                      className={`text-left text-sm transition hover:text-foreground ${
-                        search.module === p.slug
-                          ? "font-semibold text-primary"
-                          : "text-muted-foreground"
-                      }`}
-                    >
-                      {p.topic}
-                    </button>
-                    {open && childrenOf(p.slug).length > 0 && (
-                      <ul className="mt-1 space-y-1 border-l border-border pl-3">
-                        {childrenOf(p.slug).map((c) => (
-                          <li key={c.slug}>
-                            <button
-                              onClick={() => toggle("module", c.slug)}
-                              className={`text-left text-xs transition hover:text-foreground ${
-                                search.module === c.slug
-                                  ? "font-semibold text-primary"
-                                  : "text-muted-foreground"
-                              }`}
-                            >
-                              {c.topic}
-                            </button>
-                          </li>
-                        ))}
-                      </ul>
-                    )}
-                  </li>
-                );
-              })}
-            </ul>
+          {/*
+            Two trees, kept apart. The ERP is a structure you navigate down:
+            band, module, sub-module. The considerations are guidance that cuts
+            across all of it, with the localities each one applies in nested
+            underneath. Mixing them into one list was the garble.
+          */}
+          <nav className="space-y-7 lg:sticky lg:top-6 lg:self-start">
+            <div>
+              <p className="label-xs">ERP Modules</p>
+              <ul className="mt-3 space-y-1">
+                <li>
+                  <button
+                    onClick={() => set({ module: undefined, domain: undefined })}
+                    className={`text-sm transition hover:text-foreground ${
+                      search.module || search.domain
+                        ? "text-muted-foreground"
+                        : "font-semibold text-primary"
+                    }`}
+                  >
+                    All areas
+                  </button>
+                </li>
+                {liveDomains.map((band) => {
+                  const modules = pillars.filter((p) => p.domain === band);
+                  const bandOpen =
+                    search.domain === band ||
+                    modules.some(
+                      (m) => inBranch(activeModule ?? m, m.slug) && Boolean(search.module),
+                    );
+                  return (
+                    <li key={band} className="pt-1.5">
+                      <button
+                        onClick={() => toggle("domain", band)}
+                        className={`text-left font-display text-sm transition hover:text-foreground ${
+                          search.domain === band ? "font-semibold text-primary" : "text-foreground"
+                        }`}
+                      >
+                        {band}
+                      </button>
+                      {modules.length > 0 && (
+                        <ul className="mt-1 space-y-1 border-l border-border pl-3">
+                          {modules.map((m) => {
+                            const open =
+                              Boolean(search.module) &&
+                              (m.slug === search.module || inBranch(activeModule ?? m, m.slug));
+                            return (
+                              <li key={m.slug}>
+                                <button
+                                  onClick={() => toggle("module", m.slug)}
+                                  className={`text-left text-sm transition hover:text-foreground ${
+                                    search.module === m.slug
+                                      ? "font-semibold text-primary"
+                                      : "text-muted-foreground"
+                                  }`}
+                                >
+                                  {m.topic}
+                                </button>
+                                {(open || bandOpen) && childrenOf(m.slug).length > 0 && (
+                                  <ul className="mt-1 space-y-1 border-l border-border pl-3">
+                                    {childrenOf(m.slug).map((c) => (
+                                      <li key={c.slug}>
+                                        <button
+                                          onClick={() => toggle("module", c.slug)}
+                                          className={`text-left text-xs transition hover:text-foreground ${
+                                            search.module === c.slug
+                                              ? "font-semibold text-primary"
+                                              : "text-muted-foreground"
+                                          }`}
+                                        >
+                                          {c.topic}
+                                        </button>
+                                      </li>
+                                    ))}
+                                  </ul>
+                                )}
+                              </li>
+                            );
+                          })}
+                        </ul>
+                      )}
+                    </li>
+                  );
+                })}
+              </ul>
+            </div>
+
+            <div>
+              <p className="label-xs">Considerations</p>
+              <ul className="mt-3 space-y-1">
+                <li>
+                  <button
+                    onClick={() => set({ consideration: undefined, scope: undefined })}
+                    className={`text-sm transition hover:text-foreground ${
+                      search.consideration ? "text-muted-foreground" : "font-semibold text-primary"
+                    }`}
+                  >
+                    All concerns
+                  </button>
+                </li>
+                {allConsiderations.map((concern) => {
+                  const localities = allScopes.filter((sc) =>
+                    guides.some(
+                      (g) => g.scope.includes(sc) && considerationsOf(g.slug).includes(concern),
+                    ),
+                  );
+                  return (
+                    <li key={concern}>
+                      <button
+                        onClick={() => toggle("consideration", concern)}
+                        className={`text-left text-sm transition hover:text-foreground ${
+                          search.consideration === concern
+                            ? "font-semibold text-primary"
+                            : "text-muted-foreground"
+                        }`}
+                      >
+                        {concern}
+                      </button>
+                      {search.consideration === concern && localities.length > 0 && (
+                        <ul className="mt-1 space-y-1 border-l border-border pl-3">
+                          {localities.map((sc) => (
+                            <li key={sc}>
+                              <button
+                                onClick={() => toggle("scope", sc)}
+                                className={`text-left font-mono text-[0.7rem] uppercase transition hover:text-foreground ${
+                                  search.scope === sc
+                                    ? "font-semibold text-primary"
+                                    : "text-muted-foreground"
+                                }`}
+                              >
+                                {sc}
+                              </button>
+                            </li>
+                          ))}
+                        </ul>
+                      )}
+                    </li>
+                  );
+                })}
+              </ul>
+            </div>
           </nav>
 
           <div>
             <div className="space-y-3">
-              <div className="flex flex-wrap items-center gap-2">
-                <span className="label-xs w-24 shrink-0">Domain</span>
-                {liveDomains.map((d) => (
-                  <Chip key={d} active={search.domain === d} onClick={() => toggle("domain", d)}>
-                    {d}
-                  </Chip>
-                ))}
-              </div>
+              {/* The flow axis: the nav carries structure, this carries streams. */}
               <div className="flex flex-wrap items-center gap-2">
                 <span className="label-xs w-24 shrink-0">Value stream</span>
-                {streamChips.map((s) => (
-                  <Chip key={s} active={search.stream === s} onClick={() => toggle("stream", s)}>
-                    {s}
-                  </Chip>
-                ))}
-              </div>
-              <div className="flex flex-wrap items-center gap-2">
-                <span className="label-xs w-24 shrink-0">Concern</span>
-                {allConsiderations.map((c) => (
-                  <Chip
-                    key={c}
-                    active={search.consideration === c}
-                    onClick={() => toggle("consideration", c)}
-                  >
-                    {c}
-                  </Chip>
-                ))}
-              </div>
-              <div className="flex flex-wrap items-center gap-2">
-                <span className="label-xs w-24 shrink-0">Applies</span>
-                {allScopes.map((sc) => (
-                  <Chip key={sc} active={search.scope === sc} onClick={() => toggle("scope", sc)}>
-                    {sc}
+                {streamChips.map((st) => (
+                  <Chip key={st} active={search.stream === st} onClick={() => toggle("stream", st)}>
+                    {st}
                   </Chip>
                 ))}
               </div>
