@@ -153,6 +153,39 @@ function ScopePage() {
           </div>
         </section>
 
+        {scope.integrations.length > 0 && (
+          <section className="mt-8">
+            <p className="label-xs">Integration points</p>
+            <p className="mt-1 max-w-2xl text-xs text-muted-foreground">
+              Every module boundary a stream crosses is an interface. The ones marked straddle your
+              scope — you are changing one side and not the other, which is the interface most often
+              missed at scoping and found during testing.
+            </p>
+            <div className="mt-3 space-y-2">
+              {scope.integrations.map((point, index) => (
+                <div
+                  key={`${point.stream.slug}-${index}`}
+                  className={`panel rounded-lg p-3 ${point.straddles ? "border-l-2 border-primary" : ""}`}
+                >
+                  <div className="flex flex-wrap items-baseline justify-between gap-2">
+                    <p className="font-mono text-xs">
+                      <span className="text-foreground">{moduleLabel(point.from)}</span>
+                      <span className="mx-2 text-primary">→</span>
+                      <span className="text-foreground">{moduleLabel(point.to)}</span>
+                    </p>
+                    <p className="text-xs text-muted-foreground">{point.stream.name}</p>
+                  </div>
+                  {point.straddles && (
+                    <p className="mt-1 text-xs text-primary">
+                      One side of this is outside your scope
+                    </p>
+                  )}
+                </div>
+              ))}
+            </div>
+          </section>
+        )}
+
         {scope.phases.length > 0 && (
           <section className="mt-8">
             <p className="label-xs">The order to do it in</p>

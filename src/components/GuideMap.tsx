@@ -250,7 +250,9 @@ function pathFrom(ax: number, ay: number, bx: number, by: number, cross: boolean
 export function GuideMap() {
   const { nodes, links } = useLayout();
   const [active, setActive] = useState<string | null>(null);
-  const [zoom, setZoom] = useState(0.86);
+  // Start fitted rather than zoomed in: on a phone the whole map has to be
+  // visible before any of it is worth touching.
+  const [zoom, setZoom] = useState(1);
   const [reducedMotion, setReducedMotion] = useState(false);
 
   // Stable index order for the simulation. "core" is index 0 and never moves.
@@ -623,7 +625,7 @@ export function GuideMap() {
             <i className="border border-primary" /> Shared concern
           </span>
         </div>
-        <div className="guide-brain__stage h-[38rem] cursor-grab active:cursor-grabbing md:h-[48rem]">
+        <div className="guide-brain__stage aspect-[604/424] max-h-[80vh] w-full cursor-grab active:cursor-grabbing md:aspect-auto md:h-[48rem]">
           <motion.div drag dragMomentum={false} className="size-full">
             <svg
               ref={svgRef}
@@ -811,7 +813,7 @@ export function GuideMap() {
         >
           <Minus />
         </Button>
-        <Button variant="outline" size="icon" onClick={() => setZoom(0.86)} aria-label="Reset zoom">
+        <Button variant="outline" size="icon" onClick={() => setZoom(1)} aria-label="Reset zoom">
           <Crosshair />
         </Button>
       </div>

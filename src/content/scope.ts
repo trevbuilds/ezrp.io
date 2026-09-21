@@ -57,6 +57,21 @@ export type ScopeResult = {
   phases: SubModule[][];
   /** Prerequisites the scope relies on but does not include. */
   prerequisites: SubModule[];
+  /** Hand-offs between modules that a stream forces. */
+  integrations: IntegrationPoint[];
+};
+
+/**
+ * An integration point is not a technical preference — it is a place where a
+ * stream hands work from one module to another, so data has to cross a system
+ * boundary whether anyone planned for it or not.
+ */
+export type IntegrationPoint = {
+  stream: Stream;
+  from: string;
+  to: string;
+  /** True when only one side of the hand-off is in the client's scope. */
+  straddles: boolean;
 };
 
 /** The L1 stream a stream belongs to — itself, when it is already L1. */
@@ -124,6 +139,23 @@ export function computeScope(slugs: string[]): ScopeResult {
   const phases = phaseSubModules(subModuleSlugs);
   const prerequisites = externalPrerequisites(subModuleSlugs);
 
+  // Every module boundary a stream crosses is an integration point. Where the
+  // client is changing only one side of it, that is the interface most likely
+  // to be missed at scoping and discovered during testing.
+  const integrations: IntegrationPoint[] = streams
+    .filter((stream) => stream.modules.length > 1)
+    .flatMap((stream) =>
+      stream.modules.slice(0, -1).map((from, index) => {
+        const to = stream.modules[index + 1] as string;
+        return {
+          stream,
+          from,
+          to,
+          straddles: pickedModules.includes(from) !== pickedModules.includes(to),
+        };
+      }),
+    );
+
   const considerations = unique(topics.flatMap((guide) => considerationsOf(guide.slug)));
   const localAu = topics.filter((guide) => guide.scope.includes("Local-AU"));
 
@@ -143,6 +175,7 @@ export function computeScope(slugs: string[]): ScopeResult {
     localAu,
     phases,
     prerequisites,
+    integrations,
   };
 }
 

@@ -96,6 +96,7 @@ function GuideLibrary() {
   // Expansion is independent of filtering: a branch can be opened to look
   // inside without narrowing the results to it.
   const [open, setOpen] = useState<Set<string>>(new Set());
+  const [navOpen, setNavOpen] = useState(false);
 
   const picks = parsePicks(search.pick);
   const pickedSet = useMemo(() => new Set(picks), [picks]);
@@ -172,7 +173,7 @@ function GuideLibrary() {
         />
 
         {picks.length > 0 && (
-          <div className="panel mt-4 flex flex-wrap items-center gap-2 rounded-lg p-3">
+          <div className="panel sticky top-16 z-30 mt-4 flex flex-wrap items-center gap-2 rounded-lg border border-primary/40 p-3 shadow-lg backdrop-blur">
             <span className="label-xs mr-1">Scope</span>
             {picks.map((slug) => (
               <span
@@ -206,6 +207,15 @@ function GuideLibrary() {
         )}
 
         <div className="mt-8 grid gap-8 lg:grid-cols-[15rem_1fr]">
+          {/* On a phone the tree would push every result below the fold. */}
+          <button
+            onClick={() => setNavOpen((v) => !v)}
+            aria-expanded={navOpen}
+            className="flex items-center justify-between rounded border border-border px-3 py-2 text-sm text-muted-foreground transition hover:text-foreground lg:hidden"
+          >
+            <span>Browse by module, concern or locality</span>
+            <ChevronRight className={`size-4 transition-transform ${navOpen ? "rotate-90" : ""}`} />
+          </button>
           {/*
             Two trees, kept apart, both with their own expand toggles so a
             branch can be opened to look inside without filtering to it — the
@@ -215,7 +225,9 @@ function GuideLibrary() {
             governance, cutover, change adoption — is how a programme is run,
             so it sits with the guidance rather than among the modules.
           */}
-          <nav className="space-y-7 lg:sticky lg:top-6 lg:max-h-[calc(100vh-3rem)] lg:self-start lg:overflow-y-auto">
+          <nav
+            className={`space-y-7 ${navOpen ? "" : "hidden lg:block"} lg:sticky lg:top-6 lg:max-h-[calc(100vh-3rem)] lg:self-start lg:overflow-y-auto`}
+          >
             <div>
               <div className="flex items-baseline justify-between gap-2">
                 <p className="label-xs">ERP Modules</p>
