@@ -187,6 +187,34 @@ export function GuideMap() {
     [indexedLinks],
   );
 
+  /**
+   * Idle firing. The brain lights a rotating subset rather than every link at
+   * once, keeping roughly half of the previous set so activity reads as
+   * continuous rather than as a blink.
+   */
+  const [idleLit, setIdleLit] = useState<number[]>([]);
+  useEffect(() => {
+    if (reducedMotion || signalLinks.length === 0) {
+      setIdleLit([]);
+      return;
+    }
+    const previous = new Set<number>();
+    const pick = () => {
+      const count = 6 + Math.floor(Math.random() * 6);
+      const picked = new Set<number>(
+        [...previous].sort(() => Math.random() - 0.5).slice(0, Math.floor(previous.size * 0.55)),
+      );
+      while (picked.size < count) picked.add(Math.floor(Math.random() * signalLinks.length));
+      previous.clear();
+      picked.forEach((index) => previous.add(index));
+      setIdleLit([...picked]);
+    };
+    pick();
+    const timer = window.setInterval(pick, 5200);
+    return () => window.clearInterval(timer);
+  }, [signalLinks, reducedMotion]);
+  const idleLitSet = useMemo(() => new Set(idleLit), [idleLit]);
+
   const positionsRef = useRef<Motion[]>([]);
   const anchorsRef = useRef<Array<{ x: number; y: number }>>([]);
   const nodeRefs = useRef<Array<SVGGElement | null>>([]);
@@ -444,7 +472,15 @@ export function GuideMap() {
                       link.cross,
                     )}
                     pathLength="1"
-                    className={active ? (isRelatedLink(link) ? "is-active" : "") : "is-idle"}
+                    className={
+                      active
+                        ? isRelatedLink(link)
+                          ? "is-active"
+                          : ""
+                        : idleLitSet.has(index)
+                          ? "is-idle"
+                          : ""
+                    }
                     style={{ animationDelay: `${index * -0.37}s` }}
                   />
                 ))}
@@ -462,8 +498,25 @@ export function GuideMap() {
               <g className="guide-brain__nodes">
                 {nodeList.map((node, index) => {
                   if (node.id === "core") return null;
-                  const muted = active !== null && !related.has(node.id);
-                  const className = `${node.kind === "domain" ? "tier-1" : node.kind === "stream" ? "tier-2" : node.kind === "cross" ? "cross-cutting" : "tier-3"} ${active === node.id ? "is-active" : muted ? "is-muted" : ""}`;
+                  const inNetwork = active !== null && related.has(node.id);
+                  const muted = active !== null && !inNetwork;
+                  const tier =
+                    node.kind === "domain"
+                      ? "tier-1"
+                      : node.kind === "stream"
+                        ? "tier-2"
+                        : node.kind === "cross"
+                          ? "cross-cutting"
+                          : "tier-3";
+                  const state =
+                    active === node.id
+                      ? "is-active"
+                      : muted
+                        ? "is-muted"
+                        : inNetwork
+                          ? "is-related"
+                          : "";
+                  const className = `${tier} ${state}`;
                   const handlers = {
                     onMouseEnter: () => setActive(node.id),
                     onFocus: () => setActive(node.id),

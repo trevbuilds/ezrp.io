@@ -121,14 +121,22 @@
 .guide-brain {
   position: relative;
   background:
-    radial-gradient(circle at 50% 50%, color-mix(in oklab, var(--accent) 7%, transparent), transparent 34%),
+    radial-gradient(
+      circle at 50% 50%,
+      color-mix(in oklab, var(--accent) 7%, transparent),
+      transparent 34%
+    ),
     color-mix(in oklab, var(--surface) 82%, transparent);
 }
 
 .guide-brain::after {
   position: absolute;
   inset: 0;
-  background: radial-gradient(circle at center, transparent 48%, color-mix(in oklab, var(--background) 72%, transparent));
+  background: radial-gradient(
+    circle at center,
+    transparent 48%,
+    color-mix(in oklab, var(--background) 72%, transparent)
+  );
   content: "";
   pointer-events: none;
 }
@@ -164,7 +172,10 @@
   stroke: var(--foreground);
   stroke-width: 0.75;
   stroke-opacity: 0.1;
-  transition: stroke 360ms ease, stroke-opacity 360ms ease, stroke-width 360ms ease;
+  transition:
+    stroke 360ms ease,
+    stroke-opacity 360ms ease,
+    stroke-width 360ms ease;
 }
 
 .guide-brain__links path.is-active {
@@ -255,7 +266,10 @@
 .guide-brain__nodes .visible {
   fill: var(--foreground);
   opacity: 0.34;
-  transition: fill 320ms ease, opacity 320ms ease, filter 320ms ease;
+  transition:
+    fill 320ms ease,
+    opacity 320ms ease,
+    filter 320ms ease;
 }
 
 .guide-brain__nodes .orbit {
@@ -322,7 +336,9 @@
   stroke: var(--background);
   stroke-linejoin: round;
   stroke-width: 5px;
-  transition: fill 320ms ease, opacity 320ms ease;
+  transition:
+    fill 320ms ease,
+    opacity 320ms ease;
 }
 
 .guide-brain .tier-1 .node-label {
@@ -353,6 +369,23 @@
 .guide-brain__nodes g:focus-visible .node-label {
   fill: var(--primary);
   opacity: 1;
+}
+
+/*
+ * Contextual labels. At rest only bands and shared concerns are labelled;
+ * stream and guide labels surface when their part of the network is active,
+ * which is what keeps 100+ nodes readable.
+ */
+.guide-brain__nodes g.is-related .node-label {
+  opacity: 0.78;
+}
+
+.guide-brain__nodes .tier-3.is-related .node-label {
+  opacity: 0.72;
+}
+
+.guide-brain__nodes .tier-2.is-related .node-label {
+  opacity: 0.9;
 }
 
 .guide-brain__nodes g.is-muted .node-label {
