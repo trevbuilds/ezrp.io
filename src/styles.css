@@ -284,6 +284,29 @@
   opacity: 0.78;
 }
 
+.guide-brain__nodes .tier-2b .visible {
+  fill: var(--tier-2);
+  opacity: 0.58;
+}
+
+.guide-brain .tier-2b .node-label {
+  font-size: 11px;
+  opacity: 0;
+}
+
+.guide-brain__nodes .tier-2b.is-related .node-label {
+  opacity: 0.82;
+}
+
+.guide-brain__nodes g.is-dragging {
+  cursor: grabbing;
+}
+
+.guide-brain__nodes g.is-dragging .visible {
+  fill: var(--primary);
+  opacity: 1;
+}
+
 .guide-brain__nodes .tier-2 .visible {
   fill: var(--accent);
   opacity: 0.5;
