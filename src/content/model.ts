@@ -47,33 +47,43 @@ export type Band =
   | "Finance"
   | "People"
   | "Customer & Revenue"
-  | "Operations & Assets"
-  | "Programmes, Projects & Data";
+  | "Operations"
+  | "Assets"
+  | "Programmes & Projects"
+  | "Data & Technology";
 
 export const allBands: Band[] = [
   "Finance",
   "People",
   "Customer & Revenue",
-  "Operations & Assets",
-  "Programmes, Projects & Data",
+  "Operations",
+  "Assets",
+  "Programmes & Projects",
+  "Data & Technology",
 ];
 
 /** Module slug → band. The twelve modules of the ERP Field Guide. */
 export const bandByModule: Record<string, Band> = {
-  // Finance and People are separate functions and stay separate at the top
-  // level, which differs from the field guide's combined "Finance & People".
+  // Finance and People are separate functions, as are Operations and Assets.
+  // This differs from the field guide, which combines each pair.
   "financial-accounting": "Finance",
   "human-capital-management": "People",
+
   "customer-relationship-management": "Customer & Revenue",
   "supply-chain-management": "Customer & Revenue",
-  manufacturing: "Operations & Assets",
-  "enterprise-asset-management": "Operations & Assets",
-  "project-management": "Programmes, Projects & Data",
-  "data-services": "Programmes, Projects & Data",
-  integration: "Programmes, Projects & Data",
-  security: "Programmes, Projects & Data",
-  pmo: "Programmes, Projects & Data",
-  "change-people-and-adoption": "Programmes, Projects & Data",
+
+  manufacturing: "Operations",
+  "enterprise-asset-management": "Assets",
+
+  // How change gets delivered, rather than what it changes.
+  "project-management": "Programmes & Projects",
+  pmo: "Programmes & Projects",
+  "change-people-and-adoption": "Programmes & Projects",
+
+  // The technical substrate every other band depends on.
+  "data-services": "Data & Technology",
+  integration: "Data & Technology",
+  security: "Data & Technology",
 };
 
 /**
