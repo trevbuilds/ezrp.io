@@ -11,6 +11,8 @@
  * Definitions are still never invented.
  */
 
+import { allBands, bandByModule, type Band } from "./model";
+
 export type GuideCategory =
   | "Concept"
   | "Module"
@@ -37,29 +39,11 @@ export type Guide = {
 };
 
 /**
- * The layer above value stream: the band a module belongs to, taken from the
- * EZRP ERP Field Guide, which groups the twelve modules into four bands.
- * Band is derived from the module a topic sits under, not from its stream —
- * a module owns several streams, so the stream cannot determine the band.
+ * Bands and the module→band map live in ./model, which holds the structural
+ * model (Band → Module → Sub-module → Component crossed with the stream
+ * hierarchy). Re-exported here so existing imports keep working.
  */
-export type BusinessDomain =
-  "Finance & People" | "Customer & Revenue" | "Operations & Assets" | "Programmes, Projects & Data";
-
-/** Module slug -> band. The twelve modules of the field guide. */
-const bandByModule: Record<string, BusinessDomain> = {
-  "financial-accounting": "Finance & People",
-  "human-capital-management": "Finance & People",
-  "customer-relationship-management": "Customer & Revenue",
-  "supply-chain-management": "Customer & Revenue",
-  manufacturing: "Operations & Assets",
-  "enterprise-asset-management": "Operations & Assets",
-  "project-management": "Programmes, Projects & Data",
-  "data-services": "Programmes, Projects & Data",
-  integration: "Programmes, Projects & Data",
-  security: "Programmes, Projects & Data",
-  pmo: "Programmes, Projects & Data",
-  "change-people-and-adoption": "Programmes, Projects & Data",
-};
+export type BusinessDomain = Band;
 
 /**
  * The field guide's named value streams. A module owns several; a topic is
@@ -1200,12 +1184,7 @@ export function pillarOf(slug: string): Guide | undefined {
   return chain[0] ?? guideBySlug.get(slug);
 }
 
-export const allBusinessDomains: BusinessDomain[] = [
-  "Finance & People",
-  "Customer & Revenue",
-  "Operations & Assets",
-  "Programmes, Projects & Data",
-];
+export const allBusinessDomains: BusinessDomain[] = allBands;
 
 /** Streams in band order, so the two facet rows read as a hierarchy. */
 export const allValueStreams: ValueStream[] = allBusinessDomains.flatMap((band) =>
