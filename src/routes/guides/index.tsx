@@ -3,9 +3,11 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 
 import { SiteShell } from "@/components/SiteShell";
 import { parsePicks, serialisePicks } from "@/content/scope";
+import { allConsiderations, allScopes } from "@/content/model";
 import {
   allBusinessDomains,
   allCategories,
+  considerationsOf,
   allValueStreams,
   childrenOf,
   guideBySlug,
@@ -29,6 +31,8 @@ type GuideSearch = {
   domain?: string | undefined;
   stream?: string | undefined;
   category?: string | undefined;
+  consideration?: string | undefined;
+  scope?: string | undefined;
 };
 
 const str = (v: unknown) => (typeof v === "string" && v.length > 0 ? v : undefined);
@@ -45,6 +49,8 @@ export const Route = createFileRoute("/guides/")({
     domain: str(search["domain"]),
     stream: str(search["stream"]),
     category: str(search["category"]),
+    consideration: str(search["consideration"]),
+    scope: str(search["scope"]),
   }),
   head: () => ({
     meta: [
@@ -104,13 +110,24 @@ function GuideLibrary() {
       if (search.domain && g.domain !== search.domain) return false;
       if (search.stream && g.valueStream !== search.stream) return false;
       if (search.category && !g.categories.includes(search.category as never)) return false;
+      if (search.consideration && !considerationsOf(g.slug).includes(search.consideration as never))
+        return false;
+      if (search.scope && !g.scope.includes(search.scope as never)) return false;
       if (!needle) return true;
       return [g.topic, g.definition ?? "", g.workflow.join(" ")]
         .join(" ")
         .toLowerCase()
         .includes(needle);
     });
-  }, [search.q, search.module, search.domain, search.stream, search.category]);
+  }, [
+    search.q,
+    search.module,
+    search.domain,
+    search.stream,
+    search.category,
+    search.consideration,
+    search.scope,
+  ]);
 
   // Narrow the stream row to the chosen domain, so the two layers read as a
   // hierarchy rather than as two unrelated filter rows.
@@ -119,7 +136,13 @@ function GuideLibrary() {
     : liveStreams;
 
   const hasFilter = Boolean(
-    search.module || search.domain || search.stream || search.category || search.q,
+    search.module ||
+    search.domain ||
+    search.stream ||
+    search.category ||
+    search.consideration ||
+    search.scope ||
+    search.q,
   );
 
   return (
@@ -247,6 +270,26 @@ function GuideLibrary() {
                 {streamChips.map((s) => (
                   <Chip key={s} active={search.stream === s} onClick={() => toggle("stream", s)}>
                     {s}
+                  </Chip>
+                ))}
+              </div>
+              <div className="flex flex-wrap items-center gap-2">
+                <span className="label-xs w-24 shrink-0">Concern</span>
+                {allConsiderations.map((c) => (
+                  <Chip
+                    key={c}
+                    active={search.consideration === c}
+                    onClick={() => toggle("consideration", c)}
+                  >
+                    {c}
+                  </Chip>
+                ))}
+              </div>
+              <div className="flex flex-wrap items-center gap-2">
+                <span className="label-xs w-24 shrink-0">Applies</span>
+                {allScopes.map((sc) => (
+                  <Chip key={sc} active={search.scope === sc} onClick={() => toggle("scope", sc)}>
+                    {sc}
                   </Chip>
                 ))}
               </div>

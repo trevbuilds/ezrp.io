@@ -82,6 +82,9 @@ export const considerationRing: Array<[Consideration, Consideration]> = [
 /** Applicability, kept separate from level and from consideration. */
 export type Scope = "Global" | "Local-AU" | "Common";
 
+/** Local first: the AU material is the differentiator, not a footnote. */
+export const allScopes: Scope[] = ["Local-AU", "Common", "Global"];
+
 export type Band =
   | "Finance"
   | "People"

@@ -284,6 +284,39 @@
   opacity: 0.78;
 }
 
+.guide-brain__nodes .tier-root .visible {
+  fill: var(--foreground);
+  opacity: 0.9;
+}
+
+.guide-brain .tier-root .node-label {
+  fill: var(--foreground);
+  font-family: var(--font-display-family);
+  font-size: 22px;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  opacity: 0.95;
+  text-transform: uppercase;
+}
+
+.guide-brain__nodes .locale .visible {
+  fill: var(--primary);
+  opacity: 0.4;
+}
+
+.guide-brain .locale .node-label {
+  fill: var(--primary);
+  font-family: var(--font-mono-family);
+  font-size: 10px;
+  opacity: 0.6;
+  text-transform: uppercase;
+}
+
+.guide-brain__nodes .locale.is-related .node-label,
+.guide-brain__nodes .locale.is-active .node-label {
+  opacity: 1;
+}
+
 .guide-brain__nodes .tier-2b .visible {
   fill: var(--tier-2);
   opacity: 0.58;
