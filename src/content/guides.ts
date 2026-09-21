@@ -318,6 +318,96 @@ const raw: Array<Omit<Guide, "workflow"> & { workflow?: string | null }> = [
   },
 
   // ----------------------------------------------------------------- CRM
+  // Lead-to-Cash stages. Modelled on the published five-stage process and
+  // its Order to Cash decomposition; described generically rather than
+  // against any one vendor's product set.
+  {
+    slug: "contact-to-lead",
+    topic: "Contact to Lead",
+    parent: "customer-relationship-management",
+    categories: ["Process"],
+    definition:
+      "Turning interest captured across channels into a scored, qualified lead.",
+    workflow:
+      "Channel Capture → Consent and Contact Creation → Interaction Tracking → Lead Scoring → Lead Qualification",
+    sourceUrl: null,
+  },
+  {
+    slug: "lead-to-opportunity",
+    topic: "Lead to Opportunity",
+    parent: "customer-relationship-management",
+    categories: ["Process"],
+    definition:
+      "Qualifying a lead, handing it to sales, and converting it into a tracked opportunity.",
+    workflow:
+      "Lead Review → Qualification Assessment → Sales Handover → Opportunity Creation → Pipeline Entry",
+    sourceUrl: null,
+  },
+  {
+    slug: "opportunity-to-quote",
+    topic: "Opportunity to Quote",
+    parent: "customer-relationship-management",
+    categories: ["Process"],
+    definition:
+      "Assessing whether an opportunity is ready to be priced, and issuing a quote.",
+    workflow:
+      "Opportunity Assessment → Needs Confirmation → Solution Configuration → Pricing → Quote Issue",
+    sourceUrl: null,
+  },
+  {
+    slug: "quote-to-order",
+    topic: "Quote to Order",
+    parent: "customer-relationship-management",
+    categories: ["Process"],
+    definition:
+      "Negotiating the quote to agreement and converting it into an order.",
+    workflow:
+      "Quote Presentation → Negotiation → Approval → Acceptance → Order Creation",
+    sourceUrl: null,
+  },
+  {
+    slug: "order-to-cash",
+    topic: "Order to Cash",
+    parent: "customer-relationship-management",
+    categories: ["Process"],
+    definition:
+      "Executing the order, invoicing it, and collecting the cash.",
+    workflow: "Order to Fulfil → Fulfil to Invoice → Invoice to Cash",
+    sourceUrl: null,
+  },
+  {
+    slug: "order-to-fulfil",
+    topic: "Order to Fulfil",
+    parent: "order-to-cash",
+    categories: ["Process"],
+    definition:
+      "Order entry through to goods or services delivered.",
+    workflow:
+      "Order Entry → Availability Check → Inventory Allocation → Picking and Packing → Shipping and Delivery",
+    sourceUrl: null,
+  },
+  {
+    slug: "fulfil-to-invoice",
+    topic: "Fulfil to Invoice",
+    parent: "order-to-cash",
+    categories: ["Process"],
+    definition:
+      "Turning a completed delivery into a billing document and recorded revenue.",
+    workflow:
+      "Delivery Confirmation → Billing Document Creation → Invoice Generation → Revenue Recording",
+    sourceUrl: null,
+  },
+  {
+    slug: "invoice-to-cash",
+    topic: "Invoice to Cash",
+    parent: "order-to-cash",
+    categories: ["Process"],
+    definition:
+      "Getting the invoice to the customer and the money into the bank.",
+    workflow:
+      "Invoice Transmission → Payment Tracking → Receipt Application → Collections → Receivables Clearing",
+    sourceUrl: null,
+  },
   {
     slug: "marketing-automation",
     topic: "Marketing Automation",
