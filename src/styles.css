@@ -317,6 +317,20 @@
   opacity: 1;
 }
 
+.guide-brain__nodes .tier-4 .visible {
+  fill: var(--tier-3);
+  opacity: 0.34;
+}
+
+.guide-brain .tier-4 .node-label {
+  font-size: 4px;
+  opacity: 0;
+}
+
+.guide-brain__nodes .tier-4.is-related .node-label {
+  opacity: 0.6;
+}
+
 .guide-brain__nodes .tier-2b .visible {
   fill: var(--tier-2);
   opacity: 0.58;

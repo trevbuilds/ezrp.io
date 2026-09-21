@@ -17,7 +17,7 @@ import {
   type BusinessDomain,
   type Guide,
 } from "@/content/guides";
-import { streamsInBand, subStreamsOf, type Stream } from "@/content/model";
+import { bandOfModule, streamsInBand, subStreamsOf, type Stream } from "@/content/model";
 import { BAND_ANCHORS, brainCandidates, claimNear } from "./brain-layout";
 
 type MapNode = {
@@ -25,7 +25,7 @@ type MapNode = {
   label: string;
   x: number;
   y: number;
-  kind: "domain" | "stream" | "substream" | "guide";
+  kind: "domain" | "stream" | "substream" | "guide" | "step";
   guide?: Guide;
   domain?: BusinessDomain;
   stream?: Stream;
@@ -68,6 +68,18 @@ function useLayout() {
     const candidates = brainCandidates(anchors);
     const used = new Set<number>();
 
+    // Streams are spread across the whole silhouette rather than parked beside
+    // their band. Bands sit around the edge, so clustering streams against
+    // them left the middle empty and the map read as a ring. Taking candidates
+    // in Halton order fills the shape evenly; the link back to the band still
+    // carries the hierarchy, and a long line is fine — the brain has them too.
+    let spread = 0;
+    const nextSpreadPoint = () => {
+      while (used.has(spread) && spread < candidates.length) spread += 1;
+      used.add(spread);
+      return candidates[spread] ?? { x: 340, y: 200 };
+    };
+
     const guidesOnStream = (slug: string) =>
       guides.filter(
         (guide) =>
@@ -88,8 +100,8 @@ function useLayout() {
         depth: 0,
       });
 
-      streamsInBand(band).forEach((stream, streamIndex) => {
-        const streamPoint = claimNear(candidates, used, anchor, 34 + streamIndex * 5, streamIndex);
+      streamsInBand(band).forEach((stream) => {
+        const streamPoint = nextSpreadPoint();
         const streamId = `stream:${stream.slug}`;
         nodes.set(streamId, {
           id: streamId,
@@ -101,6 +113,16 @@ function useLayout() {
           depth: 1,
         });
         links.push({ from: domainId, to: streamId, depth: 1 });
+
+        // The model's central claim, drawn: a stream crosses modules, so it
+        // links to every band the work actually happens in. These are the long
+        // lines that give the map its texture — and they are real
+        // relationships, not decoration.
+        stream.modules.forEach((moduleSlug) => {
+          const crossed = bandOfModule(moduleSlug);
+          if (!crossed || crossed === band) return;
+          links.push({ from: `domain:${crossed}`, to: streamId, cross: true });
+        });
 
         const branches: Array<{
           id: string;
@@ -150,6 +172,33 @@ function useLayout() {
                 depth: branch.depth,
               });
               links.push({ from: branch.id, to: guide.slug, depth: branch.depth });
+
+              // A topic that sits in more than one stream is linked to each —
+              // data-migration belongs to both the data stream and cutover.
+              guide.streams
+                .filter((slug) => slug !== branch.slug)
+                .forEach((slug) => {
+                  links.push({ from: `stream:${slug}`, to: guide.slug, cross: true });
+                });
+
+              // Workflow steps are the finest tier. They are what fills the
+              // silhouette — the shape is read from their density, the way
+              // the brain reads from its transaction-step nodes.
+              guide.workflow.forEach((step, stepIndex) => {
+                const stepAt = claimNear(candidates, used, at, 9 + stepIndex * 2.6, stepIndex + 7);
+                const stepId = `${guide.slug}#${stepIndex}`;
+                nodes.set(stepId, {
+                  id: stepId,
+                  label: step,
+                  ...stepAt,
+                  kind: "step",
+                  guide,
+                  domain: band,
+                  stream,
+                  depth: branch.depth + 1,
+                });
+                links.push({ from: guide.slug, to: stepId, depth: branch.depth + 1 });
+              });
             });
         });
       });
@@ -173,6 +222,7 @@ const ANCHOR_PULL = {
   stream: 0.007,
   substream: 0.006,
   guide: 0.0045,
+  step: 0.0045,
 } as const;
 const DAMPING = 0.945;
 const SWAY = { base: 0.044, leaf: 0.058 } as const;
@@ -366,7 +416,7 @@ export function GuideMap() {
         position.vx += (anchor.x - position.x) * pull * dt;
         position.vy += (anchor.y - position.y) * pull * dt;
         if (!reducedMotion) {
-          const sway = node.kind === "guide" ? SWAY.leaf : SWAY.base;
+          const sway = node.kind === "guide" || node.kind === "step" ? SWAY.leaf : SWAY.base;
           position.vx += Math.sin(now * 0.00046 + index * 1.618) * sway * dt;
           position.vy += Math.cos(now * 0.00041 + index * 2.113) * sway * dt;
           position.vx += Math.sin(now * 0.00019 + index * 0.731) * sway * 0.7 * dt;
@@ -530,11 +580,18 @@ export function GuideMap() {
           ? 2.3
           : node.kind === "substream"
             ? 1.8
-            : 1.2;
-    const labelY = node.kind === "guide" ? -6 : -9;
+            : node.kind === "guide"
+              ? 1.2
+              : 0.85;
+    const labelY = node.kind === "guide" || node.kind === "step" ? -5 : -9;
     return (
       <>
-        <circle className="hit" cx={0} cy={0} r={node.kind === "guide" ? 7 : 11} />
+        <circle
+          className="hit"
+          cx={0}
+          cy={0}
+          r={node.kind === "step" ? 5 : node.kind === "guide" ? 7 : 11}
+        />
 
         <circle className="visible" cx={0} cy={0} r={radius} />
         <text
@@ -632,7 +689,9 @@ export function GuideMap() {
                         ? "tier-2"
                         : node.kind === "substream"
                           ? "tier-2b"
-                          : "tier-3";
+                          : node.kind === "guide"
+                            ? "tier-3"
+                            : "tier-4";
                   const state =
                     active === node.id
                       ? "is-active"
@@ -695,6 +754,20 @@ export function GuideMap() {
                         search={{ stream: node.stream?.name }}
                         className={className}
                         {...handlers}
+                      >
+                        {mark}
+                      </Link>
+                    );
+                  }
+                  if (node.kind === "step" && node.guide) {
+                    return (
+                      <Link
+                        key={node.id}
+                        to="/guides/$slug"
+                        params={{ slug: node.guide.slug }}
+                        className={className}
+                        {...handlers}
+                        tabIndex={-1}
                       >
                         {mark}
                       </Link>
