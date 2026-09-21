@@ -144,7 +144,7 @@ export const allBands: Band[] = [
   "Delivery",
 ];
 
-/** Module slug → band. The twelve modules of the ERP Field Guide. */
+/** Module slug → band. The eleven modules, plus PMO on the delivery side. */
 export const bandByModule: Record<string, Band> = {
   // Finance and People are separate functions, as are Operations and Assets.
   // This differs from the field guide, which combines each pair.
@@ -161,11 +161,16 @@ export const bandByModule: Record<string, Band> = {
 
   // Projects and Portfolio is a module a vendor ships. PMO and programme
   // governance are not — they are how a programme is run, so they sit in
-  // Delivery. Change and adoption is about the workforce living through the
-  // change, so it belongs with People.
+  // Delivery.
+  //
+  // Change and adoption is not a module at all. No vendor ships it, nobody
+  // configures it, and it is not optional on any programme — it is a
+  // consideration that applies to every one of them, which is what the People
+  // consideration already carries. Its guidance lives under PMO, because
+  // change work on a programme is delivery work, and it rolls up on the
+  // cross-cutting axis rather than sitting in the module tree.
   "project-management": "Projects & Portfolio",
   pmo: "Delivery",
-  "change-people-and-adoption": "People/HCM",
 
   // The technical substrate every other band depends on.
   "data-services": "Data & Technology",
@@ -380,8 +385,14 @@ export const subModules: SubModule[] = [
   { slug: "governance", name: "Programme Governance", module: "pmo" },
   { slug: "go-live-toolkit", name: "Cutover & Go-Live", module: "pmo", dependsOn: ["governance"] },
 
-  // Change, People & Adoption
-  { slug: "adoption", name: "Adoption", module: "change-people-and-adoption" },
+  // Change and adoption: delivery work, and a consideration on every
+  // programme rather than a module anyone buys.
+  {
+    slug: "change-people-and-adoption",
+    name: "Change & Adoption",
+    module: "pmo",
+    dependsOn: ["governance"],
+  },
 ];
 
 export const subModuleBySlug = new Map(subModules.map((s) => [s.slug, s]));
@@ -870,27 +881,28 @@ export const streams: Stream[] = [
     modules: ["pmo", "data-services", "integration"],
   },
 
-  // -------------------------------------- Change, People & Adoption (L1)
+  // ------------------------------------------- Change and Adoption (L1)
+  // Delivery streams: they run on a programme, not in the live system.
   {
     slug: "awareness-to-adoption",
     name: "Awareness-to-Adoption",
     parent: null,
-    primaryModule: "change-people-and-adoption",
-    modules: ["change-people-and-adoption"],
+    primaryModule: "pmo",
+    modules: ["pmo"],
   },
   {
     slug: "impact-to-mitigation",
     name: "Impact-to-Mitigation",
     parent: null,
-    primaryModule: "change-people-and-adoption",
-    modules: ["change-people-and-adoption"],
+    primaryModule: "pmo",
+    modules: ["pmo"],
   },
   {
     slug: "train-to-capable",
     name: "Train-to-Capable",
     parent: null,
-    primaryModule: "change-people-and-adoption",
-    modules: ["change-people-and-adoption", "human-capital-management"],
+    primaryModule: "pmo",
+    modules: ["pmo", "human-capital-management"],
   },
 ];
 

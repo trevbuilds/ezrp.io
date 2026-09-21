@@ -3,12 +3,14 @@ slug: change-people-and-adoption
 source: authored
 intro: >-
   Change and adoption is the work of getting people to operate the new way deliberately, rather than hoping training covers it.
-  It is the module most often cut when a programme is late, and the one whose absence explains most failed benefits cases.
+  It is not a module — nobody ships it, nobody configures it, and no programme gets to opt out of it. It is a consideration on every one of them, and the first thing cut when a programme is late.
 ---
 
 ## Why it matters
 
 A system that is live but not adopted has cost everything and returned nothing. Adoption is not a training problem; it is a design, leadership and measurement problem that training supports.
+
+Treating it as a module is the mistake that precedes treating it as optional. There is no configuration screen for it and no vendor line item, so it has to be carried as a consideration — assessed on every workstream, in the same way governance or compliance is, rather than delegated to a workstream of its own that the others can ignore.
 
 - **Benefits depend on behaviour**: The business case assumed people work differently. Nothing else delivers that.
 - **Capacity is finite**: An organisation can absorb only so much change at once, and exceeding it produces regression rather than progress.

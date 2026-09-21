@@ -257,15 +257,6 @@ const raw: Array<
       "Product Design → Bill of Materials Setup → Production Planning → Manufacturing → Quality Control → Product Delivery",
     sourceUrl: "https://ezrp.io/manufacturing/",
   },
-  {
-    slug: "change-people-and-adoption",
-    topic: "Change, People & Adoption",
-    parent: null,
-    categories: ["Concept", "Module", "Process"],
-    definition: null,
-    workflow: null,
-    sourceUrl: null,
-  },
 
   // ------------------------------------------------------- supply chain
   {
@@ -982,6 +973,16 @@ const raw: Array<
     definition: null,
     workflow: null,
     sourceUrl: "https://ezrp.io/launch/",
+  },
+  {
+    slug: "change-people-and-adoption",
+    topic: "Change and Adoption",
+    parent: "pmo",
+    categories: ["Concept", "Process", "Project Management"],
+    definition:
+      "Not a module anyone ships — a consideration on every programme, and the delivery work that earns the benefits after go-live.",
+    workflow: null,
+    sourceUrl: null,
   },
   {
     slug: "erp-project-budgeting",
