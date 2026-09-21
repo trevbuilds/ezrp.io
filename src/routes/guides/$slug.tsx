@@ -5,13 +5,7 @@ import { EndToEndFlow } from "@/components/EndToEndFlow";
 import { SiteShell } from "@/components/SiteShell";
 import { articleBySlug } from "@/content/articles";
 import { flowBySlug } from "@/content/flows";
-import {
-  ancestorsOf,
-  childrenOf,
-  guideBySlug,
-  pillarOf,
-  type Guide,
-} from "@/content/guides";
+import { ancestorsOf, childrenOf, guideBySlug, pillarOf, type Guide } from "@/content/guides";
 
 export const Route = createFileRoute("/guides/$slug")({
   loader: ({ params }) => {
@@ -63,11 +57,7 @@ function GuidePage() {
           {trail.map((t) => (
             <span key={t.slug} className="flex items-center gap-2">
               <span>/</span>
-              <Link
-                to="/guides/$slug"
-                params={{ slug: t.slug }}
-                className="hover:text-foreground"
-              >
+              <Link to="/guides/$slug" params={{ slug: t.slug }} className="hover:text-foreground">
                 {t.topic}
               </Link>
             </span>
@@ -76,27 +66,44 @@ function GuidePage() {
 
         <h1 className="mt-4 text-3xl font-bold leading-tight md:text-4xl">{guide.topic}</h1>
 
-        {guide.categories.length > 0 && (
-          <div className="mt-3 flex flex-wrap gap-2">
-            {guide.categories.map((c) => (
-              <span
-                key={c}
-                className="rounded-full border border-border px-3 py-1 text-xs text-muted-foreground"
-              >
-                {c}
-              </span>
-            ))}
-          </div>
-        )}
+        {/* Facets: every tag is a way back into the filtered library. */}
+        <div className="mt-3 flex flex-wrap items-center gap-2">
+          {guide.valueStream && (
+            <Link
+              to="/guides"
+              search={{ stream: guide.valueStream }}
+              className="rounded-full border border-primary px-3 py-1 text-xs text-primary transition hover:brightness-110"
+            >
+              {guide.valueStream}
+            </Link>
+          )}
+          {pillar && pillar.slug !== guide.slug && (
+            <Link
+              to="/guides"
+              search={{ module: pillar.slug }}
+              className="rounded-full border border-border px-3 py-1 text-xs text-muted-foreground transition hover:text-foreground"
+            >
+              {pillar.topic}
+            </Link>
+          )}
+          {guide.categories.map((c) => (
+            <Link
+              key={c}
+              to="/guides"
+              search={{ category: c }}
+              className="rounded-full border border-border px-3 py-1 text-xs text-muted-foreground transition hover:text-foreground"
+            >
+              {c}
+            </Link>
+          ))}
+        </div>
 
         {(guide.definition ?? article) ? (
-          <p className="mt-5 text-lg text-muted-foreground">
-            {guide.definition ?? article?.intro}
-          </p>
+          <p className="mt-5 text-lg text-muted-foreground">{guide.definition ?? article?.intro}</p>
         ) : (
           <p className="mt-5 text-sm text-muted-foreground">
-            No written definition recorded for this topic yet — the map position and links
-            below are what the library holds.
+            No written definition recorded for this topic yet — the map position and links below are
+            what the library holds.
           </p>
         )}
 
