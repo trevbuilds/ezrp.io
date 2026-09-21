@@ -858,6 +858,39 @@ const raw: Array<
 
   // -------------------------------------------------- project management
   {
+    slug: "project-planning",
+    topic: "Project Planning",
+    parent: "project-management",
+    categories: ["Component", "Process", "Project Management"],
+    definition:
+      "Structuring a project so it can be delivered, costed and reported against — scope, breakdown, schedule and gates.",
+    workflow:
+      "Initiation → Work Breakdown → Scheduling → Baseline → Gate Approval → Progress Measurement",
+    sourceUrl: null,
+  },
+  {
+    slug: "resource-planning",
+    topic: "Resource Planning",
+    parent: "project-management",
+    categories: ["Component", "Process", "Project Management"],
+    definition:
+      "Matching the people and plant a portfolio needs against what it actually has, before commitments are made.",
+    workflow:
+      "Demand Forecast → Capacity Assessment → Assignment → Utilisation Tracking → Reforecast",
+    sourceUrl: null,
+  },
+  {
+    slug: "project-costing",
+    topic: "Project Costing",
+    parent: "project-management",
+    categories: ["Component", "Process", "Project Management"],
+    definition:
+      "Bringing every cost that belongs to a project onto it — contractor, labour, materials and plant — and forecasting what it will finish at.",
+    workflow:
+      "Budget Allocation → Commitment Capture → Actual Cost Capture → Accrual → Forecast to Complete → Capitalisation or Closure",
+    sourceUrl: null,
+  },
+  {
     slug: "billing",
     topic: "Billing",
     parent: "project-management",

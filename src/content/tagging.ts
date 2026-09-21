@@ -123,6 +123,9 @@ export const streamsBySlug: Record<string, string[]> = {
   "materials-management": ["plan-to-produce"],
   "product-lifecycle-management": ["design-to-production"],
   "quality-control": ["quality-to-confidence"],
+  "project-planning": ["plan-to-deliver-project"],
+  "resource-planning": ["resource-to-utilisation"],
+  "project-costing": ["plan-to-deliver-project", "bill-to-recognise"],
   "change-people-and-adoption": ["awareness-to-adoption"],
 
   // ------------------------------------- Enterprise Asset Management
@@ -151,6 +154,9 @@ export const considerationsBySlug: Record<string, Consideration[]> = {
   integration: ["Strategy", "Technology"],
   security: ["Strategy", "Compliance"],
   pmo: ["Strategy", "Governance"],
+  "project-planning": ["Process", "Governance", "Delivery"],
+  "resource-planning": ["People", "Process", "Value"],
+  "project-costing": ["Value", "Process", "Governance", "Data"],
   "change-people-and-adoption": ["Strategy", "People"],
 
   // Finance
