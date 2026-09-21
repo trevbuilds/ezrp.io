@@ -263,6 +263,47 @@ const raw: Array<
     sourceUrl: null,
   },
 
+  // ------------------------------------------------------- supply chain
+  {
+    slug: "procurement",
+    topic: "Procurement",
+    parent: "supply-chain-management",
+    categories: ["Component", "Process"],
+    definition: "Acquiring goods and services.",
+    workflow:
+      "Vendor Evaluation → Bidding Process → Contract Awarding → Supplier Performance Review",
+    sourceUrl: null,
+  },
+  {
+    slug: "inventory-management",
+    topic: "Inventory Management",
+    parent: "supply-chain-management",
+    categories: ["Component", "Process"],
+    definition: "Tracking stock levels and locations.",
+    workflow:
+      "Stock Monitoring → Reorder Triggering → Receiving Stock → Inventory Auditing",
+    sourceUrl: null,
+  },
+  {
+    slug: "order-processing",
+    topic: "Order Processing",
+    parent: "supply-chain-management",
+    categories: ["Component", "Process"],
+    definition: "Managing the order-to-cash cycle.",
+    workflow: "Order Receipt → Order Confirmation → Picking & Packing → Shipping",
+    sourceUrl: null,
+  },
+  {
+    slug: "logistics",
+    topic: "Logistics",
+    parent: "supply-chain-management",
+    categories: ["Component", "Process"],
+    definition: "Coordinating transportation and distribution.",
+    workflow:
+      "Route Planning → Transportation Execution → Delivery Tracking → Return Processing",
+    sourceUrl: null,
+  },
+
   // ----------------------------------------------------- manufacturing
   {
     slug: "production-planning",

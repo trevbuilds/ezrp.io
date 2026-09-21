@@ -107,6 +107,10 @@ export const streamsBySlug: Record<string, string[]> = {
 
   // --------------------------------------------- Supply Chain, Mfg, Change
   "supply-chain-management": ["plan-to-replenish"],
+  procurement: ["source-to-contract", "requisition-to-receipt"],
+  "inventory-management": ["plan-to-replenish"],
+  "order-processing": ["order-to-ship", "order-to-fulfil"],
+  logistics: ["plan-to-deliver-logistics"],
   manufacturing: ["plan-to-produce"],
   "production-planning": ["plan-to-produce"],
   "materials-management": ["plan-to-produce"],
@@ -211,6 +215,12 @@ export const considerationsBySlug: Record<string, Consideration[]> = {
   "cutover-and-go-live": ["Delivery", "Governance", "People"],
   "cutover-checklist": ["Delivery", "Governance"],
   "functional-module-implementation": ["Delivery", "Technology"],
+
+  // Customer & Revenue - supply chain
+  procurement: ["Governance", "Compliance", "Delivery"],
+  "inventory-management": ["Delivery", "Technology"],
+  "order-processing": ["Delivery", "Technology"],
+  logistics: ["Delivery", "Compliance"],
 
   // Operations
   "production-planning": ["Delivery", "Technology"],
