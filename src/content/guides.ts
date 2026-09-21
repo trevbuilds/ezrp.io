@@ -37,102 +37,232 @@ export type Guide = {
 };
 
 /**
- * The layer above value stream: which part of the business the stream serves.
- * Derived from the stream rather than stored per topic, so the two can never
- * disagree.
+ * The layer above value stream: the band a module belongs to, taken from the
+ * EZRP ERP Field Guide, which groups the twelve modules into four bands.
+ * Band is derived from the module a topic sits under, not from its stream —
+ * a module owns several streams, so the stream cannot determine the band.
  */
-export type BusinessDomain = "Customer" | "Finance" | "People" | "Asset" | "Supply Chain";
+export type BusinessDomain =
+  "Finance & People" | "Customer & Revenue" | "Operations & Assets" | "Programmes, Projects & Data";
 
-/**
- * Published end-to-end value streams. This is a separate axis to the module
- * tree: customer-support sits under CRM but belongs to Issue-to-Resolution,
- * and accounts-receivable sits under Financial Accounting but is the tail of
- * Lead-to-Cash. Topics with no stream — governance, security, PMO — are null
- * rather than forced into one.
- */
-export type ValueStream =
-  | "Lead-to-Cash"
-  | "Procure-to-Pay"
-  | "Record-to-Report"
-  | "Issue-to-Resolution"
-  | "Hire-to-Retire"
-  | "Acquire-to-Retire"
-  | "Plan-to-Produce";
-
-const domainByStream: Record<ValueStream, BusinessDomain> = {
-  "Lead-to-Cash": "Customer",
-  "Issue-to-Resolution": "Customer",
-  "Record-to-Report": "Finance",
-  "Procure-to-Pay": "Finance",
-  "Hire-to-Retire": "People",
-  "Acquire-to-Retire": "Asset",
-  "Plan-to-Produce": "Supply Chain",
+/** Module slug -> band. The twelve modules of the field guide. */
+const bandByModule: Record<string, BusinessDomain> = {
+  "financial-accounting": "Finance & People",
+  "human-capital-management": "Finance & People",
+  "customer-relationship-management": "Customer & Revenue",
+  "supply-chain-management": "Customer & Revenue",
+  manufacturing: "Operations & Assets",
+  "enterprise-asset-management": "Operations & Assets",
+  "project-management": "Programmes, Projects & Data",
+  "data-services": "Programmes, Projects & Data",
+  integration: "Programmes, Projects & Data",
+  security: "Programmes, Projects & Data",
+  pmo: "Programmes, Projects & Data",
+  "change-people-and-adoption": "Programmes, Projects & Data",
 };
 
-export const domainOf = (stream: ValueStream | null): BusinessDomain | null =>
-  stream ? domainByStream[stream] : null;
+/**
+ * The field guide's named value streams. A module owns several; a topic is
+ * tagged with the one it belongs to. Topics with no stream stay null rather
+ * than being forced into one.
+ */
+export type ValueStream =
+  // Financial Accounting
+  | "Record-to-Report"
+  | "Procure-to-Pay"
+  | "Order-to-Cash"
+  | "Acquire-to-Retire (Assets)"
+  | "Cash & Treasury"
+  // Human Capital Management
+  | "Hire-to-Retire"
+  | "Time-to-Pay"
+  | "Performance & Development"
+  | "Benefits & Compliance"
+  // Customer Relationship Management
+  | "Lead-to-Order"
+  | "Service-to-Resolution"
+  | "Campaign-to-Conversion"
+  | "Dispatch-to-Done (Field Service)"
+  // Supply Chain Management
+  | "Plan-to-Replenish"
+  | "Source-to-Contract"
+  | "Order-to-Ship"
+  | "Plan-to-Deliver (Logistics)"
+  // Manufacturing
+  | "Design-to-Production"
+  | "Plan-to-Produce"
+  | "Quality-to-Confidence"
+  // Enterprise Asset Management
+  | "Plan-to-Maintain"
+  | "Detect-to-Respond (Condition)"
+  | "Acquire-to-Retire (Physical)"
+  // Project & Portfolio Management
+  | "Idea-to-Investment (Portfolio)"
+  | "Plan-to-Deliver (Project)"
+  | "Resource-to-Utilisation"
+  | "Bill-to-Recognise"
+  // Data & Analytics
+  | "Source-to-Insight"
+  | "Migrate-to-Steady-State"
+  | "Govern-to-Trust"
+  // Integration
+  | "Specify-to-Live (Build)"
+  | "Detect-to-Recover (Failure)"
+  // Security & Identity
+  | "Identity-to-Access"
+  | "Control-to-Evidence"
+  | "Detect-to-Continue (BCP/DR)"
+  // PMO & Programme Governance
+  | "Initiate-to-Gate"
+  | "Track-to-Decide (Status)"
+  | "Plan-to-Cutover (Go-Live)"
+  // Change, People & Adoption
+  | "Awareness-to-Adoption"
+  | "Impact-to-Mitigation"
+  | "Train-to-Capable";
+
+/** Module slug -> the streams that module owns, in field-guide order. */
+const streamsByModule: Record<string, ValueStream[]> = {
+  "financial-accounting": [
+    "Record-to-Report",
+    "Procure-to-Pay",
+    "Order-to-Cash",
+    "Acquire-to-Retire (Assets)",
+    "Cash & Treasury",
+  ],
+  "human-capital-management": [
+    "Hire-to-Retire",
+    "Time-to-Pay",
+    "Performance & Development",
+    "Benefits & Compliance",
+  ],
+  "customer-relationship-management": [
+    "Lead-to-Order",
+    "Service-to-Resolution",
+    "Campaign-to-Conversion",
+    "Dispatch-to-Done (Field Service)",
+  ],
+  "supply-chain-management": [
+    "Plan-to-Replenish",
+    "Source-to-Contract",
+    "Order-to-Ship",
+    "Plan-to-Deliver (Logistics)",
+  ],
+  manufacturing: ["Design-to-Production", "Plan-to-Produce", "Quality-to-Confidence"],
+  "enterprise-asset-management": [
+    "Plan-to-Maintain",
+    "Detect-to-Respond (Condition)",
+    "Acquire-to-Retire (Physical)",
+  ],
+  "project-management": [
+    "Idea-to-Investment (Portfolio)",
+    "Plan-to-Deliver (Project)",
+    "Resource-to-Utilisation",
+    "Bill-to-Recognise",
+  ],
+  "data-services": ["Source-to-Insight", "Migrate-to-Steady-State", "Govern-to-Trust"],
+  integration: ["Specify-to-Live (Build)", "Detect-to-Recover (Failure)"],
+  security: ["Identity-to-Access", "Control-to-Evidence", "Detect-to-Continue (BCP/DR)"],
+  pmo: ["Initiate-to-Gate", "Track-to-Decide (Status)", "Plan-to-Cutover (Go-Live)"],
+  "change-people-and-adoption": [
+    "Awareness-to-Adoption",
+    "Impact-to-Mitigation",
+    "Train-to-Capable",
+  ],
+};
 
 const valueStreamBySlug: Record<string, ValueStream> = {
-  // Lead-to-Cash
-  "customer-relationship-management": "Lead-to-Cash",
-  "contact-to-lead": "Lead-to-Cash",
-  "lead-to-opportunity": "Lead-to-Cash",
-  "opportunity-to-quote": "Lead-to-Cash",
-  "quote-to-order": "Lead-to-Cash",
-  "order-to-cash": "Lead-to-Cash",
-  "order-to-fulfil": "Lead-to-Cash",
-  "fulfil-to-invoice": "Lead-to-Cash",
-  "invoice-to-cash": "Lead-to-Cash",
-  "marketing-automation": "Lead-to-Cash",
-  "sales-force-automation": "Lead-to-Cash",
-  "accounts-receivable": "Lead-to-Cash",
-  billing: "Lead-to-Cash",
-
-  // Procure-to-Pay
+  // Financial Accounting
+  "financial-accounting": "Record-to-Report",
+  "general-ledger": "Record-to-Report",
   "accounts-payable": "Procure-to-Pay",
   "3-way-matching": "Procure-to-Pay",
   "ap-automation": "Procure-to-Pay",
   payments: "Procure-to-Pay",
   "eft-files": "Procure-to-Pay",
   aba: "Procure-to-Pay",
+  "accounts-receivable": "Order-to-Cash",
+  "order-to-cash": "Order-to-Cash",
+  "order-to-fulfil": "Order-to-Cash",
+  "fulfil-to-invoice": "Order-to-Cash",
+  "invoice-to-cash": "Order-to-Cash",
+  "asset-management": "Acquire-to-Retire (Assets)",
+  "cash-management": "Cash & Treasury",
+  "bank-reconciliation": "Cash & Treasury",
 
-  // Record-to-Report
-  "financial-accounting": "Record-to-Report",
-  "general-ledger": "Record-to-Report",
-  "cash-management": "Record-to-Report",
-  "bank-reconciliation": "Record-to-Report",
-
-  // Issue-to-Resolution
-  "customer-support": "Issue-to-Resolution",
-  "field-service": "Issue-to-Resolution",
-
-  // Hire-to-Retire
+  // Human Capital Management
   "human-capital-management": "Hire-to-Retire",
   "core-hr": "Hire-to-Retire",
   "org-and-position-management": "Hire-to-Retire",
   "employee-self-service": "Hire-to-Retire",
   onboarding: "Hire-to-Retire",
   offboarding: "Hire-to-Retire",
-  payroll: "Hire-to-Retire",
-  "payroll-automation": "Hire-to-Retire",
-  superannuation: "Hire-to-Retire",
-  "single-touch-payroll": "Hire-to-Retire",
-  "time-and-attendance": "Hire-to-Retire",
-  "rostering-and-scheduling": "Hire-to-Retire",
-  "leave-management": "Hire-to-Retire",
-  "award-interpretation": "Hire-to-Retire",
   "talent-acquisition": "Hire-to-Retire",
-  "performance-management": "Hire-to-Retire",
-  "learning-and-development": "Hire-to-Retire",
-  "workforce-analytics": "Hire-to-Retire",
-  benefits: "Hire-to-Retire",
-  compliance: "Hire-to-Retire",
+  payroll: "Time-to-Pay",
+  "payroll-automation": "Time-to-Pay",
+  superannuation: "Time-to-Pay",
+  "single-touch-payroll": "Time-to-Pay",
+  "time-and-attendance": "Time-to-Pay",
+  "rostering-and-scheduling": "Time-to-Pay",
+  "leave-management": "Time-to-Pay",
+  "award-interpretation": "Time-to-Pay",
+  "performance-management": "Performance & Development",
+  "learning-and-development": "Performance & Development",
+  "workforce-analytics": "Performance & Development",
+  benefits: "Benefits & Compliance",
+  compliance: "Benefits & Compliance",
 
-  // Acquire-to-Retire
-  "enterprise-asset-management": "Acquire-to-Retire",
-  "asset-lifecycle-management": "Acquire-to-Retire",
-  "energy-management": "Acquire-to-Retire",
-  "asset-management": "Acquire-to-Retire",
+  // Customer Relationship Management
+  "customer-relationship-management": "Lead-to-Order",
+  "sales-force-automation": "Lead-to-Order",
+  "contact-to-lead": "Lead-to-Order",
+  "lead-to-opportunity": "Lead-to-Order",
+  "opportunity-to-quote": "Lead-to-Order",
+  "quote-to-order": "Lead-to-Order",
+  "marketing-automation": "Campaign-to-Conversion",
+  "customer-support": "Service-to-Resolution",
+  "field-service": "Dispatch-to-Done (Field Service)",
+
+  // Project & Portfolio Management
+  "project-management": "Plan-to-Deliver (Project)",
+  billing: "Bill-to-Recognise",
+
+  // Data & Analytics
+  "data-services": "Source-to-Insight",
+  "business-intelligence": "Source-to-Insight",
+  "data-models": "Source-to-Insight",
+  "data-warehousing": "Source-to-Insight",
+  "data-migration": "Migrate-to-Steady-State",
+
+  // Integration
+  integration: "Specify-to-Live (Build)",
+  "integration-catalogue": "Specify-to-Live (Build)",
+  "development-standards": "Specify-to-Live (Build)",
+  "environment-and-deployment-management": "Specify-to-Live (Build)",
+
+  // Security & Identity
+  security: "Identity-to-Access",
+  "sod-and-rbac": "Identity-to-Access",
+  bcp: "Detect-to-Continue (BCP/DR)",
+  "disaster-recovery": "Detect-to-Continue (BCP/DR)",
+
+  // PMO & Programme Governance
+  pmo: "Initiate-to-Gate",
+  "erp-project-budgeting": "Initiate-to-Gate",
+  governance: "Track-to-Decide (Status)",
+  "actions-and-decisions": "Track-to-Decide (Status)",
+  "change-requests": "Track-to-Decide (Status)",
+  "functional-specifications": "Track-to-Decide (Status)",
+  "technical-specifications": "Track-to-Decide (Status)",
+  "go-live-toolkit": "Plan-to-Cutover (Go-Live)",
+  "cutover-and-go-live": "Plan-to-Cutover (Go-Live)",
+  "cutover-checklist": "Plan-to-Cutover (Go-Live)",
+  "functional-module-implementation": "Plan-to-Cutover (Go-Live)",
+
+  // Enterprise Asset Management
+  "enterprise-asset-management": "Plan-to-Maintain",
+  "asset-lifecycle-management": "Acquire-to-Retire (Physical)",
+  "energy-management": "Detect-to-Respond (Condition)",
 };
 
 const raw: Array<
@@ -165,7 +295,7 @@ const raw: Array<
   },
   {
     slug: "data-services",
-    topic: "Data Services",
+    topic: "Data & Analytics",
     parent: null,
     categories: ["Concept", "Module"],
     definition: "Reporting, analytics, data warehousing, and business intelligence.",
@@ -185,7 +315,7 @@ const raw: Array<
   },
   {
     slug: "project-management",
-    topic: "Project Management",
+    topic: "Project & Portfolio Management",
     parent: null,
     categories: ["Concept", "Module"],
     definition:
@@ -225,7 +355,7 @@ const raw: Array<
   },
   {
     slug: "security",
-    topic: "Security",
+    topic: "Security & Identity",
     parent: null,
     categories: ["Technology", "Process"],
     definition: null,
@@ -234,7 +364,7 @@ const raw: Array<
   },
   {
     slug: "pmo",
-    topic: "PMO",
+    topic: "PMO & Programme Governance",
     parent: null,
     categories: ["Project Management", "Process"],
     definition: null,
@@ -273,6 +403,37 @@ const raw: Array<
     topic: "Payments",
     parent: null,
     categories: ["Solution"],
+    definition: null,
+    workflow: null,
+    sourceUrl: null,
+  },
+
+  {
+    slug: "supply-chain-management",
+    topic: "Supply Chain Management",
+    parent: null,
+    categories: ["Concept", "Module"],
+    definition: "Inventory management, order processing, procurement, and logistics.",
+    workflow:
+      "Supplier Management → Purchase Ordering → Goods Receiving → Inventory Control → Order Fulfilment → Logistics Management",
+    sourceUrl: "https://ezrp.io/scm/",
+  },
+  {
+    slug: "manufacturing",
+    topic: "Manufacturing",
+    parent: null,
+    categories: ["Concept", "Module"],
+    definition:
+      "Production planning, materials management, product lifecycle management, and quality control.",
+    workflow:
+      "Product Design → Bill of Materials Setup → Production Planning → Manufacturing → Quality Control → Product Delivery",
+    sourceUrl: "https://ezrp.io/manufacturing/",
+  },
+  {
+    slug: "change-people-and-adoption",
+    topic: "Change, People & Adoption",
+    parent: null,
+    categories: ["Concept", "Module", "Process"],
     definition: null,
     workflow: null,
     sourceUrl: null,
@@ -457,7 +618,9 @@ const raw: Array<
   {
     slug: "order-to-cash",
     topic: "Order to Cash",
-    parent: "customer-relationship-management",
+    // Field guide places Order-to-Cash in Financial Accounting: CRM ends at
+    // the order (Lead-to-Order), finance owns order through to cash.
+    parent: "financial-accounting",
     categories: ["Process"],
     definition: "Executing the order, invoicing it, and collecting the cash.",
     workflow: "Order to Fulfil → Fulfil to Invoice → Invoice to Cash",
@@ -986,10 +1149,24 @@ const raw: Array<
   },
 ];
 
+/** Walk `raw` to the top-level module a topic belongs to. */
+const rootModuleOf = (slug: string): string => {
+  let current = slug;
+  for (let hops = 0; hops < 10; hops += 1) {
+    const node = raw.find((r) => r.slug === current);
+    if (!node?.parent) return current;
+    current = node.parent;
+  }
+  return current;
+};
+
+export const domainOf = (slug: string): BusinessDomain | null =>
+  bandByModule[rootModuleOf(slug)] ?? null;
+
 export const guides: Guide[] = raw.map((g) => ({
   ...g,
   valueStream: valueStreamBySlug[g.slug] ?? null,
-  domain: domainOf(valueStreamBySlug[g.slug] ?? null),
+  domain: domainOf(g.slug),
   workflow: g.workflow
     ? g.workflow
         .split("→")
@@ -1024,26 +1201,27 @@ export function pillarOf(slug: string): Guide | undefined {
 }
 
 export const allBusinessDomains: BusinessDomain[] = [
-  "Customer",
-  "Finance",
-  "People",
-  "Asset",
-  "Supply Chain",
+  "Finance & People",
+  "Customer & Revenue",
+  "Operations & Assets",
+  "Programmes, Projects & Data",
 ];
 
-/** Streams in domain order, so the two facet rows read consistently. */
-export const allValueStreams: ValueStream[] = [
-  "Lead-to-Cash",
-  "Issue-to-Resolution",
-  "Record-to-Report",
-  "Procure-to-Pay",
-  "Hire-to-Retire",
-  "Acquire-to-Retire",
-  "Plan-to-Produce",
-];
+/** Streams in band order, so the two facet rows read as a hierarchy. */
+export const allValueStreams: ValueStream[] = allBusinessDomains.flatMap((band) =>
+  Object.entries(bandByModule)
+    .filter(([, b]) => b === band)
+    .flatMap(([moduleSlug]) => streamsByModule[moduleSlug] ?? []),
+);
 
 export const streamsInDomain = (domain: BusinessDomain): ValueStream[] =>
-  allValueStreams.filter((s) => domainByStream[s] === domain);
+  Object.entries(bandByModule)
+    .filter(([, band]) => band === domain)
+    .flatMap(([moduleSlug]) => streamsByModule[moduleSlug] ?? []);
+
+/** The streams a given module owns. */
+export const streamsOfModule = (moduleSlug: string): ValueStream[] =>
+  streamsByModule[moduleSlug] ?? [];
 
 export const guidesInStream = (stream: ValueStream) =>
   guides.filter((g) => g.valueStream === stream);
