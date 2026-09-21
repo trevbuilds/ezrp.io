@@ -14,9 +14,14 @@ export function SiteShell({ children }: { children: ReactNode }) {
     <div className="min-h-screen">
       <header className="sticky top-0 z-40 border-b border-border bg-background/85 backdrop-blur">
         <div className="mx-auto flex max-w-6xl items-center justify-between gap-4 px-5 py-3">
-          <Link to="/" className="font-display text-lg font-bold tracking-tight">
-            ezrp<span className="text-primary">.io</span>
-          </Link>
+          <div className="flex items-center gap-2">
+            <Link to="/" className="font-display text-lg font-bold tracking-tight">
+              ezrp<span className="text-primary">.io</span>
+            </Link>
+            <span className="rounded border border-primary/45 px-1.5 py-0.5 font-mono text-[0.625rem] uppercase tracking-normal text-primary">
+              Alpha
+            </span>
+          </div>
           <nav className="flex items-center gap-1">
             {nav.map((item) => (
               <Link
