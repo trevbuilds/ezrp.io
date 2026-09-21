@@ -48,8 +48,11 @@ const raw: Array<Omit<Guide, "workflow"> & { workflow?: string | null }> = [
     categories: ["Concept", "Module"],
     definition:
       "Sales force automation, customer support, marketing, and field service.",
+    // Value stream: Lead-to-Cash, using SAP's five published stages. The wiki
+    // carried an ad-hoc sequence ending at "Feedback & Improvement"; L2C runs
+    // through to cash, handing off to order-processing and accounts-receivable.
     workflow:
-      "Contact Management → Lead Tracking → Opportunity Management → Sales Order Processing → Customer Support → Feedback & Improvement",
+      "Contact to Lead → Lead to Opportunity → Opportunity to Quote → Quote to Order → Order to Cash",
     sourceUrl: "https://ezrp.io/crm/",
   },
   {
@@ -309,6 +312,29 @@ const raw: Array<Omit<Guide, "workflow"> & { workflow?: string | null }> = [
   },
 
   // ----------------------------------------------------------------- CRM
+  {
+    slug: "marketing-automation",
+    topic: "Marketing Automation",
+    parent: "customer-relationship-management",
+    categories: ["Component", "Process"],
+    definition: "Planning and executing marketing campaigns.",
+    // Lead-to-Cash stage 1 — Contact to Lead.
+    workflow:
+      "Campaign Creation → Audience Targeting → Interaction Capture → Lead Identification → Lead Scoring",
+    sourceUrl: null,
+  },
+  {
+    slug: "sales-force-automation",
+    topic: "Sales Force Automation",
+    parent: "customer-relationship-management",
+    categories: ["Component", "Process"],
+    definition: "Streamlining sales processes.",
+    // Lead-to-Cash stages 2-4 — Lead to Opportunity, Opportunity to Quote,
+    // Quote to Order.
+    workflow:
+      "Lead Qualification → Opportunity Conversion → Quote Creation → Quote Negotiation → Order Creation",
+    sourceUrl: null,
+  },
   {
     slug: "customer-support",
     topic: "Customer Support",
