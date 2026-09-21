@@ -25,19 +25,58 @@ export type Level =
   "Band" | "Module" | "Sub-module" | "Value stream" | "Sub-stream" | "Process" | "Step";
 
 /**
- * Cross-cutting lenses. Tagged at the lowest level and aggregated upward.
- * Working base from the Clariti model — expected to grow.
+ * Cross-cutting lenses — the top tier of the Clariti semantic brain, which
+ * models eight enterprise elements joined in a ring: Strategy sets direction,
+ * Governance holds authority to account, People operate it, Process makes it
+ * repeatable, Technology enables it at scale, Data gives it shared meaning,
+ * Delivery converts decisions into change, and Value tests whether intent
+ * produced an outcome — closing back to Strategy.
+ *
+ * Compliance is EZRP's ninth. The brain has no home for a statutory
+ * obligation, and AU payroll and payables are full of them.
+ *
+ * Tagged at the lowest level and aggregated upward by considerationsOf().
  */
 export type Consideration =
-  "Compliance" | "People" | "Governance" | "Technology" | "Delivery" | "Strategy";
+  | "Strategy"
+  | "Governance"
+  | "People"
+  | "Process"
+  | "Technology"
+  | "Data"
+  | "Delivery"
+  | "Value"
+  | "Compliance";
 
+/** Ring order, so the navigator's outer tier reads as the loop it is. */
 export const allConsiderations: Consideration[] = [
   "Strategy",
   "Governance",
-  "Compliance",
   "People",
+  "Process",
   "Technology",
+  "Data",
   "Delivery",
+  "Value",
+  "Compliance",
+];
+
+/**
+ * The brain closes the loop rather than listing the elements. Each pair is a
+ * directed dependency; the navigator draws these as the ring.
+ */
+export const considerationRing: Array<[Consideration, Consideration]> = [
+  ["Strategy", "Governance"],
+  ["Governance", "Process"],
+  ["People", "Process"],
+  ["People", "Delivery"],
+  ["Process", "Technology"],
+  ["Technology", "Data"],
+  ["Data", "Value"],
+  ["Delivery", "Value"],
+  ["Value", "Strategy"],
+  ["Governance", "Compliance"],
+  ["Compliance", "Value"],
 ];
 
 /** Applicability, kept separate from level and from consideration. */
