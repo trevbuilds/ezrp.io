@@ -51,12 +51,20 @@ function ScopePage() {
             streams they sit on, the modules the work actually happens in, and the concerns that
             come with them.
           </p>
-          <Link
-            to="/guides"
-            className="mt-6 inline-block rounded bg-primary px-4 py-2 font-display text-sm font-semibold text-primary-foreground transition hover:brightness-110"
-          >
-            Browse the library
-          </Link>
+          <div className="mt-6 flex flex-wrap gap-2">
+            <Link
+              to="/guides"
+              className="rounded bg-primary px-4 py-2 font-display text-sm font-semibold text-primary-foreground transition hover:brightness-110"
+            >
+              Browse the library
+            </Link>
+            <Link
+              to="/programmes"
+              className="rounded border border-border px-4 py-2 font-display text-sm font-semibold text-muted-foreground transition hover:border-primary hover:text-foreground"
+            >
+              See a worked programme
+            </Link>
+          </div>
         </section>
       </SiteShell>
     );

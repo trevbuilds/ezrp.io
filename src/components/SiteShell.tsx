@@ -9,6 +9,7 @@ const nav = [
   { to: "/start", label: "Start here" },
   { to: "/guides", label: "Guides" },
   { to: "/scope", label: "Scope" },
+  { to: "/programmes", label: "Programmes" },
   { to: "/framework", label: "Framework" },
 ] as const;
 
@@ -38,7 +39,7 @@ export function SiteShell({ children }: { children: ReactNode }) {
   return (
     <div className="min-h-screen">
       <header className="sticky top-0 z-40 border-b border-border bg-background/85 backdrop-blur">
-        <div className="mx-auto flex max-w-6xl items-center justify-between gap-4 px-5 py-3">
+        <div className="mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-x-4 gap-y-2 px-5 py-3">
           <div className="flex items-center gap-2">
             <Link to="/" className="font-display text-lg font-bold tracking-tight">
               ezrp<span className="text-primary">.io</span>
@@ -47,7 +48,7 @@ export function SiteShell({ children }: { children: ReactNode }) {
               Alpha
             </span>
           </div>
-          <nav className="flex items-center gap-1">
+          <nav className="flex flex-wrap items-center justify-end gap-1">
             {nav.map((item) => (
               <Link
                 key={item.to}

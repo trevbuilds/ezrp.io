@@ -39,8 +39,10 @@ People, Process, Technology, Data, Delivery, Value, Compliance — are tagged on
 leaves and rolled up, so a module shows what its children raise and you can
 click through to the cause.
 
-**Seven bands**: Finance · People · Customer & Revenue · Operations · Assets ·
-Programmes & Projects · Data & Technology.
+**Eight bands**: Finance · People/HCM · Customer & Revenue · Operations ·
+Assets · Projects & Portfolio · Data & Technology · Delivery. The first seven
+describe the ERP; Delivery describes how it gets built, which is why it is kept
+separate in the navigator.
 
 ## Australian context
 
@@ -60,6 +62,7 @@ component or a route.
 | `src/content/model.ts`      | bands, modules, sub-modules, streams, considerations            |
 | `src/content/tagging.ts`    | per-topic tagging that cannot be derived                        |
 | `src/content/articles/*.md` | article bodies, one markdown file per article                   |
+| `src/content/programmes.ts` | worked programmes — one organisation, one scope, one plan       |
 
 Level, module, sub-module and band are **computed**, never stored — they are
 derived by walking the tree against the model, so they cannot drift from it.
@@ -102,6 +105,18 @@ migrated, `source: authored` for written-for-EZRP.
 
 `workflow` is the one field deliberately re-modelled rather than copied, against
 published value streams rather than whatever sequence a wiki record carried.
+
+## Programmes
+
+`/programmes` holds worked examples: one organisation, one decision, one set of
+constraints. A programme names only what is being changed and what is
+deliberately not — the streams, the modules it drags in, the phase order and the
+interfaces that straddle the boundary are all computed by `computeScope` from
+the same model the rest of the site runs on. If the model is wrong, the
+programme page is wrong in the same way, which is the point.
+
+They are worked plans rather than status reports, built from publicly known
+sector shape plus the model, and each page says so.
 
 ## Running it
 

@@ -17,6 +17,8 @@ import { Route as ApiChatRouteImport } from './routes/api/chat'
 import { Route as GuidesIndexRouteImport } from './routes/guides/index'
 import { Route as GuidesSlugRouteImport } from './routes/guides/$slug'
 import { Route as PillarsSlugRouteImport } from './routes/pillars/$slug'
+import { Route as ProgrammesIndexRouteImport } from './routes/programmes/index'
+import { Route as ProgrammesSlugRouteImport } from './routes/programmes/$slug'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -58,6 +60,16 @@ const PillarsSlugRoute = PillarsSlugRouteImport.update({
   path: '/pillars/$slug',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ProgrammesIndexRoute = ProgrammesIndexRouteImport.update({
+  id: '/programmes/',
+  path: '/programmes/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ProgrammesSlugRoute = ProgrammesSlugRouteImport.update({
+  id: '/programmes/$slug',
+  path: '/programmes/$slug',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -67,7 +79,9 @@ export interface FileRoutesByFullPath {
   '/api/chat': typeof ApiChatRoute
   '/guides/$slug': typeof GuidesSlugRoute
   '/pillars/$slug': typeof PillarsSlugRoute
+  '/programmes/$slug': typeof ProgrammesSlugRoute
   '/guides/': typeof GuidesIndexRoute
+  '/programmes/': typeof ProgrammesIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -77,7 +91,9 @@ export interface FileRoutesByTo {
   '/api/chat': typeof ApiChatRoute
   '/guides/$slug': typeof GuidesSlugRoute
   '/pillars/$slug': typeof PillarsSlugRoute
+  '/programmes/$slug': typeof ProgrammesSlugRoute
   '/guides': typeof GuidesIndexRoute
+  '/programmes': typeof ProgrammesIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -88,7 +104,9 @@ export interface FileRoutesById {
   '/api/chat': typeof ApiChatRoute
   '/guides/$slug': typeof GuidesSlugRoute
   '/pillars/$slug': typeof PillarsSlugRoute
+  '/programmes/$slug': typeof ProgrammesSlugRoute
   '/guides/': typeof GuidesIndexRoute
+  '/programmes/': typeof ProgrammesIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -100,7 +118,9 @@ export interface FileRouteTypes {
     | '/api/chat'
     | '/guides/$slug'
     | '/pillars/$slug'
+    | '/programmes/$slug'
     | '/guides/'
+    | '/programmes/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -110,7 +130,9 @@ export interface FileRouteTypes {
     | '/api/chat'
     | '/guides/$slug'
     | '/pillars/$slug'
+    | '/programmes/$slug'
     | '/guides'
+    | '/programmes'
   id:
     | '__root__'
     | '/'
@@ -120,7 +142,9 @@ export interface FileRouteTypes {
     | '/api/chat'
     | '/guides/$slug'
     | '/pillars/$slug'
+    | '/programmes/$slug'
     | '/guides/'
+    | '/programmes/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -131,7 +155,9 @@ export interface RootRouteChildren {
   ApiChatRoute: typeof ApiChatRoute
   GuidesSlugRoute: typeof GuidesSlugRoute
   PillarsSlugRoute: typeof PillarsSlugRoute
+  ProgrammesSlugRoute: typeof ProgrammesSlugRoute
   GuidesIndexRoute: typeof GuidesIndexRoute
+  ProgrammesIndexRoute: typeof ProgrammesIndexRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -192,6 +218,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof PillarsSlugRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/programmes/': {
+      id: '/programmes/'
+      path: '/programmes'
+      fullPath: '/programmes/'
+      preLoaderRoute: typeof ProgrammesIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/programmes/$slug': {
+      id: '/programmes/$slug'
+      path: '/programmes/$slug'
+      fullPath: '/programmes/$slug'
+      preLoaderRoute: typeof ProgrammesSlugRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -203,7 +243,9 @@ const rootRouteChildren: RootRouteChildren = {
   ApiChatRoute: ApiChatRoute,
   GuidesSlugRoute: GuidesSlugRoute,
   PillarsSlugRoute: PillarsSlugRoute,
+  ProgrammesSlugRoute: ProgrammesSlugRoute,
   GuidesIndexRoute: GuidesIndexRoute,
+  ProgrammesIndexRoute: ProgrammesIndexRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
