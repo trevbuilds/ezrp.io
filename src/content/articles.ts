@@ -237,8 +237,7 @@ const apAutomation: Article = {
         },
         {
           title: "Define requirements",
-          question:
-            "What features are essential? What are your compliance and reporting needs?",
+          question: "What features are essential? What are your compliance and reporting needs?",
           plan: "List the essentials — invoice capture, approval workflows, payment processing, reporting — and confirm regulatory compliance is covered.",
         },
         {
@@ -278,8 +277,7 @@ const apAutomation: Article = {
         },
         {
           title: "Plan training and change management",
-          question:
-            "What training do staff need? How will you address resistance to change?",
+          question: "What training do staff need? How will you address resistance to change?",
           plan: "Develop training programs and communicate the benefits of the new system to encourage adoption.",
         },
         {

@@ -285,8 +285,7 @@ const opportunityToQuote: Article = {
       items: [
         {
           title: "Configuration",
-          question:
-            "Can the system stop a rep quoting a combination we cannot deliver?",
+          question: "Can the system stop a rep quoting a combination we cannot deliver?",
           plan: "Test with a deliberately invalid configuration rather than a clean one.",
         },
         {
@@ -296,8 +295,7 @@ const opportunityToQuote: Article = {
         },
         {
           title: "Quote to order fidelity",
-          question:
-            "Does the order carry exactly what the quote agreed?",
+          question: "Does the order carry exactly what the quote agreed?",
           plan: "Follow one quote through to a booked order and compare line by line.",
         },
       ],

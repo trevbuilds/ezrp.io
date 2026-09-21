@@ -174,6 +174,33 @@ export function GuideMap() {
               {[...nodes.values()].map((n) => {
                 const size = n.tier === 1 ? 9 : n.tier === 2 ? 6 : 4.5;
                 const faded = dim(n.guide.slug);
+                // An element with children opens the browsable area, scoped to
+                // that branch. A leaf goes straight to its article.
+                const hasKids = childrenOf(n.guide.slug).length > 0;
+                const mark = (
+                  <>
+                    <circle
+                      cx={n.x}
+                      cy={n.y}
+                      r={size}
+                      className={
+                        n.tier === 1 ? "fill-tier-1" : n.tier === 2 ? "fill-tier-2" : "fill-tier-3"
+                      }
+                    />
+                    <text
+                      x={n.x + (n.x < 0 ? -(size + 7) : size + 7)}
+                      y={n.y}
+                      dy="0.34em"
+                      textAnchor={n.x < 0 ? "end" : "start"}
+                      fontSize={n.tier === 1 ? 19 : 14}
+                      className={
+                        n.tier === 1 ? "fill-foreground font-display" : "fill-muted-foreground"
+                      }
+                    >
+                      {n.guide.topic.length > 34 ? `${n.guide.topic.slice(0, 32)}…` : n.guide.topic}
+                    </text>
+                  </>
+                );
                 return (
                   <g
                     key={n.guide.slug}
@@ -182,36 +209,15 @@ export function GuideMap() {
                     onFocus={() => setActive(n.guide.slug)}
                     className="cursor-pointer"
                   >
-                    <Link to="/guides/$slug" params={{ slug: n.guide.slug }}>
-                      <circle
-                        cx={n.x}
-                        cy={n.y}
-                        r={size}
-                        className={
-                          n.tier === 1
-                            ? "fill-tier-1"
-                            : n.tier === 2
-                              ? "fill-tier-2"
-                              : "fill-tier-3"
-                        }
-                      />
-                      <text
-                        x={n.x + (n.x < 0 ? -(size + 7) : size + 7)}
-                        y={n.y}
-                        dy="0.34em"
-                        textAnchor={n.x < 0 ? "end" : "start"}
-                        fontSize={n.tier === 1 ? 19 : 14}
-                        className={
-                          n.tier === 1
-                            ? "fill-foreground font-display"
-                            : "fill-muted-foreground"
-                        }
-                      >
-                        {n.guide.topic.length > 34
-                          ? `${n.guide.topic.slice(0, 32)}…`
-                          : n.guide.topic}
-                      </text>
-                    </Link>
+                    {hasKids ? (
+                      <Link to="/guides" search={{ module: n.guide.slug }}>
+                        {mark}
+                      </Link>
+                    ) : (
+                      <Link to="/guides/$slug" params={{ slug: n.guide.slug }}>
+                        {mark}
+                      </Link>
+                    )}
                   </g>
                 );
               })}
@@ -245,27 +251,45 @@ export function GuideMap() {
             </p>
             <h3 className="mt-1 text-xl font-semibold">{selected.topic}</h3>
             {selected.definition && (
-              <p className="mt-2 max-w-2xl text-sm text-muted-foreground">
-                {selected.definition}
-              </p>
+              <p className="mt-2 max-w-2xl text-sm text-muted-foreground">{selected.definition}</p>
             )}
             {selected.workflow.length > 0 && (
               <p className="mt-3 font-mono text-xs text-accent">
                 {selected.workflow.join("  →  ")}
               </p>
             )}
-            <Link
-              to="/guides/$slug"
-              params={{ slug: selected.slug }}
-              className="mt-3 inline-block text-sm font-semibold text-primary hover:underline"
-            >
-              Open guide →
-            </Link>
+            <div className="mt-3 flex flex-wrap items-center gap-4">
+              <Link
+                to="/guides/$slug"
+                params={{ slug: selected.slug }}
+                className="text-sm font-semibold text-primary hover:underline"
+              >
+                Open guide →
+              </Link>
+              {childrenOf(selected.slug).length > 0 && (
+                <Link
+                  to="/guides"
+                  search={{ module: selected.slug }}
+                  className="text-sm text-muted-foreground hover:text-foreground"
+                >
+                  Browse this area
+                </Link>
+              )}
+              {selected.valueStream && (
+                <Link
+                  to="/guides"
+                  search={{ stream: selected.valueStream }}
+                  className="rounded-full border border-primary px-2 py-0.5 text-xs text-primary hover:brightness-110"
+                >
+                  {selected.valueStream}
+                </Link>
+              )}
+            </div>
           </div>
         ) : (
           <p className="text-sm text-muted-foreground">
-            Hover a node to trace its connections. Tap any label to open the guide. Drag to
-            pan, use the controls to zoom. {guides.length} guides mapped.
+            Hover a node to trace its connections. Tap an area to browse its guides, or a leaf to
+            open it. Drag to pan, use the controls to zoom. {guides.length} guides mapped.
           </p>
         )}
       </div>

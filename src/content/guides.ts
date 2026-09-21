@@ -32,9 +32,88 @@ export type Guide = {
   definition: string | null;
   workflow: string[];
   sourceUrl: string | null;
+  valueStream: ValueStream | null;
 };
 
-const raw: Array<Omit<Guide, "workflow"> & { workflow?: string | null }> = [
+/**
+ * Published end-to-end value streams. This is a separate axis to the module
+ * tree: customer-support sits under CRM but belongs to Issue-to-Resolution,
+ * and accounts-receivable sits under Financial Accounting but is the tail of
+ * Lead-to-Cash. Topics with no stream — governance, security, PMO — are null
+ * rather than forced into one.
+ */
+export type ValueStream =
+  | "Lead-to-Cash"
+  | "Procure-to-Pay"
+  | "Record-to-Report"
+  | "Issue-to-Resolution"
+  | "Hire-to-Retire"
+  | "Acquire-to-Retire";
+
+const valueStreamBySlug: Record<string, ValueStream> = {
+  // Lead-to-Cash
+  "customer-relationship-management": "Lead-to-Cash",
+  "contact-to-lead": "Lead-to-Cash",
+  "lead-to-opportunity": "Lead-to-Cash",
+  "opportunity-to-quote": "Lead-to-Cash",
+  "quote-to-order": "Lead-to-Cash",
+  "order-to-cash": "Lead-to-Cash",
+  "order-to-fulfil": "Lead-to-Cash",
+  "fulfil-to-invoice": "Lead-to-Cash",
+  "invoice-to-cash": "Lead-to-Cash",
+  "marketing-automation": "Lead-to-Cash",
+  "sales-force-automation": "Lead-to-Cash",
+  "accounts-receivable": "Lead-to-Cash",
+  billing: "Lead-to-Cash",
+
+  // Procure-to-Pay
+  "accounts-payable": "Procure-to-Pay",
+  "3-way-matching": "Procure-to-Pay",
+  "ap-automation": "Procure-to-Pay",
+  payments: "Procure-to-Pay",
+  "eft-files": "Procure-to-Pay",
+  aba: "Procure-to-Pay",
+
+  // Record-to-Report
+  "financial-accounting": "Record-to-Report",
+  "general-ledger": "Record-to-Report",
+  "cash-management": "Record-to-Report",
+  "bank-reconciliation": "Record-to-Report",
+
+  // Issue-to-Resolution
+  "customer-support": "Issue-to-Resolution",
+  "field-service": "Issue-to-Resolution",
+
+  // Hire-to-Retire
+  "human-capital-management": "Hire-to-Retire",
+  "core-hr": "Hire-to-Retire",
+  "org-and-position-management": "Hire-to-Retire",
+  "employee-self-service": "Hire-to-Retire",
+  onboarding: "Hire-to-Retire",
+  offboarding: "Hire-to-Retire",
+  payroll: "Hire-to-Retire",
+  "payroll-automation": "Hire-to-Retire",
+  superannuation: "Hire-to-Retire",
+  "single-touch-payroll": "Hire-to-Retire",
+  "time-and-attendance": "Hire-to-Retire",
+  "rostering-and-scheduling": "Hire-to-Retire",
+  "leave-management": "Hire-to-Retire",
+  "award-interpretation": "Hire-to-Retire",
+  "talent-acquisition": "Hire-to-Retire",
+  "performance-management": "Hire-to-Retire",
+  "learning-and-development": "Hire-to-Retire",
+  "workforce-analytics": "Hire-to-Retire",
+  benefits: "Hire-to-Retire",
+  compliance: "Hire-to-Retire",
+
+  // Acquire-to-Retire
+  "enterprise-asset-management": "Acquire-to-Retire",
+  "asset-lifecycle-management": "Acquire-to-Retire",
+  "energy-management": "Acquire-to-Retire",
+  "asset-management": "Acquire-to-Retire",
+};
+
+const raw: Array<Omit<Guide, "workflow" | "valueStream"> & { workflow?: string | null }> = [
   // ---------------------------------------------------------------- pillars
   {
     slug: "financial-accounting",
@@ -52,8 +131,7 @@ const raw: Array<Omit<Guide, "workflow"> & { workflow?: string | null }> = [
     topic: "Customer Relationship Management",
     parent: null,
     categories: ["Concept", "Module"],
-    definition:
-      "Sales force automation, customer support, marketing, and field service.",
+    definition: "Sales force automation, customer support, marketing, and field service.",
     // Value stream: Lead-to-Cash, using SAP's five published stages. The wiki
     // carried an ad-hoc sequence ending at "Feedback & Improvement"; L2C runs
     // through to cash, handing off to order-processing and accounts-receivable.
@@ -66,8 +144,7 @@ const raw: Array<Omit<Guide, "workflow"> & { workflow?: string | null }> = [
     topic: "Data Services",
     parent: null,
     categories: ["Concept", "Module"],
-    definition:
-      "Reporting, analytics, data warehousing, and business intelligence.",
+    definition: "Reporting, analytics, data warehousing, and business intelligence.",
     workflow:
       "Data Collection → Data Cleansing → Data Analysis → Data Reporting → Decision Making Support",
     sourceUrl: null,
@@ -77,8 +154,7 @@ const raw: Array<Omit<Guide, "workflow"> & { workflow?: string | null }> = [
     topic: "Enterprise Asset Management",
     parent: null,
     categories: ["Concept", "Module"],
-    definition:
-      "Maintenance scheduling, asset lifecycle management, and energy management.",
+    definition: "Maintenance scheduling, asset lifecycle management, and energy management.",
     workflow:
       "Asset Tracking → Preventive Maintenance Scheduling → Work Order Management → Asset Performance Monitoring → Replacement Planning",
     sourceUrl: "https://ezrp.io/asset-management/",
@@ -185,8 +261,7 @@ const raw: Array<Omit<Guide, "workflow"> & { workflow?: string | null }> = [
     parent: "financial-accounting",
     categories: ["Component", "Process"],
     definition: null,
-    workflow:
-      "Invoice Receipt → 3-Way Match → Payment Approval → Payment Disbursement",
+    workflow: "Invoice Receipt → 3-Way Match → Payment Approval → Payment Disbursement",
     sourceUrl: "https://ezrp.io/accounts-payable/",
   },
   {
@@ -195,8 +270,7 @@ const raw: Array<Omit<Guide, "workflow"> & { workflow?: string | null }> = [
     parent: "financial-accounting",
     categories: ["Component", "Process"],
     definition: null,
-    workflow:
-      "Billing Creation → Payment Tracking → Collections Management → Revenue Recognition",
+    workflow: "Billing Creation → Payment Tracking → Collections Management → Revenue Recognition",
     sourceUrl: "https://ezrp.io/accounts-receivable-ar/",
   },
   {
@@ -232,8 +306,7 @@ const raw: Array<Omit<Guide, "workflow"> & { workflow?: string | null }> = [
     parent: "financial-accounting",
     categories: ["Component", "Process"],
     definition: "Managing cash flow and liquidity.",
-    workflow:
-      "Cash Forecasting → Daily Cash Update → Cash Positioning → Funds Transfer",
+    workflow: "Cash Forecasting → Daily Cash Update → Cash Positioning → Funds Transfer",
     sourceUrl: "https://ezrp.io/cash-management/",
   },
   {
@@ -251,8 +324,7 @@ const raw: Array<Omit<Guide, "workflow"> & { workflow?: string | null }> = [
     parent: "financial-accounting",
     categories: ["Component", "Process"],
     definition: null,
-    workflow:
-      "Asset Acquisition → Depreciation Calculation → Asset Maintenance → Asset Disposal",
+    workflow: "Asset Acquisition → Depreciation Calculation → Asset Maintenance → Asset Disposal",
     sourceUrl: "https://ezrp.io/asset-management/",
   },
 
@@ -283,8 +355,7 @@ const raw: Array<Omit<Guide, "workflow"> & { workflow?: string | null }> = [
     parent: "data-services",
     categories: ["Component", "Process"],
     definition: "Using data to inform strategic decisions.",
-    workflow:
-      "Query Formulation → Data Visualization → Trend Identification → Decision Support",
+    workflow: "Query Formulation → Data Visualization → Trend Identification → Decision Support",
     sourceUrl: null,
   },
   {
@@ -293,8 +364,7 @@ const raw: Array<Omit<Guide, "workflow"> & { workflow?: string | null }> = [
     parent: "data-services",
     categories: ["Component", "Process"],
     definition: "Applying statistical analysis to business data.",
-    workflow:
-      "Data Collection → Model Building → Data Analysis → Insight Generation",
+    workflow: "Data Collection → Model Building → Data Analysis → Insight Generation",
     sourceUrl: "https://ezrp.io/data-models/",
   },
   {
@@ -303,8 +373,7 @@ const raw: Array<Omit<Guide, "workflow"> & { workflow?: string | null }> = [
     parent: "data-services",
     categories: ["Component", "Process"],
     definition: "Consolidating data from various sources.",
-    workflow:
-      "Data Extraction → Data Transformation → Data Loading → Data Maintenance",
+    workflow: "Data Extraction → Data Transformation → Data Loading → Data Maintenance",
     sourceUrl: null,
   },
   {
@@ -326,8 +395,7 @@ const raw: Array<Omit<Guide, "workflow"> & { workflow?: string | null }> = [
     topic: "Contact to Lead",
     parent: "customer-relationship-management",
     categories: ["Process"],
-    definition:
-      "Turning interest captured across channels into a scored, qualified lead.",
+    definition: "Turning interest captured across channels into a scored, qualified lead.",
     workflow:
       "Channel Capture → Consent and Contact Creation → Interaction Tracking → Lead Scoring → Lead Qualification",
     sourceUrl: null,
@@ -348,8 +416,7 @@ const raw: Array<Omit<Guide, "workflow"> & { workflow?: string | null }> = [
     topic: "Opportunity to Quote",
     parent: "customer-relationship-management",
     categories: ["Process"],
-    definition:
-      "Assessing whether an opportunity is ready to be priced, and issuing a quote.",
+    definition: "Assessing whether an opportunity is ready to be priced, and issuing a quote.",
     workflow:
       "Opportunity Assessment → Needs Confirmation → Solution Configuration → Pricing → Quote Issue",
     sourceUrl: null,
@@ -359,10 +426,8 @@ const raw: Array<Omit<Guide, "workflow"> & { workflow?: string | null }> = [
     topic: "Quote to Order",
     parent: "customer-relationship-management",
     categories: ["Process"],
-    definition:
-      "Negotiating the quote to agreement and converting it into an order.",
-    workflow:
-      "Quote Presentation → Negotiation → Approval → Acceptance → Order Creation",
+    definition: "Negotiating the quote to agreement and converting it into an order.",
+    workflow: "Quote Presentation → Negotiation → Approval → Acceptance → Order Creation",
     sourceUrl: null,
   },
   {
@@ -370,8 +435,7 @@ const raw: Array<Omit<Guide, "workflow"> & { workflow?: string | null }> = [
     topic: "Order to Cash",
     parent: "customer-relationship-management",
     categories: ["Process"],
-    definition:
-      "Executing the order, invoicing it, and collecting the cash.",
+    definition: "Executing the order, invoicing it, and collecting the cash.",
     workflow: "Order to Fulfil → Fulfil to Invoice → Invoice to Cash",
     sourceUrl: null,
   },
@@ -380,8 +444,7 @@ const raw: Array<Omit<Guide, "workflow"> & { workflow?: string | null }> = [
     topic: "Order to Fulfil",
     parent: "order-to-cash",
     categories: ["Process"],
-    definition:
-      "Order entry through to goods or services delivered.",
+    definition: "Order entry through to goods or services delivered.",
     workflow:
       "Order Entry → Availability Check → Inventory Allocation → Picking and Packing → Shipping and Delivery",
     sourceUrl: null,
@@ -391,8 +454,7 @@ const raw: Array<Omit<Guide, "workflow"> & { workflow?: string | null }> = [
     topic: "Fulfil to Invoice",
     parent: "order-to-cash",
     categories: ["Process"],
-    definition:
-      "Turning a completed delivery into a billing document and recorded revenue.",
+    definition: "Turning a completed delivery into a billing document and recorded revenue.",
     workflow:
       "Delivery Confirmation → Billing Document Creation → Invoice Generation → Revenue Recording",
     sourceUrl: null,
@@ -402,8 +464,7 @@ const raw: Array<Omit<Guide, "workflow"> & { workflow?: string | null }> = [
     topic: "Invoice to Cash",
     parent: "order-to-cash",
     categories: ["Process"],
-    definition:
-      "Getting the invoice to the customer and the money into the bank.",
+    definition: "Getting the invoice to the customer and the money into the bank.",
     workflow:
       "Invoice Transmission → Payment Tracking → Receipt Application → Collections → Receivables Clearing",
     sourceUrl: null,
@@ -536,10 +597,8 @@ const raw: Array<Omit<Guide, "workflow"> & { workflow?: string | null }> = [
     topic: "Onboarding",
     parent: "core-hr",
     categories: ["Process"],
-    definition:
-      "Turning an accepted offer into a provisioned, paid, productive employee.",
-    workflow:
-      "Offer Acceptance → Pre-boarding → Day One → Provisioning → Probation Review",
+    definition: "Turning an accepted offer into a provisioned, paid, productive employee.",
+    workflow: "Offer Acceptance → Pre-boarding → Day One → Provisioning → Probation Review",
     sourceUrl: null,
   },
   {
@@ -601,8 +660,7 @@ const raw: Array<Omit<Guide, "workflow"> & { workflow?: string | null }> = [
     topic: "Time and Attendance",
     parent: "human-capital-management",
     categories: ["Component", "Process"],
-    definition:
-      "Capturing worked time and converting it into pay, cost and compliance outcomes.",
+    definition: "Capturing worked time and converting it into pay, cost and compliance outcomes.",
     workflow:
       "Roster Published → Time Captured → Exceptions Cleared → Manager Approval → Interpretation → Payroll Input",
     sourceUrl: null,
@@ -624,8 +682,7 @@ const raw: Array<Omit<Guide, "workflow"> & { workflow?: string | null }> = [
     parent: "time-and-attendance",
     categories: ["Component", "Process"],
     definition: "Accruing, requesting, approving and paying absence.",
-    workflow:
-      "Accrual → Request → Approval → Balance Update → Payroll Input",
+    workflow: "Accrual → Request → Approval → Balance Update → Payroll Input",
     sourceUrl: null,
   },
   {
@@ -635,8 +692,7 @@ const raw: Array<Omit<Guide, "workflow"> & { workflow?: string | null }> = [
     categories: ["Process", "Local-AU"],
     definition:
       "Applying award, agreement and policy rules to raw worked time to produce payable hours.",
-    workflow:
-      "Raw Time → Rule Set Applied → Overtime and Penalties → Allowances → Payable Hours",
+    workflow: "Raw Time → Rule Set Applied → Overtime and Penalties → Allowances → Payable Hours",
     sourceUrl: null,
   },
   {
@@ -645,8 +701,7 @@ const raw: Array<Omit<Guide, "workflow"> & { workflow?: string | null }> = [
     parent: "human-capital-management",
     categories: ["Component", "Process"],
     definition: "Attracting, assessing and hiring people into approved positions.",
-    workflow:
-      "Vacancy Approval → Sourcing → Screening → Interview → Offer → Acceptance",
+    workflow: "Vacancy Approval → Sourcing → Screening → Interview → Offer → Acceptance",
     sourceUrl: null,
   },
   {
@@ -655,8 +710,7 @@ const raw: Array<Omit<Guide, "workflow"> & { workflow?: string | null }> = [
     parent: "human-capital-management",
     categories: ["Component", "Process"],
     definition: "Setting expectations, reviewing delivery and acting on the outcome.",
-    workflow:
-      "Goal Setting → Check-ins → Review → Calibration → Outcome and Development Plan",
+    workflow: "Goal Setting → Check-ins → Review → Calibration → Outcome and Development Plan",
     sourceUrl: null,
   },
   {
@@ -677,8 +731,7 @@ const raw: Array<Omit<Guide, "workflow"> & { workflow?: string | null }> = [
     categories: ["Component", "Process"],
     definition:
       "Headcount, turnover, cost and capability reporting drawn from the HR system of record.",
-    workflow:
-      "Data Consolidation → Measure Definition → Reporting → Workforce Planning",
+    workflow: "Data Consolidation → Measure Definition → Reporting → Workforce Planning",
     sourceUrl: null,
   },
 
@@ -911,6 +964,7 @@ const raw: Array<Omit<Guide, "workflow"> & { workflow?: string | null }> = [
 
 export const guides: Guide[] = raw.map((g) => ({
   ...g,
+  valueStream: valueStreamBySlug[g.slug] ?? null,
   workflow: g.workflow
     ? g.workflow
         .split("→")
@@ -944,6 +998,16 @@ export function pillarOf(slug: string): Guide | undefined {
   return chain[0] ?? guideBySlug.get(slug);
 }
 
-export const allCategories = Array.from(
-  new Set(guides.flatMap((g) => g.categories)),
-).sort();
+export const allValueStreams: ValueStream[] = [
+  "Lead-to-Cash",
+  "Procure-to-Pay",
+  "Record-to-Report",
+  "Issue-to-Resolution",
+  "Hire-to-Retire",
+  "Acquire-to-Retire",
+];
+
+export const guidesInStream = (stream: ValueStream) =>
+  guides.filter((g) => g.valueStream === stream);
+
+export const allCategories = Array.from(new Set(guides.flatMap((g) => g.categories))).sort();

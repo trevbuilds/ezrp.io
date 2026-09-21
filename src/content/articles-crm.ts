@@ -154,8 +154,7 @@ const customerRelationshipManagement: Article = {
         },
         {
           title: "Customisation",
-          question:
-            "What customisation is available to fit our sales process?",
+          question: "What customisation is available to fit our sales process?",
           plan: "Establish what is configuration, what is code, and what will break on upgrade.",
         },
         {
@@ -306,8 +305,7 @@ const marketingAutomation: Article = {
       items: [
         {
           title: "Integration",
-          question:
-            "How does the tool integrate with our existing CRM?",
+          question: "How does the tool integrate with our existing CRM?",
           plan: "Confirm whether the integration is native, and what it costs to keep working.",
         },
         {
@@ -317,8 +315,7 @@ const marketingAutomation: Article = {
         },
         {
           title: "Journey handling",
-          question:
-            "How does the tool handle nurturing across stages of the customer journey?",
+          question: "How does the tool handle nurturing across stages of the customer journey?",
           plan: "Walk a real journey through the product rather than accepting a diagram.",
         },
         {
@@ -598,20 +595,17 @@ const customerSupport: Article = {
       items: [
         {
           title: "Channels",
-          question:
-            "How does the system integrate with different communication channels?",
+          question: "How does the system integrate with different communication channels?",
           plan: "Confirm which channels are native and which need middleware.",
         },
         {
           title: "Ticketing",
-          question:
-            "What features exist for ticket management and tracking?",
+          question: "What features exist for ticket management and tracking?",
           plan: "Check escalation, SLA handling and queue routing against real scenarios.",
         },
         {
           title: "Reporting",
-          question:
-            "Can the system report on support performance?",
+          question: "Can the system report on support performance?",
           plan: "Ask to see the standard reports rather than a report builder.",
         },
         {
@@ -788,8 +782,7 @@ const fieldService: Article = {
         },
         {
           title: "Mobile",
-          question:
-            "Is there a mobile app for technicians, and what can it do?",
+          question: "Is there a mobile app for technicians, and what can it do?",
           plan: "Check offline behaviour specifically — field work happens where coverage does not.",
         },
         {
