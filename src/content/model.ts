@@ -134,95 +134,267 @@ export type SubModule = {
   slug: string;
   name: string;
   module: string;
+  /**
+   * Sub-modules that have to be standing before this one is worth starting.
+   *
+   * This is the one part of the model that is not derived. Sequence is a
+   * delivery judgement, not a fact about the taxonomy: the general ledger has
+   * to exist before a sub-ledger can post to it, and a purchase order has to
+   * exist before three-way matching has anything to match. These are proposals
+   * from common tier-1 sequencing and are meant to be argued with — the
+   * consequence of a wrong edge is a phase in the wrong order, nothing worse.
+   */
+  dependsOn?: string[];
 };
 
 export const subModules: SubModule[] = [
   // Financial Accounting
   { slug: "general-ledger", name: "General Ledger", module: "financial-accounting" },
-  { slug: "accounts-payable", name: "Accounts Payable", module: "financial-accounting" },
-  { slug: "accounts-receivable", name: "Accounts Receivable", module: "financial-accounting" },
-  { slug: "asset-accounting", name: "Asset Accounting", module: "financial-accounting" },
-  { slug: "cash-management", name: "Cash & Treasury", module: "financial-accounting" },
+  {
+    slug: "accounts-payable",
+    name: "Accounts Payable",
+    module: "financial-accounting",
+    dependsOn: ["general-ledger", "procurement"],
+  },
+  {
+    slug: "accounts-receivable",
+    name: "Accounts Receivable",
+    module: "financial-accounting",
+    dependsOn: ["general-ledger", "order-processing"],
+  },
+  {
+    slug: "asset-accounting",
+    name: "Asset Accounting",
+    module: "financial-accounting",
+    dependsOn: ["general-ledger"],
+  },
+  {
+    slug: "cash-management",
+    name: "Cash & Treasury",
+    module: "financial-accounting",
+    dependsOn: ["general-ledger", "accounts-payable", "accounts-receivable"],
+  },
 
   // Human Capital Management
   { slug: "core-hr", name: "Core HR", module: "human-capital-management" },
-  { slug: "payroll", name: "Payroll", module: "human-capital-management" },
+  {
+    slug: "payroll",
+    name: "Payroll",
+    module: "human-capital-management",
+    dependsOn: ["core-hr", "time-and-attendance"],
+  },
   {
     slug: "time-and-attendance",
     name: "Time & Attendance",
     module: "human-capital-management",
+    dependsOn: ["core-hr"],
   },
-  { slug: "talent-acquisition", name: "Talent Acquisition", module: "human-capital-management" },
+  {
+    slug: "talent-acquisition",
+    name: "Talent Acquisition",
+    module: "human-capital-management",
+    dependsOn: ["core-hr"],
+  },
   {
     slug: "learning-and-development",
     name: "Learning & Development",
     module: "human-capital-management",
+    dependsOn: ["core-hr"],
   },
-  { slug: "benefits", name: "Benefits", module: "human-capital-management" },
+  {
+    slug: "benefits",
+    name: "Benefits",
+    module: "human-capital-management",
+    dependsOn: ["core-hr"],
+  },
 
   // Customer Relationship Management
   { slug: "sales", name: "Sales", module: "customer-relationship-management" },
   { slug: "customer-support", name: "Service", module: "customer-relationship-management" },
-  { slug: "marketing-automation", name: "Marketing", module: "customer-relationship-management" },
-  { slug: "field-service", name: "Field Service", module: "customer-relationship-management" },
+  {
+    slug: "marketing-automation",
+    name: "Marketing",
+    module: "customer-relationship-management",
+    dependsOn: ["sales"],
+  },
+  {
+    slug: "field-service",
+    name: "Field Service",
+    module: "customer-relationship-management",
+    dependsOn: ["customer-support"],
+  },
 
   // Supply Chain Management
   { slug: "procurement", name: "Procurement", module: "supply-chain-management" },
   { slug: "inventory-management", name: "Inventory", module: "supply-chain-management" },
-  { slug: "order-processing", name: "Order Management", module: "supply-chain-management" },
-  { slug: "logistics", name: "Logistics", module: "supply-chain-management" },
+  {
+    slug: "order-processing",
+    name: "Order Management",
+    module: "supply-chain-management",
+    dependsOn: ["inventory-management"],
+  },
+  {
+    slug: "logistics",
+    name: "Logistics",
+    module: "supply-chain-management",
+    dependsOn: ["order-processing"],
+  },
 
   // Manufacturing
-  { slug: "production-planning", name: "Production Planning", module: "manufacturing" },
-  { slug: "materials-management", name: "Materials Management", module: "manufacturing" },
+  {
+    slug: "production-planning",
+    name: "Production Planning",
+    module: "manufacturing",
+    dependsOn: ["product-lifecycle-management", "materials-management"],
+  },
+  {
+    slug: "materials-management",
+    name: "Materials Management",
+    module: "manufacturing",
+    dependsOn: ["product-lifecycle-management"],
+  },
   {
     slug: "product-lifecycle-management",
     name: "Product Lifecycle Management",
     module: "manufacturing",
   },
-  { slug: "quality-control", name: "Quality Control", module: "manufacturing" },
+  {
+    slug: "quality-control",
+    name: "Quality Control",
+    module: "manufacturing",
+    dependsOn: ["production-planning"],
+  },
 
   // Enterprise Asset Management
   {
     slug: "maintenance-scheduling",
     name: "Maintenance Scheduling",
     module: "enterprise-asset-management",
+    dependsOn: ["asset-lifecycle-management"],
   },
   {
     slug: "asset-lifecycle-management",
     name: "Asset Lifecycle",
     module: "enterprise-asset-management",
   },
-  { slug: "energy-management", name: "Energy Management", module: "enterprise-asset-management" },
+  {
+    slug: "energy-management",
+    name: "Energy Management",
+    module: "enterprise-asset-management",
+    dependsOn: ["asset-lifecycle-management"],
+  },
 
   // Project & Portfolio Management
   { slug: "project-planning", name: "Project Planning", module: "project-management" },
-  { slug: "resource-planning", name: "Resource Planning", module: "project-management" },
-  { slug: "project-costing", name: "Project Costing", module: "project-management" },
-  { slug: "billing", name: "Project Billing", module: "project-management" },
+  {
+    slug: "resource-planning",
+    name: "Resource Planning",
+    module: "project-management",
+    dependsOn: ["project-planning"],
+  },
+  {
+    slug: "project-costing",
+    name: "Project Costing",
+    module: "project-management",
+    dependsOn: ["project-planning", "general-ledger"],
+  },
+  {
+    slug: "billing",
+    name: "Project Billing",
+    module: "project-management",
+    dependsOn: ["project-costing", "accounts-receivable"],
+  },
 
   // Data & Analytics
-  { slug: "business-intelligence", name: "Business Intelligence", module: "data-services" },
+  {
+    slug: "business-intelligence",
+    name: "Business Intelligence",
+    module: "data-services",
+    dependsOn: ["data-warehousing"],
+  },
   { slug: "data-warehousing", name: "Data Warehousing", module: "data-services" },
   { slug: "data-migration", name: "Data Migration", module: "data-services" },
 
   // Integration
   { slug: "integration-catalogue", name: "Integration Catalogue", module: "integration" },
-  { slug: "middleware", name: "Middleware", module: "integration" },
+  {
+    slug: "middleware",
+    name: "Middleware",
+    module: "integration",
+    dependsOn: ["integration-catalogue"],
+  },
 
   // Security & Identity
-  { slug: "sod-and-rbac", name: "Access & SoD", module: "security" },
+  { slug: "sod-and-rbac", name: "Access & SoD", module: "security", dependsOn: ["core-hr"] },
   { slug: "disaster-recovery", name: "Resilience", module: "security" },
 
   // PMO & Programme Governance
   { slug: "governance", name: "Programme Governance", module: "pmo" },
-  { slug: "go-live-toolkit", name: "Cutover & Go-Live", module: "pmo" },
+  { slug: "go-live-toolkit", name: "Cutover & Go-Live", module: "pmo", dependsOn: ["governance"] },
 
   // Change, People & Adoption
   { slug: "adoption", name: "Adoption", module: "change-people-and-adoption" },
 ];
 
 export const subModuleBySlug = new Map(subModules.map((s) => [s.slug, s]));
+
+/**
+ * Order a set of sub-modules into phases: everything with no unmet
+ * prerequisite inside the set can start together, then what those unblock, and
+ * so on. Dependencies outside the set are ignored — if you are not changing
+ * the general ledger, it is already there.
+ *
+ * A cycle would mean two sub-modules each claiming to need the other, which is
+ * a modelling error rather than a delivery reality. The remainder is emitted as
+ * one final phase rather than dropped, so nothing silently disappears.
+ */
+export function phaseSubModules(slugs: string[]): SubModule[][] {
+  const inScope = new Set(slugs.filter((slug) => subModuleBySlug.has(slug)));
+  const done = new Set<string>();
+  const phases: SubModule[][] = [];
+
+  while (done.size < inScope.size) {
+    const ready = [...inScope]
+      .filter((slug) => !done.has(slug))
+      .filter((slug) =>
+        (subModuleBySlug.get(slug)?.dependsOn ?? [])
+          .filter((dep) => inScope.has(dep))
+          .every((dep) => done.has(dep)),
+      );
+
+    if (ready.length === 0) {
+      const rest = [...inScope]
+        .filter((slug) => !done.has(slug))
+        .map((slug) => subModuleBySlug.get(slug))
+        .filter((sub): sub is SubModule => Boolean(sub));
+      if (rest.length) phases.push(rest);
+      break;
+    }
+
+    phases.push(
+      ready
+        .map((slug) => subModuleBySlug.get(slug))
+        .filter((sub): sub is SubModule => Boolean(sub)),
+    );
+    ready.forEach((slug) => done.add(slug));
+  }
+
+  return phases;
+}
+
+/** Prerequisites outside a scope — already in place, or a gap in the plan. */
+export const externalPrerequisites = (slugs: string[]): SubModule[] => {
+  const inScope = new Set(slugs);
+  return [
+    ...new Set(
+      slugs.flatMap((slug) =>
+        (subModuleBySlug.get(slug)?.dependsOn ?? []).filter((dep) => !inScope.has(dep)),
+      ),
+    ),
+  ]
+    .map((slug) => subModuleBySlug.get(slug))
+    .filter((sub): sub is SubModule => Boolean(sub));
+};
 export const subModulesOfModule = (moduleSlug: string) =>
   subModules.filter((s) => s.module === moduleSlug);
 

@@ -16,11 +16,14 @@
 import { guideBySlug, guides, considerationsOf, type Guide } from "./guides";
 import {
   bandOfModule,
+  externalPrerequisites,
+  phaseSubModules,
   streamBySlug,
   subStreamsOf,
   type Band,
   type Consideration,
   type Stream,
+  type SubModule,
 } from "./model";
 
 export type ScopeResult = {
@@ -50,6 +53,10 @@ export type ScopeResult = {
   considerations: Consideration[];
   /** Topics in scope that carry AU-specific obligations. */
   localAu: Guide[];
+  /** Sub-modules in scope, ordered into phases by their dependencies. */
+  phases: SubModule[][];
+  /** Prerequisites the scope relies on but does not include. */
+  prerequisites: SubModule[];
 };
 
 /** The L1 stream a stream belongs to — itself, when it is already L1. */
@@ -109,6 +116,14 @@ export function computeScope(slugs: string[]): ScopeResult {
     modules.map((module) => bandOfModule(module)).filter((band): band is Band => band !== null),
   );
 
+  // Sequence runs over sub-modules: they are the unit a team actually stands
+  // up, and the level the dependency edges are declared at.
+  const subModuleSlugs = unique(
+    topics.map((guide) => guide.subModule).filter((slug): slug is string => Boolean(slug)),
+  );
+  const phases = phaseSubModules(subModuleSlugs);
+  const prerequisites = externalPrerequisites(subModuleSlugs);
+
   const considerations = unique(topics.flatMap((guide) => considerationsOf(guide.slug)));
   const localAu = topics.filter((guide) => guide.scope.includes("Local-AU"));
 
@@ -126,6 +141,8 @@ export function computeScope(slugs: string[]): ScopeResult {
     bands,
     considerations,
     localAu,
+    phases,
+    prerequisites,
   };
 }
 

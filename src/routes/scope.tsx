@@ -153,6 +153,62 @@ function ScopePage() {
           </div>
         </section>
 
+        {scope.phases.length > 0 && (
+          <section className="mt-8">
+            <p className="label-xs">The order to do it in</p>
+            <div className="mt-3 space-y-3">
+              {scope.phases.map((phase, index) => (
+                <div key={index} className="panel rounded-lg p-4">
+                  <div className="flex items-baseline gap-3">
+                    <span className="font-mono text-xs text-primary">
+                      {String(index + 1).padStart(2, "0")}
+                    </span>
+                    <div>
+                      <p className="font-display text-base font-semibold">
+                        {phase.map((sub) => sub.name).join(", ")}
+                      </p>
+                      <p className="mt-1 text-xs text-muted-foreground">
+                        {index === 0
+                          ? "Nothing in scope blocks these — they can start together."
+                          : "Unblocked once the phase above is standing."}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+            <p className="mt-3 max-w-2xl text-xs text-muted-foreground">
+              Sequence is a delivery judgement rather than a fact about the taxonomy. These are
+              proposals from common tier-1 ordering —{" "}
+              <a
+                href="https://github.com/trevbuilds/ezrp.io/discussions"
+                target="_blank"
+                rel="noreferrer"
+                className="text-primary hover:underline"
+              >
+                argue with them
+              </a>
+              .
+            </p>
+          </section>
+        )}
+
+        {scope.prerequisites.length > 0 && (
+          <section className="panel mt-8 rounded-lg p-5">
+            <p className="label-xs">Assumed already in place</p>
+            <p className="mt-2 max-w-2xl text-sm text-muted-foreground">
+              This scope depends on{" "}
+              <strong className="text-foreground">
+                {scope.prerequisites.map((sub) => sub.name).join(", ")}
+              </strong>{" "}
+              without including {scope.prerequisites.length === 1 ? "it" : "them"}. Fine if
+              {scope.prerequisites.length === 1 ? " it is" : " they are"} already standing and
+              staying as {scope.prerequisites.length === 1 ? "it is" : "they are"} — a gap in the
+              plan otherwise.
+            </p>
+          </section>
+        )}
+
         <div className="mt-8 grid gap-4 md:grid-cols-2">
           <section className="panel rounded-lg p-4">
             <p className="label-xs">Concerns raised</p>
