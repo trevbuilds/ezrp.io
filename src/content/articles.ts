@@ -22,6 +22,7 @@ export type Article = {
 };
 
 import { hcmArticles } from "./articles-hcm";
+import { finaccArticles } from "./articles-finacc";
 
 const apAutomation: Article = {
   slug: "ap-automation",
@@ -325,6 +326,6 @@ const apAutomation: Article = {
   ],
 };
 
-export const articles: Article[] = [apAutomation, ...hcmArticles];
+export const articles: Article[] = [apAutomation, ...hcmArticles, ...finaccArticles];
 
 export const articleBySlug = new Map(articles.map((a) => [a.slug, a]));
