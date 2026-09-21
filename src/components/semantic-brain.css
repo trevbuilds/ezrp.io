@@ -1,0 +1,281 @@
+/*
+ * Ported from the Clariti brain (trevbuilds/clariti-folio,
+ * src/components/brain-prototype/brain-prototype.css) so the look is the
+ * same one rather than an approximation of it. Only the colour tokens are
+ * remapped onto EZRP's.
+ */
+
+.brain-prototype {
+  position: fixed;
+  inset: 0;
+  z-index: 70;
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr) auto;
+  min-height: 100svh;
+  overflow: hidden;
+  background: var(--background);
+  color: var(--foreground);
+}
+
+.brain-prototype::before {
+  position: absolute;
+  inset: 0;
+  background-image: linear-gradient(color-mix(in oklab, var(--foreground) 2%, transparent) 1px, transparent 1px), linear-gradient(90deg, color-mix(in oklab, var(--foreground) 2%, transparent) 1px, transparent 1px);
+  background-size: 54px 54px;
+  content: "";
+  pointer-events: none;
+}
+
+.brain-prototype__topbar,
+.brain-prototype__footer {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  align-items: end;
+  justify-content: space-between;
+  gap: 24px;
+  padding: 24px clamp(20px, 4vw, 64px);
+}
+
+.brain-prototype__topbar { border-bottom: 1px solid color-mix(in oklab, var(--foreground) 8%, transparent); }
+.brain-prototype__footer { align-items: center; border-top: 1px solid color-mix(in oklab, var(--foreground) 8%, transparent); }
+.brain-prototype__brand { font-family: var(--font-display-family); font-size: 26px; font-weight: 600; line-height: 1; }
+.brain-prototype__brand span { color: var(--primary); }
+.brain-prototype h1 { margin-top: 8px; font-size: clamp(22px, 2.4vw, 36px); line-height: 1; }
+.brain-prototype__instruction { color: color-mix(in oklab, var(--foreground) 34%, transparent); font-size: 10px; font-weight: 600; text-transform: uppercase; }
+
+.brain-prototype__stage { position: relative; min-width: 0; min-height: 0; }
+.brain-prototype__stage svg { display: block; width: 100%; height: 100%; min-height: 0; overflow: visible; touch-action: none; }
+
+.brain-prototype__links line {
+  stroke: var(--foreground);
+  stroke-width: 0.62;
+  stroke-opacity: 0.06;
+  transition: stroke 340ms ease, stroke-opacity 340ms ease, stroke-width 340ms ease;
+}
+.brain-prototype__links line.sequence { stroke-opacity: 0.05; }
+.brain-prototype__links line.dependency { stroke-dasharray: 3 3; stroke-opacity: 0.07; }
+.brain-prototype__links line.is-muted { stroke-opacity: 0.015; }
+.brain-prototype__pulse-links line {
+  pointer-events: none;
+  stroke: var(--foreground);
+  stroke-width: 0.45;
+  stroke-opacity: 0.05;
+  transition: stroke-opacity 2200ms ease, stroke 2200ms ease, stroke-width 2200ms ease;
+}
+.brain-prototype__pulse-links line.sequence { stroke-opacity: 0.06; }
+.brain-prototype__pulse-links line.dependency { stroke-opacity: 0.05; }
+.brain-prototype__pulse-links line.is-idle-lit {
+  stroke: color-mix(in oklab, var(--primary) 70%, var(--foreground));
+  stroke-opacity: 0.5;
+  stroke-width: 0.62;
+}
+.brain-prototype__active-links line {
+  pointer-events: none;
+  stroke: var(--primary);
+  stroke-width: 0.62;
+  stroke-opacity: 0.48;
+  transition: stroke-opacity 900ms ease, stroke-width 900ms ease;
+  animation: prototype-fade-in 900ms ease both;
+}
+
+.brain-prototype__nodes g { cursor: grab; outline: none; }
+.brain-prototype__nodes g.is-dragging { cursor: grabbing; }
+.brain-prototype__nodes .hit { fill: transparent; pointer-events: all; }
+.brain-prototype__nodes .visible { fill: var(--foreground); opacity: 0.28; transition: fill 320ms ease, opacity 320ms ease, filter 320ms ease; }
+.brain-prototype__nodes .enterprise .visible { fill: var(--foreground); opacity: 0.38; }
+.brain-prototype__nodes .capability .visible { opacity: 0.32; }
+.brain-prototype__nodes .stream .visible { fill: var(--foreground); opacity: 0.28; }
+.brain-prototype__nodes .element .visible { opacity: 0.2; }
+.brain-prototype__nodes g.is-muted .visible { opacity: 0.06; }
+.brain-prototype__nodes g.is-idle-lit .visible {
+  fill: color-mix(in oklab, var(--primary) 55%, var(--foreground));
+  opacity: 0.92;
+  transition: fill 2200ms ease, opacity 2200ms ease;
+}
+.brain-prototype__nodes g.is-active .visible,
+.brain-prototype__nodes g:focus-visible .visible { fill: var(--primary); opacity: 1; filter: url(#prototype-glow); }
+.brain-prototype__nodes g:focus-visible .visible { stroke: var(--foreground); stroke-width: 1.2; }
+
+.brain-prototype .node-label {
+  fill: var(--foreground);
+  font-family: var(--font-body-family);
+  font-weight: 400;
+  letter-spacing: 0;
+  pointer-events: none;
+  paint-order: stroke;
+  stroke: var(--background);
+  stroke-width: 3px;
+  stroke-linejoin: round;
+  opacity: 0;
+  transition: opacity 900ms ease, fill 900ms ease;
+}
+.brain-prototype .node-label.is-shown { opacity: 0.18; }
+.brain-prototype .enterprise .node-label { fill: var(--foreground); font-size: 8.5px; text-transform: uppercase; }
+.brain-prototype .capability .node-label { font-size: 6.5px; }
+.brain-prototype .stream .node-label { font-size: 5.3px; }
+.brain-prototype .element .node-label { font-size: 4.8px; }
+.brain-prototype__nodes g.is-muted .node-label.is-shown { opacity: 0.04; }
+.brain-prototype__nodes g.is-active .node-label.is-shown,
+.brain-prototype__nodes g.is-related .node-label.is-shown { opacity: 1; }
+.brain-prototype__nodes g.is-active .node-label.is-shown { fill: var(--primary); }
+.brain-prototype__nodes g:hover .node-label.is-shown { opacity: 1; }
+.brain-prototype__nodes g.is-idle-lit .node-label.is-shown { opacity: 0.78; transition: opacity 2200ms ease, fill 2200ms ease; }
+
+.brain-prototype__context { display: grid; width: min(520px, 46vw); gap: 3px; text-align: right; }
+.brain-prototype__context-inner { display: grid; gap: 3px; animation: prototype-fade-in 320ms ease both; }
+.brain-prototype__context strong { color: var(--primary); font-family: var(--font-display-family); font-size: 16px; font-weight: 500; }
+.brain-prototype__context small { color: color-mix(in oklab, var(--foreground) 34%, transparent); font-family: var(--font-body-family); font-size: 8px; font-weight: 400; text-transform: uppercase; }
+.brain-prototype__context span { color: color-mix(in oklab, var(--foreground) 42%, transparent); font-size: 11px; line-height: 1.45; }
+
+@keyframes prototype-line-fill {
+  to { stroke-dashoffset: 0; }
+}
+@keyframes prototype-fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+@keyframes prototype-pulse {
+  to { stroke-dashoffset: 0; }
+}
+@keyframes prototype-glow {
+  from { stroke-opacity: 0.1; }
+  to { stroke-opacity: 0.22; }
+}
+
+.brain-prototype--embedded {
+  position: relative;
+  inset: auto;
+  z-index: 0;
+  grid-template-rows: auto minmax(0, 1fr) auto;
+  min-height: 0;
+  overflow: visible;
+  background: transparent;
+  aspect-ratio: 1.12 / 1;
+  width: 100%;
+  contain: layout paint;
+}
+.brain-prototype--embedded::before { display: none; }
+.brain-prototype__embedded-heading {
+  position: relative;
+  z-index: 2;
+  margin: 0 0 28px auto;
+  max-width: 540px;
+  text-align: right;
+}
+.brain-prototype__embedded-title {
+  margin: 0;
+  color: var(--foreground);
+  font-family: var(--font-body-family);
+  font-size: clamp(15px, 1.25vw, 20px);
+  font-weight: 400;
+  line-height: 1.2;
+}
+.brain-prototype__embedded-title em { color: var(--primary); font-style: normal; }
+.brain-prototype__embedded-heading p {
+  margin: 8px auto 0;
+  color: color-mix(in oklab, var(--foreground) 38%, transparent);
+  font-size: 11px;
+  line-height: 1.5;
+}
+.brain-prototype__embedded-heading .brain-prototype__embedded-note {
+  margin-top: 3px;
+  color: color-mix(in oklab, var(--foreground) 26%, transparent);
+  font-size: 11px;
+}
+.brain-prototype--embedded .brain-prototype__stage { aspect-ratio: 630 / 440; }
+.brain-prototype--embedded .brain-prototype__stage svg { overflow: visible; }
+.brain-prototype--embedded .brain-prototype__footer {
+  min-height: 28px;
+  border-top: 0;
+  padding: 4px 0 0;
+  justify-content: flex-end;
+}
+.brain-prototype--embedded .brain-prototype__context { width: min(360px, 60%); }
+.brain-prototype--embedded .brain-prototype__context:empty { display: none; }
+
+.brain-prototype__embedded-lead {
+  display: block;
+}
+.brain-prototype__expand {
+  display: inline;
+  border: 0;
+  background: none;
+  padding: 0;
+  color: var(--foreground);
+  cursor: pointer;
+  font-family: var(--font-body-family);
+  font-size: inherit;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  text-decoration: underline;
+  text-decoration-color: color-mix(in oklab, var(--primary) 70%, transparent);
+  text-underline-offset: 2px;
+  transition: color 220ms ease;
+}
+.brain-prototype__expand:hover { color: var(--primary); }
+.brain-prototype__collapse {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  z-index: 6;
+  flex: none;
+  border: 1px solid color-mix(in oklab, var(--foreground) 28%, transparent);
+  background: color-mix(in oklab, var(--background) 85%, transparent);
+  color: var(--foreground);
+  cursor: pointer;
+  font-family: var(--font-body-family);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  padding: 10px 16px;
+  text-transform: uppercase;
+  transition: border-color 220ms ease, color 220ms ease, background 220ms ease;
+}
+.brain-prototype__collapse:hover { border-color: var(--primary); color: var(--primary); }
+
+.brain-prototype--expanded {
+  position: fixed;
+  inset: 0;
+  z-index: 90;
+  width: 100%;
+  min-height: 100svh;
+  aspect-ratio: auto;
+  background: var(--background);
+  padding: 18px clamp(12px, 3vw, 40px) 12px;
+  overflow: hidden;
+  animation: prototype-fade-in 260ms ease both;
+}
+.brain-prototype--expanded .brain-prototype__embedded-heading { max-width: none; margin: 0 auto 28px 0; padding-right: 180px; text-align: left; }
+.brain-prototype--expanded .brain-prototype__embedded-heading p { margin-left: 0; }
+.brain-prototype--expanded .brain-prototype__embedded-lead { justify-content: flex-start; }
+.brain-prototype--expanded .brain-prototype__expand { display: none; }
+.brain-prototype--expanded .brain-prototype__stage { aspect-ratio: auto; min-height: 0; }
+.brain-prototype--expanded .brain-prototype__stage svg { height: 100%; }
+
+@media (max-width: 999px) {
+  .brain-prototype--embedded { aspect-ratio: auto; }
+  .brain-prototype--embedded .brain-prototype__footer { display: grid; gap: 10px; }
+  .brain-prototype--embedded .brain-prototype__context { width: 100%; text-align: left; }
+}
+
+@media (max-width: 700px) {
+  .brain-prototype { grid-template-rows: auto minmax(0, 1fr) auto; }
+  .brain-prototype__topbar { align-items: start; padding-block: 18px 14px; }
+  .brain-prototype__instruction { max-width: 120px; text-align: right; line-height: 1.5; }
+  .brain-prototype__stage svg { width: 156%; max-width: none; transform: translateX(-28%); }
+  .brain-prototype--embedded .brain-prototype__stage svg { width: 100%; transform: none; }
+  .brain-prototype--embedded .brain-prototype__embedded-heading { margin-bottom: 20px; }
+  .brain-prototype__footer { display: grid; gap: 12px; padding-block: 14px; }
+  .brain-prototype__context { width: 100%; text-align: left; }
+  .brain-prototype__context span { font-size: 10px; }
+  .brain-prototype .enterprise .node-label { font-size: 9.5px; }
+  .brain-prototype .capability .node-label { font-size: 7.2px; }
+  .brain-prototype .stream .node-label { font-size: 6px; }
+  .brain-prototype .element .node-label { font-size: 5.6px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .brain-prototype__active-links line { animation: none; stroke-dashoffset: 0; }
+  .brain-prototype__pulse-links line { animation: none; stroke-dashoffset: 0; }
+}
