@@ -119,9 +119,31 @@
 
 /* Interactive guide network — a restrained, living semantic map. */
 .guide-brain {
+  position: relative;
   background:
-    radial-gradient(circle at 50% 50%, color-mix(in oklab, var(--accent) 5%, transparent), transparent 38%),
+    radial-gradient(circle at 50% 50%, color-mix(in oklab, var(--accent) 7%, transparent), transparent 34%),
     color-mix(in oklab, var(--surface) 82%, transparent);
+}
+
+.guide-brain::after {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle at center, transparent 48%, color-mix(in oklab, var(--background) 72%, transparent));
+  content: "";
+  pointer-events: none;
+}
+
+.guide-brain__legend span {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+.guide-brain__legend i {
+  display: inline-block;
+  width: 0.45rem;
+  height: 0.45rem;
+  border-radius: 999px;
 }
 
 .guide-brain__stage svg {
@@ -149,6 +171,17 @@
   stroke: var(--primary);
   stroke-width: 1.25;
   stroke-opacity: 0.55;
+}
+
+.guide-brain__links path.is-cross {
+  stroke: var(--accent);
+  stroke-dasharray: 3 8;
+  stroke-opacity: 0.12;
+}
+
+.guide-brain__links path.is-cross.is-active {
+  stroke: var(--primary);
+  stroke-opacity: 0.72;
 }
 
 .guide-brain__links path.is-muted {
@@ -180,6 +213,16 @@
   stroke: var(--primary);
   stroke-width: 0.8;
   stroke-opacity: 0.18;
+}
+
+.guide-brain__core circle:nth-child(2) {
+  stroke-dasharray: 2 7;
+}
+
+.guide-brain__core circle:nth-child(3) {
+  stroke: var(--accent);
+  stroke-dasharray: 1 10;
+  stroke-opacity: 0.26;
 }
 
 .guide-brain__core circle:first-child {
@@ -215,6 +258,13 @@
   transition: fill 320ms ease, opacity 320ms ease, filter 320ms ease;
 }
 
+.guide-brain__nodes .orbit {
+  fill: none;
+  stroke: var(--primary);
+  stroke-width: 0.7;
+  stroke-opacity: 0.25;
+}
+
 .guide-brain__nodes .tier-1 .visible {
   fill: var(--primary);
   opacity: 0.78;
@@ -227,6 +277,13 @@
 
 .guide-brain__nodes .tier-3 .visible {
   opacity: 0.24;
+}
+
+.guide-brain__nodes .cross-cutting .visible {
+  fill: var(--background);
+  stroke: var(--primary);
+  stroke-width: 1.5;
+  opacity: 0.9;
 }
 
 .guide-brain__nodes g.is-idle .visible {
@@ -278,6 +335,14 @@
 .guide-brain .tier-2 .node-label {
   font-size: 13px;
   opacity: 0.28;
+}
+
+.guide-brain .cross-cutting .node-label {
+  fill: var(--primary);
+  font-family: var(--font-mono-family);
+  font-size: 10px;
+  text-transform: uppercase;
+  opacity: 0.72;
 }
 
 .guide-brain .tier-3 .node-label {
