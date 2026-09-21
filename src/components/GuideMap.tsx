@@ -3,9 +3,10 @@ import { Link } from "@tanstack/react-router";
 import { motion } from "framer-motion";
 import { Crosshair, Minus, Plus } from "lucide-react";
 
+import { Button } from "@/components/ui/button";
 import {
   allBusinessDomains,
-  childrenOf,
+  considerationsOf,
   guides,
   guidesInStream,
   streamsInDomain,
@@ -13,7 +14,7 @@ import {
   type Guide,
   type ValueStream,
 } from "@/content/guides";
-import { Button } from "@/components/ui/button";
+import { allConsiderations, type Consideration } from "@/content/model";
 
 type MapNode = {
   id: string;
@@ -24,6 +25,7 @@ type MapNode = {
   guide?: Guide;
   domain?: BusinessDomain;
   stream?: ValueStream;
+  consideration?: Consideration;
 };
 
 type MapLink = {
@@ -32,69 +34,78 @@ type MapLink = {
   cross?: boolean;
 };
 
-/**
- * Bands are laid out across the full width, each given horizontal space in
- * proportion to how many streams it owns — the field guide's bands are very
- * uneven (Programmes, Projects & Data owns far more streams than the rest),
- * so fixed columns collapse the dense ones on top of each other.
- */
-const MAP_WIDTH = 1680;
+const TAU = Math.PI * 2;
+const point = (angle: number, radiusX: number, radiusY: number) => ({
+  x: Math.round(Math.cos(angle) * radiusX),
+  y: Math.round(Math.sin(angle) * radiusY),
+});
 
 function useLayout() {
   return useMemo(() => {
     const nodes = new Map<string, MapNode>();
     const links: MapLink[] = [];
 
-    const bandStreams = allBusinessDomains.map((domain) => streamsInDomain(domain));
-    const totalStreams = bandStreams.reduce((sum, list) => sum + list.length, 0) || 1;
+    allConsiderations.forEach((consideration, index) => {
+      const angle = -Math.PI / 2 + (index / allConsiderations.length) * TAU;
+      const position = point(angle, 158, 118);
+      nodes.set(`cross:${consideration}`, {
+        id: `cross:${consideration}`,
+        label: consideration,
+        ...position,
+        kind: "cross",
+        consideration,
+      });
+    });
 
-    let cursor = -MAP_WIDTH / 2;
     allBusinessDomains.forEach((domain, domainIndex) => {
-      const streams = bandStreams[domainIndex] ?? [];
-      const span = (streams.length / totalStreams) * MAP_WIDTH;
-      const bandStart = cursor;
-      const domainX = bandStart + span / 2;
-      cursor += span;
-
+      const angle = -Math.PI / 2 + (domainIndex / allBusinessDomains.length) * TAU;
+      const domainPosition = point(angle, 350, 265);
       const domainId = `domain:${domain}`;
       nodes.set(domainId, {
         id: domainId,
         label: domain,
-        x: domainX,
-        y: -270,
+        ...domainPosition,
         kind: "domain",
         domain,
       });
       links.push({ from: "core", to: domainId });
 
+      const domainGuides = guides.filter((guide) => guide.domain === domain);
+      allConsiderations.forEach((consideration) => {
+        if (domainGuides.some((guide) => considerationsOf(guide.slug).includes(consideration))) {
+          links.push({ from: `cross:${consideration}`, to: domainId, cross: true });
+        }
+      });
+
+      const streams = streamsInDomain(domain);
       streams.forEach((stream, streamIndex) => {
+        const spread = Math.min(1.02, Math.max(0.42, streams.length * 0.13));
+        const offset = streams.length === 1 ? 0 : (streamIndex / (streams.length - 1) - 0.5) * spread;
+        const streamAngle = angle + offset;
+        const streamPosition = point(streamAngle, 525, 395);
         const streamId = `stream:${stream}`;
-        const streamX = bandStart + (span * (streamIndex + 0.5)) / streams.length;
         nodes.set(streamId, {
           id: streamId,
           label: stream,
-          x: streamX,
-          y: -35,
+          ...streamPosition,
           kind: "stream",
           domain,
           stream,
         });
         links.push({ from: domainId, to: streamId });
 
-        // Modules are represented by their band node, so only the topics
-        // inside a stream are drawn here.
-        const streamGuides = guidesInStream(stream).filter((guide) => guide.parent !== null);
+        const streamGuides = guidesInStream(stream).filter(
+          (guide) => guide.parent !== null && guide.slug !== guide.module,
+        );
         streamGuides.forEach((guide, guideIndex) => {
-          const columns = Math.min(3, Math.max(1, streamGuides.length));
-          const column = guideIndex % columns;
-          const row = Math.floor(guideIndex / columns);
-          const guideX = streamX + (column - (columns - 1) / 2) * 60;
-          const guideY = 175 + row * 78;
+          const guideOffset = (guideIndex - (streamGuides.length - 1) / 2) * 0.055;
+          const guideRadiusX = 650 + (guideIndex % 2) * 34;
+          const guideRadiusY = 490 + (guideIndex % 2) * 26;
+          const guidePosition = point(streamAngle + guideOffset, guideRadiusX, guideRadiusY);
           nodes.set(guide.slug, {
             id: guide.slug,
             label: guide.topic,
-            x: guideX,
-            y: guideY,
+            ...guidePosition,
             kind: "guide",
             guide,
             domain,
@@ -109,16 +120,22 @@ function useLayout() {
   }, []);
 }
 
-function linkPath(from: MapNode | undefined, to: MapNode | undefined) {
+function linkPath(from: MapNode | undefined, to: MapNode | undefined, cross = false) {
   if (!from || !to) return "";
-  const bend = (from.y + to.y) / 2;
-  return `M ${from.x} ${from.y} C ${from.x} ${bend}, ${to.x} ${bend}, ${to.x} ${to.y}`;
+  if (cross) {
+    const bendX = (from.x + to.x) * 0.34;
+    const bendY = (from.y + to.y) * 0.34;
+    return `M ${from.x} ${from.y} Q ${bendX} ${bendY}, ${to.x} ${to.y}`;
+  }
+  return `M ${from.x} ${from.y} Q ${(from.x + to.x) * 0.46} ${(from.y + to.y) * 0.46}, ${to.x} ${to.y}`;
 }
+
+const coreNode: MapNode = { id: "core", label: "EZRP", x: 0, y: 0, kind: "domain" };
 
 export function GuideMap() {
   const { nodes, links } = useLayout();
   const [active, setActive] = useState<string | null>(null);
-  const [zoom, setZoom] = useState(0.9);
+  const [zoom, setZoom] = useState(0.86);
 
   const related = useMemo(() => {
     if (!active) return new Set<string>();
@@ -128,33 +145,50 @@ export function GuideMap() {
 
     if (node.domain) set.add(`domain:${node.domain}`);
     if (node.stream) set.add(`stream:${node.stream}`);
-    if (node.kind === "domain") {
-      streamsInDomain(node.domain as BusinessDomain).forEach((stream) =>
-        set.add(`stream:${stream}`),
-      );
+
+    if (node.kind === "domain" && node.domain) {
+      streamsInDomain(node.domain).forEach((stream) => {
+        set.add(`stream:${stream}`);
+        guidesInStream(stream).forEach((guide) => set.add(guide.slug));
+      });
+      links
+        .filter((link) => link.cross && link.to === node.id)
+        .forEach((link) => set.add(link.from));
     }
-    if (node.kind === "stream") {
-      guidesInStream(node.stream as ValueStream).forEach((guide) => set.add(guide.slug));
+
+    if (node.kind === "stream" && node.stream) {
+      guidesInStream(node.stream).forEach((guide) => set.add(guide.slug));
     }
+
+    if (node.kind === "guide" && node.guide) {
+      considerationsOf(node.guide.slug).forEach((item) => set.add(`cross:${item}`));
+    }
+
     if (node.kind === "cross") {
-      allBusinessDomains.forEach((domain) => set.add(`domain:${domain}`));
+      links
+        .filter((link) => link.cross && link.from === node.id)
+        .forEach((link) => {
+          set.add(link.to);
+          const domain = nodes.get(link.to)?.domain;
+          if (domain) streamsInDomain(domain).forEach((stream) => set.add(`stream:${stream}`));
+        });
     }
     return set;
-  }, [active, nodes]);
+  }, [active, links, nodes]);
 
   const selected = active ? nodes.get(active) : undefined;
   const isRelatedLink = (link: MapLink) => related.has(link.from) && related.has(link.to);
 
   const nodeMark = (node: MapNode) => {
-    const radius =
-      node.kind === "domain" ? 13 : node.kind === "stream" ? 9 : node.kind === "cross" ? 8 : 5;
-    const labelY = node.kind === "guide" ? node.y + 19 : node.y + 27;
+    const radius = node.kind === "domain" ? 14 : node.kind === "stream" ? 8 : node.kind === "cross" ? 7 : 4;
+    const labelY = node.kind === "guide" ? node.y + 17 : node.y + 25;
     return (
       <>
-        <circle className="hit" cx={node.x} cy={node.y} r={22} />
+        <circle className="hit" cx={node.x} cy={node.y} r={23} />
+        {node.kind === "domain" && <circle className="orbit" cx={node.x} cy={node.y} r={23} />}
         <circle className="visible" cx={node.x} cy={node.y} r={radius} />
         <text className="node-label" x={node.x} y={labelY} textAnchor="middle">
-          {node.label.length > 26 ? `${node.label.slice(0, 24)}…` : node.label}
+          {node.label.length > 27 ? `${node.label.slice(0, 25)}…` : node.label}
         </text>
       </>
     );
@@ -163,10 +197,16 @@ export function GuideMap() {
   return (
     <div className="relative">
       <div className="guide-brain panel overflow-hidden rounded-lg">
-        <div className="guide-brain__stage h-[36rem] cursor-grab active:cursor-grabbing md:h-[43rem]">
+        <div className="guide-brain__legend absolute left-4 top-4 z-10 hidden items-center gap-4 font-mono text-[0.625rem] uppercase text-muted-foreground md:flex">
+          <span><i className="bg-primary" /> Domain</span>
+          <span><i className="bg-accent" /> Value stream</span>
+          <span><i className="bg-foreground" /> Guide</span>
+          <span><i className="border border-primary" /> Shared concern</span>
+        </div>
+        <div className="guide-brain__stage h-[38rem] cursor-grab active:cursor-grabbing md:h-[48rem]">
           <motion.div drag dragMomentum={false} className="size-full">
             <svg
-              viewBox="-760 -430 1520 1180"
+              viewBox="-760 -570 1520 1140"
               className="size-full"
               style={{ transform: `scale(${zoom})` }}
               aria-label="EZRP knowledge map showing business domains, value streams, guide topics, and cross-cutting capabilities"
@@ -174,123 +214,60 @@ export function GuideMap() {
               <defs>
                 <filter id="guide-brain-glow" x="-200%" y="-200%" width="400%" height="400%">
                   <feGaussianBlur stdDeviation="5" result="blur" />
-                  <feMerge>
-                    <feMergeNode in="blur" />
-                    <feMergeNode in="SourceGraphic" />
-                  </feMerge>
+                  <feMerge><feMergeNode in="blur" /><feMergeNode in="SourceGraphic" /></feMerge>
                 </filter>
               </defs>
 
               <g className="guide-brain__links">
-                {links.map((link) => {
-                  const lit = isRelatedLink(link);
-                  return (
-                    <path
-                      key={`${link.from}-${link.to}`}
-                      d={linkPath(
-                        link.from === "core"
-                          ? { id: "core", label: "EZRP", x: 0, y: -405, kind: "domain" }
-                          : nodes.get(link.from),
-                        nodes.get(link.to),
-                      )}
-                      className={`${lit ? "is-active" : active ? "is-muted" : ""} ${link.cross ? "stroke-dasharray-[3_7]" : ""}`}
-                    />
-                  );
-                })}
+                {links.map((link) => (
+                  <path
+                    key={`${link.from}-${link.to}`}
+                    d={linkPath(link.from === "core" ? coreNode : nodes.get(link.from), nodes.get(link.to), link.cross)}
+                    className={`${link.cross ? "is-cross" : ""} ${isRelatedLink(link) ? "is-active" : active ? "is-muted" : ""}`}
+                  />
+                ))}
+              </g>
+              <g className="guide-brain__signals">
+                {links.filter((_, index) => index % 5 === 0).map((link, index) => (
+                  <path
+                    key={`signal-${link.from}-${link.to}`}
+                    d={linkPath(link.from === "core" ? coreNode : nodes.get(link.from), nodes.get(link.to), link.cross)}
+                    pathLength="1"
+                    className={active ? (isRelatedLink(link) ? "is-active" : "") : "is-idle"}
+                    style={{ animationDelay: `${index * -0.37}s` }}
+                  />
+                ))}
               </g>
 
               <g className="guide-brain__core">
-                <circle cx={0} cy={-405} r={48} />
-                <circle cx={0} cy={-405} r={59} />
-                <text x={0} y={-400} textAnchor="middle">
-                  EZRP
-                </text>
+                <circle cx={0} cy={0} r={52} />
+                <circle cx={0} cy={0} r={67} />
+                <circle cx={0} cy={0} r={81} />
+                <text x={0} y={5} textAnchor="middle">EZRP</text>
               </g>
-
-              <text
-                x={-720}
-                y={-305}
-                className="fill-muted-foreground font-mono text-[11px] uppercase"
-              >
-                Bands
-              </text>
-              <text
-                x={-720}
-                y={-70}
-                className="fill-muted-foreground font-mono text-[11px] uppercase"
-              >
-                Value streams
-              </text>
-              <text
-                x={-720}
-                y={130}
-                className="fill-muted-foreground font-mono text-[11px] uppercase"
-              >
-                Guide topics
-              </text>
 
               <g className="guide-brain__nodes">
                 {[...nodes.values()].map((node) => {
                   const muted = active !== null && !related.has(node.id);
-                  const className = `${node.kind === "domain" ? "tier-1" : node.kind === "stream" ? "tier-2" : "tier-3"} ${active === node.id ? "is-active" : muted ? "is-muted" : ""}`;
-                  const content = nodeMark(node);
+                  const className = `${node.kind === "domain" ? "tier-1" : node.kind === "stream" ? "tier-2" : node.kind === "cross" ? "cross-cutting" : "tier-3"} ${active === node.id ? "is-active" : muted ? "is-muted" : ""}`;
                   const handlers = {
                     onMouseEnter: () => setActive(node.id),
                     onFocus: () => setActive(node.id),
                     onMouseLeave: () => setActive(null),
+                    onBlur: () => setActive(null),
                   };
 
                   if (node.kind === "domain") {
-                    return (
-                      <Link
-                        key={node.id}
-                        to="/guides"
-                        search={{ domain: node.domain }}
-                        className={className}
-                        {...handlers}
-                      >
-                        {content}
-                      </Link>
-                    );
+                    return <Link key={node.id} to="/guides" search={{ domain: node.domain }} className={className} {...handlers}>{nodeMark(node)}</Link>;
                   }
                   if (node.kind === "stream") {
-                    return (
-                      <Link
-                        key={node.id}
-                        to="/guides"
-                        search={{ stream: node.stream }}
-                        className={className}
-                        {...handlers}
-                      >
-                        {content}
-                      </Link>
-                    );
+                    return <Link key={node.id} to="/guides" search={{ stream: node.stream }} className={className} {...handlers}>{nodeMark(node)}</Link>;
                   }
-                  if (node.kind === "cross" && node.guide) {
-                    return (
-                      <Link
-                        key={node.id}
-                        to="/guides"
-                        search={{ module: node.guide.slug }}
-                        className={className}
-                        {...handlers}
-                      >
-                        {content}
-                      </Link>
-                    );
+                  if (node.kind === "cross") {
+                    return <Link key={node.id} to="/guides" search={{ q: node.consideration }} className={className} {...handlers}>{nodeMark(node)}</Link>;
                   }
                   if (node.guide) {
-                    return (
-                      <Link
-                        key={node.id}
-                        to="/guides/$slug"
-                        params={{ slug: node.guide.slug }}
-                        className={className}
-                        {...handlers}
-                      >
-                        {content}
-                      </Link>
-                    );
+                    return <Link key={node.id} to="/guides/$slug" params={{ slug: node.guide.slug }} className={className} {...handlers}>{nodeMark(node)}</Link>;
                   }
                   return null;
                 })}
@@ -301,50 +278,30 @@ export function GuideMap() {
       </div>
 
       <div className="absolute right-3 top-3 flex flex-col gap-1">
-        <Button
-          variant="outline"
-          size="icon"
-          onClick={() => setZoom((value) => Math.min(1.55, value + 0.12))}
-          aria-label="Zoom in"
-        >
-          <Plus />
-        </Button>
-        <Button
-          variant="outline"
-          size="icon"
-          onClick={() => setZoom((value) => Math.max(0.55, value - 0.12))}
-          aria-label="Zoom out"
-        >
-          <Minus />
-        </Button>
-        <Button variant="outline" size="icon" onClick={() => setZoom(0.9)} aria-label="Reset zoom">
-          <Crosshair />
-        </Button>
+        <Button variant="outline" size="icon" onClick={() => setZoom((value) => Math.min(1.35, value + 0.1))} aria-label="Zoom in"><Plus /></Button>
+        <Button variant="outline" size="icon" onClick={() => setZoom((value) => Math.max(0.55, value - 0.1))} aria-label="Zoom out"><Minus /></Button>
+        <Button variant="outline" size="icon" onClick={() => setZoom(0.86)} aria-label="Reset zoom"><Crosshair /></Button>
       </div>
 
-      <div className="panel mt-3 rounded-lg p-4">
+      <div className="panel mt-3 min-h-28 rounded-lg p-4">
         {selected ? (
           <div>
-            <p className="label-xs">
-              {selected.kind === "cross" ? "Cross-cutting capability" : selected.kind}
-            </p>
+            <p className="label-xs">{selected.kind === "cross" ? "Cross-cutting concern" : selected.kind}</p>
             <h3 className="mt-1 text-xl font-semibold">{selected.label}</h3>
-            {selected.guide?.definition && (
-              <p className="mt-2 max-w-2xl text-sm text-muted-foreground">
-                {selected.guide.definition}
-              </p>
-            )}
+            {selected.guide?.definition && <p className="mt-2 max-w-2xl text-sm text-muted-foreground">{selected.guide.definition}</p>}
             <p className="mt-3 font-mono text-xs text-accent">
               {selected.kind === "cross"
-                ? "Shared across Customer · Finance · People · Asset · Supply Chain"
+                ? "Linked wherever this concern shapes a domain or its guides"
                 : [selected.domain, selected.stream].filter(Boolean).join("  →  ")}
             </p>
           </div>
         ) : (
-          <p className="text-sm text-muted-foreground">
-            EZRP is the core. Follow a business domain into its value streams and guide topics;
-            shared capabilities connect across every domain.
-          </p>
+          <div>
+            <p className="label-xs">How to read the map</p>
+            <p className="mt-2 max-w-3xl text-sm text-muted-foreground">
+              EZRP is the core. Business domains orbit it, value streams branch outward, and practical guides sit at the edge. The inner shared concerns connect across every area they influence.
+            </p>
+          </div>
         )}
       </div>
     </div>
