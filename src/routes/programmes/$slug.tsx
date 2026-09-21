@@ -14,9 +14,7 @@ export const Route = createFileRoute("/programmes/$slug")({
   },
   head: ({ loaderData }) => {
     const programme = loaderData?.programme as Programme | undefined;
-    const title = programme
-      ? `${programme.name} — ${programme.organisation} — EZRP`
-      : "Programme — EZRP";
+    const title = programme ? `${programme.name} — EZRP` : "Programme — EZRP";
     const description = programme?.summary ?? "A worked ERP programme, mapped against the model.";
     return {
       meta: [
@@ -59,24 +57,22 @@ function ProgrammePage() {
           <Link to="/programmes" className="hover:text-foreground">
             Programmes
           </Link>
-          <span>/</span>
-          <span>{programme.organisation}</span>
         </nav>
 
         <h1 className="mt-4 text-3xl font-bold leading-tight md:text-4xl">{programme.name}</h1>
         <p className="mt-3 max-w-2xl text-lg text-muted-foreground">{programme.summary}</p>
 
         <div className="mt-4 flex flex-wrap gap-2">
-          {[programme.industry, programme.orgType, programme.size, programme.country].map(
-            (chip) => (
+          {[programme.industry, programme.orgType, programme.size, programme.country]
+            .filter((chip): chip is NonNullable<typeof chip> => Boolean(chip))
+            .map((chip) => (
               <span
                 key={chip}
                 className="rounded-full border border-border px-3 py-1 text-xs text-muted-foreground"
               >
                 {chip}
               </span>
-            ),
-          )}
+            ))}
         </div>
 
         <p className="mt-5 border-l-2 border-border pl-4 text-sm text-muted-foreground">
@@ -229,9 +225,9 @@ function ProgrammePage() {
           </Section>
         )}
 
-        <Section label="What this sector does to a generic finance build">
+        <Section label="What this context does to a generic finance build">
           <div className="space-y-2">
-            {programme.sectorDesign.map((item) => (
+            {programme.contextDesign.map((item) => (
               <div key={item.heading} className="panel rounded-lg p-4">
                 <p className="font-display text-sm font-semibold">{item.heading}</p>
                 <p className="mt-1 text-sm text-muted-foreground">{item.detail}</p>

@@ -78,13 +78,17 @@ export type Programme = {
   slug: string;
   /** What the programme is called. */
   name: string;
-  organisation: string;
   /** One line, for listings. */
   summary: string;
-  industry: Industry;
-  orgType: OrgType;
-  size: OrgSize;
-  country: Country;
+  /**
+   * Context chips. All optional — a worked example that names no sector is
+   * still a useful worked example, and naming one it does not have is worse
+   * than naming none.
+   */
+  industry?: Industry;
+  orgType?: OrgType;
+  size?: OrgSize;
+  country?: Country;
   /** How this page was built, stated plainly. */
   provenance: string;
   /** The estate as it stands. */
@@ -95,8 +99,8 @@ export type Programme = {
   picks: string[];
   /** Named exclusions, each with the reason. Silence here is what causes scope fights. */
   excluded: Array<{ area: string; why: string }>;
-  /** The sector's accounting shape — what a generic finance build gets wrong here. */
-  sectorDesign: Array<{ heading: string; detail: string }>;
+  /** What this organisation's shape does to an otherwise generic finance build. */
+  contextDesign: Array<{ heading: string; detail: string }>;
   boundary: BoundaryInterface[];
   releases: Release[];
   decisions: ProgrammeDecision[];
@@ -107,28 +111,26 @@ export type Programme = {
 
 export const programmes: Programme[] = [
   {
-    slug: "water-utility-finance-core",
+    slug: "legacy-finance-core",
     name: "Replacing the legacy finance core",
-    organisation: "A Victorian water corporation",
     summary:
-      "A water utility replacing its legacy finance system as the first step into an ERP — mapped against the model, with the parts it cannot change alone made explicit.",
-    industry: "Utilities & Water",
+      "An organisation replacing its legacy finance system as the first step into an ERP — mapped against the model, with the parts it cannot change alone made explicit.",
     orgType: "Government",
     size: "200–2,000",
     country: "Australia",
     provenance:
-      "A composite, not a client. It is built from the publicly known shape of the sector — economic regulation, the Financial Management Act, a capital programme that dominates the spend — and from this library's model. No organisation is described, and every derived section is computed from the same model the rest of the site runs on.",
+      "A composite worked example, not a client. It is assembled from patterns that recur in asset-intensive, externally regulated organisations, and from this library's model. No organisation is described. Every derived section — the streams, the modules dragged in, the phase order, the straddling interfaces — is computed from the same model the rest of the site runs on.",
 
     situation: [
       "The finance core is the oldest system in the estate and the one everything else posts to. It holds the general ledger, payables, receivables control, cash and the fixed asset register, and it has been extended over enough years that nobody can now state its customisations without going to look.",
-      "It is not the only place finance happens. Retail billing sits in the customer system and reaches the ledger as a summary; work order costs sit in the works and asset system and reach it as a periodic journal; project costs sit partly in both. The finance core is the place those three meet, which is why replacing it is not a finance project.",
+      "It is not the only place finance happens. Customer billing sits in its own system and reaches the ledger as a summary; work order costs sit in the works and asset system and reach it as a periodic journal; project costs sit partly in both. The finance core is the place those three meet, which is why replacing it is not a finance project.",
       "The reporting layer around it is spreadsheets. Statutory reporting, the regulatory cost allocation and the capital programme position are all assembled outside the system from extracts, and the assembly is held by a small number of people.",
       "Support is thin. The people who know why the customisations exist are fewer each year, and the vendor's support position on the current version is the clock this programme is actually running against.",
     ],
 
     drivers: [
       "End of support on the current version, which converts a discretionary decision into a dated one.",
-      "Regulatory cost allocation is assembled manually each period, which makes the price submission expensive to produce and hard to defend line by line.",
+      "Regulatory cost allocation is assembled manually each period, which makes the external submission expensive to produce and hard to defend line by line.",
       "The capital programme is the largest thing the organisation does and its financial position is reconstructed rather than reported.",
       "Segregation of duties is maintained by convention in a finance team small enough that several conflicting combinations sit with one person.",
       "Every one of those is a reason to change something. Only the first is a reason to change it this year.",
@@ -146,8 +148,8 @@ export const programmes: Programme[] = [
 
     excluded: [
       {
-        area: "Retail billing and the customer system",
-        why: "Two million customer accounts, its own regulatory obligations and its own release cycle. It stays, and the receivable becomes an interface rather than a sub-ledger. This is the largest single scope decision on the programme and it should be made once, in writing.",
+        area: "Customer billing",
+        why: "A large customer base, its own regulatory obligations and its own release cycle. It stays, and the receivable becomes an interface rather than a sub-ledger. This is the largest single scope decision on the programme and it should be made once, in writing.",
       },
       {
         area: "Works and asset management",
@@ -158,8 +160,8 @@ export const programmes: Programme[] = [
         why: "Out of scope for this release, in scope as an interface. The payroll journal and the net pay file both land in the finance core, so 'not changing payroll' still means testing payroll.",
       },
       {
-        area: "GIS, SCADA and the operational technology estate",
-        why: "No financial transaction originates there. Named here only so that it is named, because it is the assumption most often unstated.",
+        area: "The operational technology estate",
+        why: "No financial transaction originates there. Named here only so that it is named, because it is the assumption most often left unstated.",
       },
       {
         area: "Inventory",
@@ -167,41 +169,41 @@ export const programmes: Programme[] = [
       },
     ],
 
-    sectorDesign: [
+    contextDesign: [
       {
         heading: "Regulated and non-regulated activity",
         detail:
-          "The price submission needs cost allocated by regulated service, and the allocation has to be defensible to the regulator line by line rather than reconstructed in a spreadsheet afterwards. That is a chart of accounts and cost allocation design decision, and it is the one that most constrains every other posting decision. Making it after the chart is built is the expensive order.",
+          "Where an economic regulator sets prices, cost has to be allocated by regulated service and the allocation has to be defensible line by line rather than reconstructed in a spreadsheet afterwards. That is a chart of accounts and cost allocation design decision, and it is the one that most constrains every other posting decision. Making it after the chart is built is the expensive order.",
       },
       {
         heading: "Two asset registers that are both correct",
         detail:
-          "The statutory register carries fair value under the applicable financial reporting directions; the regulatory asset base carries a different valuation on a different roll-forward for price setting. They are not a reconciliation error — they are two answers to two questions. The system has to produce both without either being maintained by hand.",
+          "The statutory register carries fair value under the applicable financial reporting standards; a regulatory asset base carries a different valuation on a different roll-forward for price setting. They are not a reconciliation error — they are two answers to two questions. The system has to produce both without either being maintained by hand.",
       },
       {
         heading: "Capital is the main event",
         detail:
-          "Most of what this organisation spends is capital. Capitalisation policy, treatment of overheads, work in progress ageing and the point at which a project becomes an asset are finance design decisions with an operational input, and they determine whether the capital programme can be reported at all.",
+          "Most of what an asset-intensive organisation spends is capital. Capitalisation policy, treatment of overheads, work in progress ageing and the point at which a project becomes an asset are finance design decisions with an operational input, and they determine whether the capital programme can be reported at all.",
       },
       {
-        heading: "Contributed and gifted assets",
+        heading: "Assets that arrive without an invoice",
         detail:
-          "Developer-contributed infrastructure and new customer contributions arrive as assets and revenue without a supplier invoice or a cash receipt. They need a designed path in, or they become a year-end journal nobody can evidence.",
+          "Contributed infrastructure and customer contributions arrive as assets and revenue with no supplier invoice and no cash receipt. They need a designed path in, or they become a year-end journal nobody can evidence.",
       },
       {
         heading: "Public sector reporting obligations",
         detail:
-          "Reporting under the Financial Management Act and the Standing Directions, the model financial report, periodic returns to Treasury and audit by the Auditor-General are all fixed inputs. They shape the close calendar, the evidence the system must retain, and the go-live window — a cutover that lands across statutory reporting is a cutover that will be moved.",
+          "Reporting under the jurisdiction's financial management legislation, the model financial report, periodic returns to Treasury and audit by the auditor-general are fixed inputs. They shape the close calendar, the evidence the system must retain, and the go-live window — a cutover that lands across statutory reporting is a cutover that will be moved.",
       },
       {
         heading: "Procurement probity",
         detail:
-          "Victorian government purchasing policy, social procurement obligations and the associated disclosure apply to the buying process regardless of what the finance system does. The system has to evidence them, not just permit them.",
+          "Government purchasing policy, social procurement obligations and the associated disclosure apply to the buying process regardless of what the finance system does. The system has to evidence them, not just permit them.",
       },
       {
         heading: "Australian payroll and banking obligations",
         detail:
-          "Single Touch Payroll, superannuation guarantee and ABA payment files apply even where payroll is out of scope, because the files and the journals still land here. Field crew allowances under the enterprise agreement are the part most likely to be assumed rather than tested.",
+          "Single Touch Payroll, superannuation guarantee and ABA payment files apply even where payroll is out of scope, because the files and the journals still land here. Allowances under an enterprise agreement are the part most likely to be assumed rather than tested.",
       },
     ],
 
@@ -298,7 +300,7 @@ export const programmes: Programme[] = [
       {
         question: "Does the receivable stay in the billing system, or move?",
         stake:
-          "It decides the size of the programme. Moving it doubles the scope and brings two million accounts and their regulatory obligations with it; leaving it makes the revenue interface the most important design artefact on the programme.",
+          "It decides the size of the programme. Moving it brings the whole customer base and its regulatory obligations with it; leaving it makes the revenue interface the most important design artefact on the programme.",
         by: "Before scope is baselined — it is not a design decision, it is the scope.",
         topic: "accounts-receivable",
       },
@@ -306,7 +308,7 @@ export const programmes: Programme[] = [
         question:
           "What is the chart of accounts, and does it carry the regulatory allocation natively?",
         stake:
-          "Every posting decision, every report and every interface depends on it. A chart designed for statutory reporting alone leaves the price submission where it is now.",
+          "Every posting decision, every report and every interface depends on it. A chart designed for statutory reporting alone leaves the regulatory submission where it is now.",
         by: "Before configuration starts. Chart changes after the first sub-ledger posts are the most expensive change a finance programme makes.",
         topic: "general-ledger",
       },
@@ -334,7 +336,7 @@ export const programmes: Programme[] = [
       {
         question: "Where does the cutover sit against the statutory calendar?",
         stake:
-          "A cutover landing near a statutory reporting date, a price submission or year-end will be moved, late and expensively. The calendar is fixed; the cutover is not.",
+          "A cutover landing near a statutory reporting date, a regulatory submission or year-end will be moved, late and expensively. The calendar is fixed; the cutover is not.",
         by: "At mobilisation, because it constrains everything else.",
         topic: "cutover-and-go-live",
       },
@@ -351,7 +353,7 @@ export const programmes: Programme[] = [
       {
         risk: "Revenue posts from billing at a grain the regulatory view cannot use.",
         consequence:
-          "The price submission stays a manual assembly, and the largest single benefit of the programme is not delivered.",
+          "The regulatory submission stays a manual assembly, and the largest single benefit of the programme is not delivered.",
         mitigation:
           "Design the revenue interface against the regulatory reporting requirement first, and prove it in the foundation release rather than at user acceptance.",
       },
@@ -425,7 +427,7 @@ export const programmes: Programme[] = [
       {
         item: "Statutory calendar mapped against the plan",
         state: "gap",
-        note: "Close dates, reporting deadlines, audit and the price submission — plotted before the cutover date is chosen rather than after.",
+        note: "Close dates, reporting deadlines, audit and the regulatory submission — plotted before the cutover date is chosen rather than after.",
       },
     ],
 

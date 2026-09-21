@@ -44,8 +44,7 @@ function ProgrammesIndex() {
                 params={{ slug: programme.slug }}
                 className="panel block rounded-lg p-5 transition hover:border-primary"
               >
-                <p className="label-xs">{programme.organisation}</p>
-                <h2 className="mt-2 font-display text-xl font-semibold">{programme.name}</h2>
+                <h2 className="font-display text-xl font-semibold">{programme.name}</h2>
                 <p className="mt-2 max-w-2xl text-sm text-muted-foreground">{programme.summary}</p>
                 <p className="mt-3 font-mono text-xs text-muted-foreground">
                   {programme.picks.length} areas picked · {scope.topics.length} topics ·{" "}
