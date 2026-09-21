@@ -68,6 +68,15 @@ function GuidePage() {
 
         {/* Facets: every tag is a way back into the filtered library. */}
         <div className="mt-3 flex flex-wrap items-center gap-2">
+          {guide.domain && (
+            <Link
+              to="/guides"
+              search={{ domain: guide.domain }}
+              className="rounded-full bg-primary px-3 py-1 text-xs text-primary-foreground transition hover:brightness-110"
+            >
+              {guide.domain}
+            </Link>
+          )}
           {guide.valueStream && (
             <Link
               to="/guides"

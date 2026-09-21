@@ -33,7 +33,15 @@ export type Guide = {
   workflow: string[];
   sourceUrl: string | null;
   valueStream: ValueStream | null;
+  domain: BusinessDomain | null;
 };
+
+/**
+ * The layer above value stream: which part of the business the stream serves.
+ * Derived from the stream rather than stored per topic, so the two can never
+ * disagree.
+ */
+export type BusinessDomain = "Customer" | "Finance" | "People" | "Asset" | "Supply Chain";
 
 /**
  * Published end-to-end value streams. This is a separate axis to the module
@@ -48,7 +56,21 @@ export type ValueStream =
   | "Record-to-Report"
   | "Issue-to-Resolution"
   | "Hire-to-Retire"
-  | "Acquire-to-Retire";
+  | "Acquire-to-Retire"
+  | "Plan-to-Produce";
+
+const domainByStream: Record<ValueStream, BusinessDomain> = {
+  "Lead-to-Cash": "Customer",
+  "Issue-to-Resolution": "Customer",
+  "Record-to-Report": "Finance",
+  "Procure-to-Pay": "Finance",
+  "Hire-to-Retire": "People",
+  "Acquire-to-Retire": "Asset",
+  "Plan-to-Produce": "Supply Chain",
+};
+
+export const domainOf = (stream: ValueStream | null): BusinessDomain | null =>
+  stream ? domainByStream[stream] : null;
 
 const valueStreamBySlug: Record<string, ValueStream> = {
   // Lead-to-Cash
@@ -113,7 +135,9 @@ const valueStreamBySlug: Record<string, ValueStream> = {
   "asset-management": "Acquire-to-Retire",
 };
 
-const raw: Array<Omit<Guide, "workflow" | "valueStream"> & { workflow?: string | null }> = [
+const raw: Array<
+  Omit<Guide, "workflow" | "valueStream" | "domain"> & { workflow?: string | null }
+> = [
   // ---------------------------------------------------------------- pillars
   {
     slug: "financial-accounting",
@@ -965,6 +989,7 @@ const raw: Array<Omit<Guide, "workflow" | "valueStream"> & { workflow?: string |
 export const guides: Guide[] = raw.map((g) => ({
   ...g,
   valueStream: valueStreamBySlug[g.slug] ?? null,
+  domain: domainOf(valueStreamBySlug[g.slug] ?? null),
   workflow: g.workflow
     ? g.workflow
         .split("→")
@@ -998,14 +1023,27 @@ export function pillarOf(slug: string): Guide | undefined {
   return chain[0] ?? guideBySlug.get(slug);
 }
 
+export const allBusinessDomains: BusinessDomain[] = [
+  "Customer",
+  "Finance",
+  "People",
+  "Asset",
+  "Supply Chain",
+];
+
+/** Streams in domain order, so the two facet rows read consistently. */
 export const allValueStreams: ValueStream[] = [
   "Lead-to-Cash",
-  "Procure-to-Pay",
-  "Record-to-Report",
   "Issue-to-Resolution",
+  "Record-to-Report",
+  "Procure-to-Pay",
   "Hire-to-Retire",
   "Acquire-to-Retire",
+  "Plan-to-Produce",
 ];
+
+export const streamsInDomain = (domain: BusinessDomain): ValueStream[] =>
+  allValueStreams.filter((s) => domainByStream[s] === domain);
 
 export const guidesInStream = (stream: ValueStream) =>
   guides.filter((g) => g.valueStream === stream);

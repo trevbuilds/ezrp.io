@@ -275,6 +275,15 @@ export function GuideMap() {
                   Browse this area
                 </Link>
               )}
+              {selected.domain && (
+                <Link
+                  to="/guides"
+                  search={{ domain: selected.domain }}
+                  className="rounded-full bg-primary px-2 py-0.5 text-xs text-primary-foreground hover:brightness-110"
+                >
+                  {selected.domain}
+                </Link>
+              )}
               {selected.valueStream && (
                 <Link
                   to="/guides"

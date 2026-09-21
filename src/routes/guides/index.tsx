@@ -3,33 +3,42 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 
 import { SiteShell } from "@/components/SiteShell";
 import {
+  allBusinessDomains,
   allCategories,
   allValueStreams,
   childrenOf,
   guideBySlug,
   guides,
   pillars,
+  streamsInDomain,
+  type BusinessDomain,
   type Guide,
 } from "@/content/guides";
 
 /**
  * Library filters live in the URL so a filtered view is linkable — the home
- * page map links straight into a scoped branch, and a value stream view can
- * be shared as a link.
+ * page map links straight into a scoped branch, and a domain or value stream
+ * view can be shared as a link.
  */
 type GuideSearch = {
   q?: string | undefined;
   module?: string | undefined;
+  domain?: string | undefined;
   stream?: string | undefined;
   category?: string | undefined;
 };
 
 const str = (v: unknown) => (typeof v === "string" && v.length > 0 ? v : undefined);
 
+/** Facets with nothing behind them are hidden rather than shown empty. */
+const liveDomains = allBusinessDomains.filter((d) => guides.some((g) => g.domain === d));
+const liveStreams = allValueStreams.filter((s) => guides.some((g) => g.valueStream === s));
+
 export const Route = createFileRoute("/guides/")({
   validateSearch: (search: Record<string, unknown>): GuideSearch => ({
     q: str(search["q"]),
     module: str(search["module"]),
+    domain: str(search["domain"]),
     stream: str(search["stream"]),
     category: str(search["category"]),
   }),
@@ -39,13 +48,13 @@ export const Route = createFileRoute("/guides/")({
       {
         name: "description",
         content:
-          "Browse every EZRP guide by module, value stream or category: ERP modules, the processes inside them, and the workflow steps teams run.",
+          "Browse every EZRP guide by business domain, value stream, module or category: ERP modules, the processes inside them, and the workflow steps teams run.",
       },
       { property: "og:title", content: "Guide library — EZRP" },
       {
         property: "og:description",
         content:
-          "Browse and filter the full EZRP guide library by module, value stream and category.",
+          "Browse and filter the full EZRP guide library by business domain, value stream, module and category.",
       },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
@@ -79,6 +88,7 @@ function GuideLibrary() {
     const needle = (search.q ?? "").trim().toLowerCase();
     return guides.filter((g) => {
       if (search.module && !inBranch(g, search.module)) return false;
+      if (search.domain && g.domain !== search.domain) return false;
       if (search.stream && g.valueStream !== search.stream) return false;
       if (search.category && !g.categories.includes(search.category as never)) return false;
       if (!needle) return true;
@@ -87,9 +97,17 @@ function GuideLibrary() {
         .toLowerCase()
         .includes(needle);
     });
-  }, [search.q, search.module, search.stream, search.category]);
+  }, [search.q, search.module, search.domain, search.stream, search.category]);
 
-  const hasFilter = Boolean(search.module || search.stream || search.category || search.q);
+  // Narrow the stream row to the chosen domain, so the two layers read as a
+  // hierarchy rather than as two unrelated filter rows.
+  const streamChips = search.domain
+    ? streamsInDomain(search.domain as BusinessDomain).filter((s) => liveStreams.includes(s))
+    : liveStreams;
+
+  const hasFilter = Boolean(
+    search.module || search.domain || search.stream || search.category || search.q,
+  );
 
   return (
     <SiteShell>
@@ -170,15 +188,23 @@ function GuideLibrary() {
           <div>
             <div className="space-y-3">
               <div className="flex flex-wrap items-center gap-2">
-                <span className="label-xs mr-1">Value stream</span>
-                {allValueStreams.map((s) => (
+                <span className="label-xs w-24 shrink-0">Domain</span>
+                {liveDomains.map((d) => (
+                  <Chip key={d} active={search.domain === d} onClick={() => toggle("domain", d)}>
+                    {d}
+                  </Chip>
+                ))}
+              </div>
+              <div className="flex flex-wrap items-center gap-2">
+                <span className="label-xs w-24 shrink-0">Value stream</span>
+                {streamChips.map((s) => (
                   <Chip key={s} active={search.stream === s} onClick={() => toggle("stream", s)}>
                     {s}
                   </Chip>
                 ))}
               </div>
               <div className="flex flex-wrap items-center gap-2">
-                <span className="label-xs mr-1">Category</span>
+                <span className="label-xs w-24 shrink-0">Category</span>
                 {allCategories.map((c) => (
                   <Chip
                     key={c}
@@ -225,6 +251,11 @@ function GuideLibrary() {
                     <p className="mt-2 font-mono text-xs text-accent">{g.workflow.join("  →  ")}</p>
                   )}
                   <div className="mt-3 flex flex-wrap gap-1.5">
+                    {g.domain && (
+                      <span className="rounded-full bg-primary px-2 py-0.5 text-[0.65rem] text-primary-foreground">
+                        {g.domain}
+                      </span>
+                    )}
                     {g.valueStream && (
                       <span className="rounded-full border border-primary px-2 py-0.5 text-[0.65rem] text-primary">
                         {g.valueStream}
