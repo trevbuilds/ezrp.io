@@ -1,4 +1,5 @@
 import { Link } from "@tanstack/react-router";
+import { MessageSquarePlus } from "lucide-react";
 import type { ReactNode } from "react";
 
 import { ChatPanel } from "./ChatPanel";
@@ -8,6 +9,28 @@ const nav = [
   { to: "/guides", label: "Guides" },
   { to: "/framework", label: "Framework" },
 ] as const;
+
+const REPO = "https://github.com/trevbuilds/ezrp.io";
+
+/**
+ * Feedback goes to GitHub issues, pre-filled. The content is alpha and
+ * incomplete, so a correction naming the page it came from is worth far more
+ * than a general comment.
+ */
+const FEEDBACK_URL = `${REPO}/issues/new?labels=feedback&title=${encodeURIComponent(
+  "Feedback: ",
+)}&body=${encodeURIComponent(
+  [
+    "<!-- Which guide or part of the map is this about? A link helps. -->",
+    "",
+    "**Where:**",
+    "",
+    "**What is wrong, missing or misleading:**",
+    "",
+    "**What it should say instead:**",
+    "",
+  ].join("\n"),
+)}`;
 
 export function SiteShell({ children }: { children: ReactNode }) {
   return (
@@ -33,6 +56,15 @@ export function SiteShell({ children }: { children: ReactNode }) {
                 {item.label}
               </Link>
             ))}
+            <a
+              href={FEEDBACK_URL}
+              target="_blank"
+              rel="noreferrer"
+              className="ml-1 inline-flex items-center gap-1.5 rounded border border-border px-3 py-1.5 text-sm text-muted-foreground transition hover:border-primary hover:text-foreground"
+            >
+              <MessageSquarePlus className="size-3.5" />
+              <span className="hidden sm:inline">Feedback</span>
+            </a>
           </nav>
         </div>
       </header>
@@ -41,8 +73,30 @@ export function SiteShell({ children }: { children: ReactNode }) {
         <div className="mx-auto max-w-6xl px-5 py-8">
           <p className="label-xs">Easy Resource Planning</p>
           <p className="mt-2 max-w-xl text-sm text-muted-foreground">
-            A working map of ERP delivery: modules, the processes inside them, and the
-            workflow steps teams actually run.
+            A working map of ERP delivery: modules, the processes inside them, and the workflow
+            steps teams actually run.
+          </p>
+          <p className="mt-4 max-w-xl text-sm text-muted-foreground">
+            Alpha, and the content is still filling in. Corrections are more useful than compliments
+            —{" "}
+            <a
+              href={FEEDBACK_URL}
+              target="_blank"
+              rel="noreferrer"
+              className="text-primary hover:underline"
+            >
+              tell us what is wrong
+            </a>
+            , or{" "}
+            <a
+              href={`${REPO}/discussions`}
+              target="_blank"
+              rel="noreferrer"
+              className="text-primary hover:underline"
+            >
+              argue with the model
+            </a>
+            .
           </p>
         </div>
       </footer>
