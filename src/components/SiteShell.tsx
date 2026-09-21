@@ -7,6 +7,7 @@ import { ChatPanel } from "./ChatPanel";
 const nav = [
   { to: "/", label: "Map" },
   { to: "/guides", label: "Guides" },
+  { to: "/scope", label: "Scope" },
   { to: "/framework", label: "Framework" },
 ] as const;
 

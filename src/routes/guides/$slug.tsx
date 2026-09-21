@@ -7,6 +7,7 @@ import { loadArticle } from "@/content/article-loader";
 import type { Article } from "@/content/article";
 import { flowBySlug } from "@/content/flows";
 import { ancestorsOf, childrenOf, guideBySlug, pillarOf, type Guide } from "@/content/guides";
+import { computeScope } from "@/content/scope";
 
 export const Route = createFileRoute("/guides/$slug")({
   loader: async ({ params }) => {
@@ -133,6 +134,41 @@ function GuidePage() {
             </ol>
           </section>
         )}
+
+        {/* What picking this one topic would actually imply. */}
+        {guide.streams.length > 0 &&
+          (() => {
+            const scope = computeScope([guide.slug]);
+            if (scope.topics.length < 2) return null;
+            return (
+              <section className="panel mt-8 rounded-lg p-5">
+                <p className="label-xs">If you change this</p>
+                <p className="mt-2 text-sm text-muted-foreground">
+                  It implies {scope.topics.length} topics across{" "}
+                  {scope.modules.length === 1 ? "one module" : `${scope.modules.length} modules`}
+                  {scope.draggedIn.length > 0 && (
+                    <>
+                      , including{" "}
+                      <strong className="text-foreground">
+                        {scope.draggedIn
+                          .map((slug) => guideBySlug.get(slug)?.topic ?? slug)
+                          .join(" and ")}
+                      </strong>{" "}
+                      which you might not expect
+                    </>
+                  )}
+                  .
+                </p>
+                <Link
+                  to="/scope"
+                  search={{ pick: guide.slug }}
+                  className="mt-3 inline-block rounded bg-primary px-3 py-1.5 font-display text-xs font-semibold text-primary-foreground transition hover:brightness-110"
+                >
+                  See the path ahead →
+                </Link>
+              </section>
+            );
+          })()}
 
         {flow && <EndToEndFlow flow={flow} />}
 

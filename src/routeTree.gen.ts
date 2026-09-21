@@ -11,6 +11,7 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as FrameworkRouteImport } from './routes/framework'
+import { Route as ScopeRouteImport } from './routes/scope'
 import { Route as ApiChatRouteImport } from './routes/api/chat'
 import { Route as GuidesIndexRouteImport } from './routes/guides/index'
 import { Route as GuidesSlugRouteImport } from './routes/guides/$slug'
@@ -24,6 +25,11 @@ const IndexRoute = IndexRouteImport.update({
 const FrameworkRoute = FrameworkRouteImport.update({
   id: '/framework',
   path: '/framework',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ScopeRoute = ScopeRouteImport.update({
+  id: '/scope',
+  path: '/scope',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ApiChatRoute = ApiChatRouteImport.update({
@@ -50,6 +56,7 @@ const PillarsSlugRoute = PillarsSlugRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/framework': typeof FrameworkRoute
+  '/scope': typeof ScopeRoute
   '/api/chat': typeof ApiChatRoute
   '/guides/$slug': typeof GuidesSlugRoute
   '/pillars/$slug': typeof PillarsSlugRoute
@@ -58,6 +65,7 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/framework': typeof FrameworkRoute
+  '/scope': typeof ScopeRoute
   '/api/chat': typeof ApiChatRoute
   '/guides/$slug': typeof GuidesSlugRoute
   '/pillars/$slug': typeof PillarsSlugRoute
@@ -67,6 +75,7 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/framework': typeof FrameworkRoute
+  '/scope': typeof ScopeRoute
   '/api/chat': typeof ApiChatRoute
   '/guides/$slug': typeof GuidesSlugRoute
   '/pillars/$slug': typeof PillarsSlugRoute
@@ -77,6 +86,7 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/framework'
+    | '/scope'
     | '/api/chat'
     | '/guides/$slug'
     | '/pillars/$slug'
@@ -85,6 +95,7 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/framework'
+    | '/scope'
     | '/api/chat'
     | '/guides/$slug'
     | '/pillars/$slug'
@@ -93,6 +104,7 @@ export interface FileRouteTypes {
     | '__root__'
     | '/'
     | '/framework'
+    | '/scope'
     | '/api/chat'
     | '/guides/$slug'
     | '/pillars/$slug'
@@ -102,6 +114,7 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   FrameworkRoute: typeof FrameworkRoute
+  ScopeRoute: typeof ScopeRoute
   ApiChatRoute: typeof ApiChatRoute
   GuidesSlugRoute: typeof GuidesSlugRoute
   PillarsSlugRoute: typeof PillarsSlugRoute
@@ -122,6 +135,13 @@ declare module '@tanstack/react-router' {
       path: '/framework'
       fullPath: '/framework'
       preLoaderRoute: typeof FrameworkRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/scope': {
+      id: '/scope'
+      path: '/scope'
+      fullPath: '/scope'
+      preLoaderRoute: typeof ScopeRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/api/chat': {
@@ -158,6 +178,7 @@ declare module '@tanstack/react-router' {
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   FrameworkRoute: FrameworkRoute,
+  ScopeRoute: ScopeRoute,
   ApiChatRoute: ApiChatRoute,
   GuidesSlugRoute: GuidesSlugRoute,
   PillarsSlugRoute: PillarsSlugRoute,

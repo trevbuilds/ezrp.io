@@ -2,6 +2,7 @@ import { useMemo, useState } from "react";
 import { createFileRoute, Link } from "@tanstack/react-router";
 
 import { SiteShell } from "@/components/SiteShell";
+import { parsePicks, serialisePicks } from "@/content/scope";
 import {
   allBusinessDomains,
   allCategories,
@@ -21,6 +22,8 @@ import {
  * view can be shared as a link.
  */
 type GuideSearch = {
+  /** Comma-separated slugs in the scope basket, carried through browsing. */
+  pick?: string | undefined;
   q?: string | undefined;
   module?: string | undefined;
   domain?: string | undefined;
@@ -36,6 +39,7 @@ const liveStreams = allValueStreams.filter((s) => guides.some((g) => g.valueStre
 
 export const Route = createFileRoute("/guides/")({
   validateSearch: (search: Record<string, unknown>): GuideSearch => ({
+    pick: str(search["pick"]),
     q: str(search["q"]),
     module: str(search["module"]),
     domain: str(search["domain"]),
@@ -81,6 +85,15 @@ function GuideLibrary() {
 
   const toggle = (key: keyof GuideSearch, value: string) =>
     set({ [key]: search[key] === value ? undefined : value });
+
+  const picks = parsePicks(search.pick);
+  const pickedSet = useMemo(() => new Set(picks), [picks]);
+  const togglePick = (slug: string) =>
+    set({
+      pick: serialisePicks(
+        pickedSet.has(slug) ? picks.filter((item) => item !== slug) : [...picks, slug],
+      ),
+    });
 
   const activeModule = search.module ? guideBySlug.get(search.module) : undefined;
 
@@ -129,6 +142,40 @@ function GuideLibrary() {
           placeholder="Search topics, definitions, workflow steps…"
           className="mt-6 w-full rounded border border-input bg-background px-4 py-3 outline-none focus:border-primary"
         />
+
+        {picks.length > 0 && (
+          <div className="panel mt-4 flex flex-wrap items-center gap-2 rounded-lg p-3">
+            <span className="label-xs mr-1">Scope</span>
+            {picks.map((slug) => (
+              <span
+                key={slug}
+                className="inline-flex items-center gap-1.5 rounded-full bg-primary px-2.5 py-0.5 text-xs text-primary-foreground"
+              >
+                {guideBySlug.get(slug)?.topic ?? slug}
+                <button
+                  onClick={() => togglePick(slug)}
+                  aria-label={`Remove ${guideBySlug.get(slug)?.topic ?? slug} from scope`}
+                  className="opacity-70 transition hover:opacity-100"
+                >
+                  ✕
+                </button>
+              </span>
+            ))}
+            <Link
+              to="/scope"
+              search={{ pick: search.pick }}
+              className="ml-auto rounded bg-primary px-3 py-1 font-display text-xs font-semibold text-primary-foreground transition hover:brightness-110"
+            >
+              See the path ahead →
+            </Link>
+            <button
+              onClick={() => set({ pick: undefined })}
+              className="text-xs text-muted-foreground underline hover:text-foreground"
+            >
+              Clear
+            </button>
+          </div>
+        )}
 
         <div className="mt-8 grid gap-8 lg:grid-cols-[15rem_1fr]">
           {/* Wiki-style contents tree */}
@@ -234,43 +281,63 @@ function GuideLibrary() {
 
             <div className="mt-3 grid gap-3 pb-6 md:grid-cols-2">
               {results.map((g) => (
-                <Link
+                <div
                   key={g.slug}
-                  to="/guides/$slug"
-                  params={{ slug: g.slug }}
-                  className="panel rounded-lg p-4 transition hover:border-primary"
+                  className="panel relative rounded-lg p-4 transition hover:border-primary"
                 >
-                  <p className="label-xs">
-                    {g.parent ? (guideBySlug.get(g.parent)?.topic ?? g.parent) : "Top-level pillar"}
-                  </p>
-                  <h2 className="mt-1 font-display text-lg font-semibold">{g.topic}</h2>
-                  {g.definition && (
-                    <p className="mt-1 text-sm text-muted-foreground">{g.definition}</p>
-                  )}
-                  {g.workflow.length > 0 && (
-                    <p className="mt-2 font-mono text-xs text-accent">{g.workflow.join("  →  ")}</p>
-                  )}
-                  <div className="mt-3 flex flex-wrap gap-1.5">
-                    {g.domain && (
-                      <span className="rounded-full bg-primary px-2 py-0.5 text-[0.65rem] text-primary-foreground">
-                        {g.domain}
-                      </span>
+                  <button
+                    onClick={() => togglePick(g.slug)}
+                    aria-pressed={pickedSet.has(g.slug)}
+                    aria-label={
+                      pickedSet.has(g.slug)
+                        ? `Remove ${g.topic} from scope`
+                        : `Add ${g.topic} to scope`
+                    }
+                    className={`absolute right-3 top-3 rounded-full border px-2 py-0.5 text-[0.65rem] transition ${
+                      pickedSet.has(g.slug)
+                        ? "border-primary bg-primary text-primary-foreground"
+                        : "border-border text-muted-foreground hover:border-primary hover:text-foreground"
+                    }`}
+                  >
+                    {pickedSet.has(g.slug) ? "In scope ✓" : "+ Scope"}
+                  </button>
+                  <Link to="/guides/$slug" params={{ slug: g.slug }} className="block pr-20">
+                    <p className="label-xs">
+                      {g.parent
+                        ? (guideBySlug.get(g.parent)?.topic ?? g.parent)
+                        : "Top-level pillar"}
+                    </p>
+                    <h2 className="mt-1 font-display text-lg font-semibold">{g.topic}</h2>
+                    {g.definition && (
+                      <p className="mt-1 text-sm text-muted-foreground">{g.definition}</p>
                     )}
-                    {g.valueStream && (
-                      <span className="rounded-full border border-primary px-2 py-0.5 text-[0.65rem] text-primary">
-                        {g.valueStream}
-                      </span>
+                    {g.workflow.length > 0 && (
+                      <p className="mt-2 font-mono text-xs text-accent">
+                        {g.workflow.join("  →  ")}
+                      </p>
                     )}
-                    {g.categories.map((c) => (
-                      <span
-                        key={c}
-                        className="rounded-full border border-border px-2 py-0.5 text-[0.65rem] text-muted-foreground"
-                      >
-                        {c}
-                      </span>
-                    ))}
-                  </div>
-                </Link>
+                    <div className="mt-3 flex flex-wrap gap-1.5">
+                      {g.domain && (
+                        <span className="rounded-full bg-primary px-2 py-0.5 text-[0.65rem] text-primary-foreground">
+                          {g.domain}
+                        </span>
+                      )}
+                      {g.valueStream && (
+                        <span className="rounded-full border border-primary px-2 py-0.5 text-[0.65rem] text-primary">
+                          {g.valueStream}
+                        </span>
+                      )}
+                      {g.categories.map((c) => (
+                        <span
+                          key={c}
+                          className="rounded-full border border-border px-2 py-0.5 text-[0.65rem] text-muted-foreground"
+                        >
+                          {c}
+                        </span>
+                      ))}
+                    </div>
+                  </Link>
+                </div>
               ))}
               {results.length === 0 && (
                 <p className="text-sm text-muted-foreground">
