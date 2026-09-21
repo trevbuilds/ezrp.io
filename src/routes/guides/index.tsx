@@ -1,9 +1,10 @@
-import { useMemo, useState } from "react";
+import React, { useMemo, useState } from "react";
+import { ChevronRight } from "lucide-react";
 import { createFileRoute, Link } from "@tanstack/react-router";
 
 import { SiteShell } from "@/components/SiteShell";
 import { parsePicks, serialisePicks } from "@/content/scope";
-import { allConsiderations, allScopes } from "@/content/model";
+import { allConsiderations, allScopes, erpBands } from "@/content/model";
 import {
   allBusinessDomains,
   allCategories,
@@ -91,6 +92,10 @@ function GuideLibrary() {
 
   const toggle = (key: keyof GuideSearch, value: string) =>
     set({ [key]: search[key] === value ? undefined : value });
+
+  // Expansion is independent of filtering: a branch can be opened to look
+  // inside without narrowing the results to it.
+  const [open, setOpen] = useState<Set<string>>(new Set());
 
   const picks = parsePicks(search.pick);
   const pickedSet = useMemo(() => new Set(picks), [picks]);
@@ -202,19 +207,30 @@ function GuideLibrary() {
 
         <div className="mt-8 grid gap-8 lg:grid-cols-[15rem_1fr]">
           {/*
-            Two trees, kept apart. The ERP is a structure you navigate down:
-            band, module, sub-module. The considerations are guidance that cuts
-            across all of it, with the localities each one applies in nested
-            underneath. Mixing them into one list was the garble.
+            Two trees, kept apart, both with their own expand toggles so a
+            branch can be opened to look inside without filtering to it — the
+            pattern SAP Help uses, which is what makes a deep tree navigable.
+
+            The ERP is what the system does. Delivery — PMO, programme
+            governance, cutover, change adoption — is how a programme is run,
+            so it sits with the guidance rather than among the modules.
           */}
-          <nav className="space-y-7 lg:sticky lg:top-6 lg:self-start">
+          <nav className="space-y-7 lg:sticky lg:top-6 lg:max-h-[calc(100vh-3rem)] lg:self-start lg:overflow-y-auto">
             <div>
-              <p className="label-xs">ERP Modules</p>
-              <ul className="mt-3 space-y-1">
+              <div className="flex items-baseline justify-between gap-2">
+                <p className="label-xs">ERP Modules</p>
+                <button
+                  onClick={() => setOpen(new Set())}
+                  className="font-mono text-[0.625rem] text-muted-foreground transition hover:text-foreground"
+                >
+                  collapse all
+                </button>
+              </div>
+              <ul className="mt-3 space-y-0.5">
                 <li>
                   <button
                     onClick={() => set({ module: undefined, domain: undefined })}
-                    className={`text-sm transition hover:text-foreground ${
+                    className={`py-0.5 text-sm transition hover:text-foreground ${
                       search.module || search.domain
                         ? "text-muted-foreground"
                         : "font-semibold text-primary"
@@ -223,77 +239,51 @@ function GuideLibrary() {
                     All areas
                   </button>
                 </li>
-                {liveDomains.map((band) => {
-                  const modules = pillars.filter((p) => p.domain === band);
-                  const bandOpen =
-                    search.domain === band ||
-                    modules.some(
-                      (m) => inBranch(activeModule ?? m, m.slug) && Boolean(search.module),
-                    );
-                  return (
-                    <li key={band} className="pt-1.5">
-                      <button
-                        onClick={() => toggle("domain", band)}
-                        className={`text-left font-display text-sm transition hover:text-foreground ${
-                          search.domain === band ? "font-semibold text-primary" : "text-foreground"
-                        }`}
-                      >
-                        {band}
-                      </button>
-                      {modules.length > 0 && (
-                        <ul className="mt-1 space-y-1 border-l border-border pl-3">
-                          {modules.map((m) => {
-                            const open =
-                              Boolean(search.module) &&
-                              (m.slug === search.module || inBranch(activeModule ?? m, m.slug));
-                            return (
-                              <li key={m.slug}>
-                                <button
-                                  onClick={() => toggle("module", m.slug)}
-                                  className={`text-left text-sm transition hover:text-foreground ${
-                                    search.module === m.slug
-                                      ? "font-semibold text-primary"
-                                      : "text-muted-foreground"
-                                  }`}
-                                >
-                                  {m.topic}
-                                </button>
-                                {(open || bandOpen) && childrenOf(m.slug).length > 0 && (
-                                  <ul className="mt-1 space-y-1 border-l border-border pl-3">
-                                    {childrenOf(m.slug).map((c) => (
-                                      <li key={c.slug}>
-                                        <button
-                                          onClick={() => toggle("module", c.slug)}
-                                          className={`text-left text-xs transition hover:text-foreground ${
-                                            search.module === c.slug
-                                              ? "font-semibold text-primary"
-                                              : "text-muted-foreground"
-                                          }`}
-                                        >
-                                          {c.topic}
-                                        </button>
-                                      </li>
-                                    ))}
-                                  </ul>
-                                )}
-                              </li>
-                            );
-                          })}
-                        </ul>
-                      )}
-                    </li>
-                  );
-                })}
+                {erpBands().map((band) => (
+                  <TreeBranch
+                    key={band}
+                    id={`band:${band}`}
+                    label={band}
+                    tone="band"
+                    open={open}
+                    setOpen={setOpen}
+                    active={search.domain === band}
+                    onSelect={() => toggle("domain", band)}
+                  >
+                    {pillars
+                      .filter((p) => p.domain === band)
+                      .map((m) => (
+                        <TreeBranch
+                          key={m.slug}
+                          id={`module:${m.slug}`}
+                          label={m.topic}
+                          open={open}
+                          setOpen={setOpen}
+                          active={search.module === m.slug}
+                          onSelect={() => toggle("module", m.slug)}
+                        >
+                          {childrenOf(m.slug).map((c) => (
+                            <TreeLeaf
+                              key={c.slug}
+                              label={c.topic}
+                              active={search.module === c.slug}
+                              onSelect={() => toggle("module", c.slug)}
+                            />
+                          ))}
+                        </TreeBranch>
+                      ))}
+                  </TreeBranch>
+                ))}
               </ul>
             </div>
 
             <div>
               <p className="label-xs">Considerations</p>
-              <ul className="mt-3 space-y-1">
+              <ul className="mt-3 space-y-0.5">
                 <li>
                   <button
                     onClick={() => set({ consideration: undefined, scope: undefined })}
-                    className={`text-sm transition hover:text-foreground ${
+                    className={`py-0.5 text-sm transition hover:text-foreground ${
                       search.consideration ? "text-muted-foreground" : "font-semibold text-primary"
                     }`}
                   >
@@ -307,38 +297,58 @@ function GuideLibrary() {
                     ),
                   );
                   return (
-                    <li key={concern}>
-                      <button
-                        onClick={() => toggle("consideration", concern)}
-                        className={`text-left text-sm transition hover:text-foreground ${
-                          search.consideration === concern
-                            ? "font-semibold text-primary"
-                            : "text-muted-foreground"
-                        }`}
-                      >
-                        {concern}
-                      </button>
-                      {search.consideration === concern && localities.length > 0 && (
-                        <ul className="mt-1 space-y-1 border-l border-border pl-3">
-                          {localities.map((sc) => (
-                            <li key={sc}>
-                              <button
-                                onClick={() => toggle("scope", sc)}
-                                className={`text-left font-mono text-[0.7rem] uppercase transition hover:text-foreground ${
-                                  search.scope === sc
-                                    ? "font-semibold text-primary"
-                                    : "text-muted-foreground"
-                                }`}
-                              >
-                                {sc}
-                              </button>
-                            </li>
-                          ))}
-                        </ul>
-                      )}
-                    </li>
+                    <TreeBranch
+                      key={concern}
+                      id={`concern:${concern}`}
+                      label={concern}
+                      open={open}
+                      setOpen={setOpen}
+                      active={search.consideration === concern}
+                      onSelect={() => toggle("consideration", concern)}
+                    >
+                      {localities.map((sc) => (
+                        <TreeLeaf
+                          key={sc}
+                          label={sc}
+                          mono
+                          active={search.scope === sc && search.consideration === concern}
+                          onSelect={() => set({ consideration: concern, scope: sc })}
+                        />
+                      ))}
+                    </TreeBranch>
                   );
                 })}
+              </ul>
+            </div>
+
+            <div>
+              <p className="label-xs">Delivery</p>
+              <p className="mt-1 text-xs text-muted-foreground">
+                How a programme is run, rather than what the ERP does.
+              </p>
+              <ul className="mt-3 space-y-0.5">
+                {pillars
+                  .filter((p) => p.domain === "Delivery")
+                  .map((m) => (
+                    <TreeBranch
+                      key={m.slug}
+                      id={`module:${m.slug}`}
+                      label={m.topic}
+                      open={open}
+                      setOpen={setOpen}
+                      active={search.module === m.slug}
+                      onSelect={() => toggle("module", m.slug)}
+                    >
+                      {childrenOf(m.slug).map((c) => (
+                        <TreeLeaf
+                          key={c.slug}
+                          label={c.topic}
+                          active={search.module === c.slug}
+                          onSelect={() => toggle("module", c.slug)}
+                        />
+                      ))}
+                    </TreeBranch>
+                  ))}
               </ul>
             </div>
           </nav>
@@ -453,6 +463,92 @@ function GuideLibrary() {
         </div>
       </section>
     </SiteShell>
+  );
+}
+
+/** A branch with a chevron toggle: open it, or select it, independently. */
+function TreeBranch({
+  id,
+  label,
+  tone = "item",
+  open,
+  setOpen,
+  active,
+  onSelect,
+  children,
+}: {
+  id: string;
+  label: string;
+  tone?: "band" | "item";
+  open: Set<string>;
+  setOpen: (next: Set<string>) => void;
+  active: boolean;
+  onSelect: () => void;
+  children: React.ReactNode;
+}) {
+  const kids = React.Children.toArray(children).filter(Boolean);
+  const isOpen = open.has(id);
+  const toggleOpen = () => {
+    const next = new Set(open);
+    if (next.has(id)) next.delete(id);
+    else next.add(id);
+    setOpen(next);
+  };
+
+  return (
+    <li>
+      <div className="flex items-center gap-1">
+        {kids.length > 0 ? (
+          <button
+            onClick={toggleOpen}
+            aria-expanded={isOpen}
+            aria-label={`${isOpen ? "Collapse" : "Expand"} ${label}`}
+            className="flex size-4 shrink-0 items-center justify-center text-muted-foreground transition hover:text-foreground"
+          >
+            <ChevronRight className={`size-3 transition-transform ${isOpen ? "rotate-90" : ""}`} />
+          </button>
+        ) : (
+          <span className="size-4 shrink-0" />
+        )}
+        <button
+          onClick={onSelect}
+          className={`py-0.5 text-left transition hover:text-foreground ${
+            tone === "band" ? "font-display text-sm" : "text-sm"
+          } ${active ? "font-semibold text-primary" : tone === "band" ? "text-foreground" : "text-muted-foreground"}`}
+        >
+          {label}
+        </button>
+      </div>
+      {isOpen && kids.length > 0 && (
+        <ul className="ml-2 mt-0.5 space-y-0.5 border-l border-border pl-3">{kids}</ul>
+      )}
+    </li>
+  );
+}
+
+function TreeLeaf({
+  label,
+  active,
+  onSelect,
+  mono = false,
+}: {
+  label: string;
+  active: boolean;
+  onSelect: () => void;
+  mono?: boolean;
+}) {
+  return (
+    <li className="flex items-center gap-1">
+      <span className="size-4 shrink-0" />
+      <button
+        onClick={onSelect}
+        className={`py-0.5 text-left transition hover:text-foreground ${
+          mono ? "font-mono text-[0.7rem] uppercase" : "text-xs"
+        } ${active ? "font-semibold text-primary" : "text-muted-foreground"}`}
+      >
+        {label}
+      </button>
+    </li>
   );
 }
 

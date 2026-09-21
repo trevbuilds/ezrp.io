@@ -91,8 +91,12 @@ export type Band =
   | "Customer & Revenue"
   | "Operations"
   | "Assets"
-  | "Programmes & Projects"
-  | "Data & Technology";
+  | "Projects & Portfolio"
+  | "Data & Technology"
+  | "Delivery";
+
+/** Bands that describe the ERP itself, rather than how it gets delivered. */
+export const erpBands = (): Band[] => allBands.filter((band) => band !== "Delivery");
 
 export const allBands: Band[] = [
   "Finance",
@@ -100,8 +104,9 @@ export const allBands: Band[] = [
   "Customer & Revenue",
   "Operations",
   "Assets",
-  "Programmes & Projects",
+  "Projects & Portfolio",
   "Data & Technology",
+  "Delivery",
 ];
 
 /** Module slug → band. The twelve modules of the ERP Field Guide. */
@@ -119,10 +124,14 @@ export const bandByModule: Record<string, Band> = {
   manufacturing: "Operations",
   "enterprise-asset-management": "Assets",
 
-  // How change gets delivered, rather than what it changes.
-  "project-management": "Programmes & Projects",
-  pmo: "Programmes & Projects",
-  "change-people-and-adoption": "Programmes & Projects",
+  // Project & Portfolio Management is a module a vendor ships. PMO and change
+  // adoption are not — they are how a programme is run, which is a delivery
+  // concern rather than a thing the ERP does. They stay in the model so their
+  // content keeps its level and tagging, but they sit in their own band and
+  // the navigation shows them as guidance rather than as ERP modules.
+  "project-management": "Projects & Portfolio",
+  pmo: "Delivery",
+  "change-people-and-adoption": "Delivery",
 
   // The technical substrate every other band depends on.
   "data-services": "Data & Technology",

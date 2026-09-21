@@ -139,7 +139,7 @@ const raw: Array<
   },
   {
     slug: "project-management",
-    topic: "Project & Portfolio Management",
+    topic: "Projects and Portfolio (PPM)",
     parent: null,
     categories: ["Concept", "Module"],
     definition:
