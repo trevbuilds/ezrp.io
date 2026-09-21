@@ -289,6 +289,15 @@ export function GuideMap() {
     anchorsRef.current = nodeList.map((node) => ({ x: node.x, y: node.y }));
   }
 
+  const [coarsePointer, setCoarsePointer] = useState(false);
+  useEffect(() => {
+    const query = window.matchMedia("(pointer: coarse)");
+    const update = () => setCoarsePointer(query.matches);
+    update();
+    query.addEventListener("change", update);
+    return () => query.removeEventListener("change", update);
+  }, []);
+
   useEffect(() => {
     const query = window.matchMedia("(prefers-reduced-motion: reduce)");
     const update = () => setReducedMotion(query.matches);
@@ -469,6 +478,16 @@ export function GuideMap() {
   }, [active, graph, links, nodes]);
 
   const selected = active ? nodes.get(active) : undefined;
+  const panelConsiderations = useMemo(() => {
+    if (!selected) return [];
+    if (selected.kind === "cross") return [];
+    if (selected.guide) return considerationsOf(selected.guide.slug);
+    // For a band or stream, roll up everything inside it.
+    const inside = [...related]
+      .map((id) => nodes.get(id)?.guide?.slug)
+      .filter((slug): slug is string => Boolean(slug));
+    return [...new Set(inside.flatMap((slug) => considerationsOf(slug)))];
+  }, [selected, related, nodes]);
   const isRelatedLink = (link: MapLink) => related.has(link.from) && related.has(link.to);
 
   /**
@@ -665,8 +684,20 @@ export function GuideMap() {
                     onMouseLeave: () => setActive(null),
                     onBlur: () => setActive(null),
                     onClick: (event: { preventDefault: () => void }) => {
-                      if (dragRef.current?.moved) event.preventDefault();
+                      if (dragRef.current?.moved) {
+                        event.preventDefault();
+                        return;
+                      }
+                      // Touch has no hover: the first tap traces the chain,
+                      // the second opens the destination.
+                      if (coarsePointer && active !== node.id) {
+                        event.preventDefault();
+                        setActive(node.id);
+                      }
                     },
+                    // Keep the tab order to the tiers a reader navigates by;
+                    // guides are reachable through the library.
+                    tabIndex: node.kind === "guide" ? -1 : 0,
                   };
                   const mark = (
                     <g
@@ -765,7 +796,15 @@ export function GuideMap() {
         {selected ? (
           <div>
             <p className="label-xs">
-              {selected.kind === "cross" ? "Cross-cutting concern" : selected.kind}
+              {selected.kind === "cross"
+                ? "Shared concern"
+                : selected.kind === "domain"
+                  ? "Band"
+                  : selected.kind === "stream"
+                    ? "Value stream"
+                    : selected.kind === "substream"
+                      ? "Sub-stream"
+                      : (selected.guide?.level ?? "Guide")}
             </p>
             <h3 className="mt-1 text-xl font-semibold">{selected.label}</h3>
             {selected.guide?.definition && (
@@ -773,11 +812,32 @@ export function GuideMap() {
                 {selected.guide.definition}
               </p>
             )}
-            <p className="mt-3 font-mono text-xs text-accent">
-              {selected.kind === "cross"
-                ? "Linked wherever this concern shapes a domain or its guides"
-                : [selected.domain, selected.stream].filter(Boolean).join("  →  ")}
-            </p>
+            {selected.guide && selected.guide.workflow.length > 0 && (
+              <p className="mt-2 max-w-3xl font-mono text-xs text-accent">
+                {selected.guide.workflow.join("  →  ")}
+              </p>
+            )}
+            {selected.stream && selected.stream.modules.length > 1 && (
+              <p className="mt-2 text-xs text-muted-foreground">
+                Crosses {selected.stream.modules.length} modules — the work happens in more than one
+                place.
+              </p>
+            )}
+            <div className="mt-3 flex flex-wrap items-center gap-1.5">
+              {selected.domain && (
+                <span className="rounded-full bg-primary px-2 py-0.5 text-[0.65rem] text-primary-foreground">
+                  {selected.domain}
+                </span>
+              )}
+              {panelConsiderations.map((item) => (
+                <span
+                  key={item}
+                  className="rounded-full border border-primary px-2 py-0.5 text-[0.65rem] text-primary"
+                >
+                  {item}
+                </span>
+              ))}
+            </div>
           </div>
         ) : (
           <div>

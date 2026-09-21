@@ -447,6 +447,38 @@
   }
 }
 
+/*
+ * Below the md breakpoint the whole 1520-unit viewBox is squeezed into a
+ * phone, so label sizes are raised to stay legible. Touch has no hover: the
+ * first tap traces a chain and the second opens it, so labels have to be
+ * readable before anything is active.
+ */
+@media (max-width: 767px) {
+  .guide-brain .tier-1 .node-label {
+    font-size: 30px;
+  }
+
+  .guide-brain .tier-2 .node-label {
+    font-size: 24px;
+  }
+
+  .guide-brain .tier-2b .node-label {
+    font-size: 21px;
+  }
+
+  .guide-brain .cross-cutting .node-label {
+    font-size: 19px;
+  }
+
+  .guide-brain .tier-3 .node-label {
+    font-size: 20px;
+  }
+
+  .guide-brain__nodes .hit {
+    r: 34;
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   .guide-brain__stage svg,
   .guide-brain__links path,
