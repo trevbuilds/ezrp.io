@@ -1,7 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 
 import { SiteShell } from "@/components/SiteShell";
-import { guideBySlug } from "@/content/guides";
+import { guideBySlug, pillars } from "@/content/guides";
 import {
   allCountries,
   allIndustries,
@@ -16,9 +16,11 @@ import {
   type OrgSize,
   type OrgType,
 } from "@/content/context";
-import { serialisePicks } from "@/content/scope";
+import { parsePicks, serialisePicks } from "@/content/scope";
 
 type StartSearch = {
+  /** Modules the client actually plans to change, as slugs. */
+  changing?: string | undefined;
   industry?: string | undefined;
   country?: string | undefined;
   size?: string | undefined;
@@ -29,6 +31,7 @@ const str = (v: unknown) => (typeof v === "string" && v ? v : undefined);
 
 export const Route = createFileRoute("/start")({
   validateSearch: (search: Record<string, unknown>): StartSearch => ({
+    changing: str(search["changing"]),
     industry: str(search["industry"]),
     country: str(search["country"]),
     size: str(search["size"]),
@@ -71,6 +74,22 @@ function StartPage() {
     ]),
   ];
 
+  const changing = parsePicks(search.changing);
+  const toggleChanging = (slug: string) =>
+    set({
+      changing: serialisePicks(
+        changing.includes(slug) ? changing.filter((s) => s !== slug) : [...changing, slug],
+      ),
+    });
+
+  // What they plan to change beats what the sector says dominates. The
+  // dial-up is a prompt; their answer is the actual scope.
+  const scopePicks = changing.length > 0 ? changing : (dial?.dominates ?? []);
+  const notDominant = dial ? changing.filter((slug) => !dial.dominates.includes(slug)) : [];
+  const dominantNotPicked = dial
+    ? dial.dominates.filter((slug) => changing.length > 0 && !changing.includes(slug))
+    : [];
+
   const answered = [industry, country, size, orgType].filter(Boolean).length;
 
   return (
@@ -108,6 +127,32 @@ function StartPage() {
             value={search.size}
             onPick={(v) => set({ size: v })}
           />
+          <div>
+            <div className="flex items-baseline gap-3">
+              <p className="label-xs">Areas you plan to change</p>
+              <p className="text-xs text-muted-foreground">
+                Pick as many as apply — this drives the scope
+              </p>
+            </div>
+            <div className="mt-2 flex flex-wrap gap-2">
+              {pillars
+                .filter((p) => p.domain && p.domain !== "Delivery")
+                .map((module) => (
+                  <button
+                    key={module.slug}
+                    onClick={() => toggleChanging(module.slug)}
+                    className={`rounded-full border px-3 py-1.5 text-sm transition ${
+                      changing.includes(module.slug)
+                        ? "border-primary bg-primary text-primary-foreground"
+                        : "border-border text-muted-foreground hover:border-primary hover:text-foreground"
+                    }`}
+                  >
+                    {module.topic}
+                  </button>
+                ))}
+            </div>
+          </div>
+
           <Question
             label="Type of organisation"
             hint="Shapes what has to be evidenced"
@@ -172,6 +217,33 @@ function StartPage() {
           </>
         )}
 
+        {dial &&
+          changing.length > 0 &&
+          (notDominant.length > 0 || dominantNotPicked.length > 0) && (
+            <section className="panel mt-6 rounded-lg border-l-2 border-primary p-5">
+              <p className="label-xs">Your plan against your sector</p>
+              {dominantNotPicked.length > 0 && (
+                <p className="mt-2 max-w-2xl text-sm text-muted-foreground">
+                  <strong className="text-foreground">
+                    {dominantNotPicked
+                      .map((slug) => guideBySlug.get(slug)?.topic ?? slug)
+                      .join(", ")}
+                  </strong>{" "}
+                  {dominantNotPicked.length === 1 ? "dominates" : "dominate"} in {dial.industry} and
+                  {dominantNotPicked.length === 1 ? " is" : " are"} not in your plan. Deliberate, or
+                  worth a second look.
+                </p>
+              )}
+              {notDominant.length > 0 && (
+                <p className="mt-2 max-w-2xl text-sm text-muted-foreground">
+                  {notDominant.map((slug) => guideBySlug.get(slug)?.topic ?? slug).join(", ")}{" "}
+                  {notDominant.length === 1 ? "is" : "are"} not a typical focus for your sector —
+                  fine if you know why.
+                </p>
+              )}
+            </section>
+          )}
+
         {(size || orgType || country) && (
           <section className="mt-6 space-y-3">
             <p className="label-xs">What your context adds</p>
@@ -203,16 +275,17 @@ function StartPage() {
           <section className="panel mt-8 rounded-lg p-5">
             <p className="label-xs">Next</p>
             <p className="mt-2 max-w-2xl text-sm text-muted-foreground">
-              Start a scope from the modules that dominate in your sector, then add or drop areas
-              until it matches what you are actually changing.
+              {changing.length > 0
+                ? "Scope what you plan to change, and see what it drags in."
+                : "Start a scope from the modules that dominate in your sector, then add or drop areas until it matches what you are actually changing."}
             </p>
             <div className="mt-4 flex flex-wrap gap-3">
               <Link
                 to="/scope"
-                search={{ pick: serialisePicks(dial.dominates) }}
+                search={{ pick: serialisePicks(scopePicks) }}
                 className="rounded bg-primary px-4 py-2 font-display text-sm font-semibold text-primary-foreground transition hover:brightness-110"
               >
-                Scope these {dial.dominates.length} modules →
+                Scope {scopePicks.length} {scopePicks.length === 1 ? "module" : "modules"} →
               </Link>
               {country === "Australia" && (
                 <Link
