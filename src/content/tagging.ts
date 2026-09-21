@@ -14,7 +14,7 @@
  * Compliance; see ./model for the ring they form.
  */
 
-import type { Consideration, Scope } from "./model";
+import { allJurisdictions, type Consideration, type Jurisdiction, type Scope } from "./model";
 
 /**
  * Topic slug -> the stream slugs it belongs to. Plural because some topics
@@ -52,6 +52,9 @@ export const streamsBySlug: Record<string, string[]> = {
   "payroll-automation": ["calculate-to-disburse"],
   superannuation: ["calculate-to-disburse", "report-to-comply"],
   "single-touch-payroll": ["report-to-comply"],
+  "payroll-tax": ["report-to-comply"],
+  "long-service-leave": ["capture-to-approve", "calculate-to-disburse"],
+  "workers-compensation": ["benefits-and-compliance", "report-to-comply"],
   "time-and-attendance": ["capture-to-approve"],
   "rostering-and-scheduling": ["capture-to-approve"],
   "leave-management": ["capture-to-approve"],
@@ -178,6 +181,9 @@ export const considerationsBySlug: Record<string, Consideration[]> = {
   "payroll-automation": ["Technology", "Delivery"],
   superannuation: ["Governance", "Compliance"],
   "single-touch-payroll": ["Governance", "Compliance"],
+  "payroll-tax": ["Compliance", "Governance", "Data"],
+  "long-service-leave": ["Compliance", "People", "Data"],
+  "workers-compensation": ["Compliance", "People", "Process"],
   "time-and-attendance": ["People", "Process", "Technology", "Compliance"],
   "rostering-and-scheduling": ["People", "Process", "Delivery"],
   "leave-management": ["People", "Process", "Compliance"],
@@ -247,8 +253,36 @@ export const scopeBySlug: Record<string, Scope[]> = {
   superannuation: ["Local-AU"],
   "single-touch-payroll": ["Local-AU"],
   "award-interpretation": ["Local-AU"],
+  "payroll-tax": ["Local-AU"],
+  "long-service-leave": ["Local-AU"],
+  "workers-compensation": ["Local-AU"],
   "eft-files": ["Common"],
   payments: ["Common"],
   "payroll-automation": ["Common"],
   "bank-reconciliation": ["Common"],
+};
+
+/**
+ * The layer under Local-AU: which states and territories a topic actually
+ * differs between.
+ *
+ * Absence is meaningful. Single Touch Payroll, the superannuation guarantee
+ * and ABA files are federal — they are Local-AU and carry no jurisdictions,
+ * because there is nothing to vary. A topic listed here is saying the rule
+ * itself changes at the border, so an employer operating in two states is
+ * running two rules rather than one rule twice.
+ *
+ * Everything here applies in all eight, which is the point: the differences
+ * are in the threshold, the scheme and the instrument, not in whether the
+ * obligation exists. What each jurisdiction does is in ./jurisdictions.
+ */
+export const jurisdictionsBySlug: Record<string, Jurisdiction[]> = {
+  "payroll-tax": [...allJurisdictions],
+  "long-service-leave": [...allJurisdictions],
+  "workers-compensation": [...allJurisdictions],
+  // Western Australia runs its own industrial relations system for some
+  // employers, so which system an employee sits under has to be settled
+  // before interpretation is configured. Elsewhere the federal award system
+  // answers it.
+  "award-interpretation": ["WA"],
 };

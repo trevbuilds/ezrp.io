@@ -16,6 +16,8 @@ import { Route as StartRouteImport } from './routes/start'
 import { Route as ApiChatRouteImport } from './routes/api/chat'
 import { Route as GuidesIndexRouteImport } from './routes/guides/index'
 import { Route as GuidesSlugRouteImport } from './routes/guides/$slug'
+import { Route as LocalesIndexRouteImport } from './routes/locales/index'
+import { Route as LocalesCodeRouteImport } from './routes/locales/$code'
 import { Route as PillarsSlugRouteImport } from './routes/pillars/$slug'
 import { Route as ProgrammesIndexRouteImport } from './routes/programmes/index'
 import { Route as ProgrammesSlugRouteImport } from './routes/programmes/$slug'
@@ -55,6 +57,16 @@ const GuidesSlugRoute = GuidesSlugRouteImport.update({
   path: '/guides/$slug',
   getParentRoute: () => rootRouteImport,
 } as any)
+const LocalesIndexRoute = LocalesIndexRouteImport.update({
+  id: '/locales/',
+  path: '/locales/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const LocalesCodeRoute = LocalesCodeRouteImport.update({
+  id: '/locales/$code',
+  path: '/locales/$code',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const PillarsSlugRoute = PillarsSlugRouteImport.update({
   id: '/pillars/$slug',
   path: '/pillars/$slug',
@@ -78,9 +90,11 @@ export interface FileRoutesByFullPath {
   '/start': typeof StartRoute
   '/api/chat': typeof ApiChatRoute
   '/guides/$slug': typeof GuidesSlugRoute
+  '/locales/$code': typeof LocalesCodeRoute
   '/pillars/$slug': typeof PillarsSlugRoute
   '/programmes/$slug': typeof ProgrammesSlugRoute
   '/guides/': typeof GuidesIndexRoute
+  '/locales/': typeof LocalesIndexRoute
   '/programmes/': typeof ProgrammesIndexRoute
 }
 export interface FileRoutesByTo {
@@ -90,9 +104,11 @@ export interface FileRoutesByTo {
   '/start': typeof StartRoute
   '/api/chat': typeof ApiChatRoute
   '/guides/$slug': typeof GuidesSlugRoute
+  '/locales/$code': typeof LocalesCodeRoute
   '/pillars/$slug': typeof PillarsSlugRoute
   '/programmes/$slug': typeof ProgrammesSlugRoute
   '/guides': typeof GuidesIndexRoute
+  '/locales': typeof LocalesIndexRoute
   '/programmes': typeof ProgrammesIndexRoute
 }
 export interface FileRoutesById {
@@ -103,9 +119,11 @@ export interface FileRoutesById {
   '/start': typeof StartRoute
   '/api/chat': typeof ApiChatRoute
   '/guides/$slug': typeof GuidesSlugRoute
+  '/locales/$code': typeof LocalesCodeRoute
   '/pillars/$slug': typeof PillarsSlugRoute
   '/programmes/$slug': typeof ProgrammesSlugRoute
   '/guides/': typeof GuidesIndexRoute
+  '/locales/': typeof LocalesIndexRoute
   '/programmes/': typeof ProgrammesIndexRoute
 }
 export interface FileRouteTypes {
@@ -117,9 +135,11 @@ export interface FileRouteTypes {
     | '/start'
     | '/api/chat'
     | '/guides/$slug'
+    | '/locales/$code'
     | '/pillars/$slug'
     | '/programmes/$slug'
     | '/guides/'
+    | '/locales/'
     | '/programmes/'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -129,9 +149,11 @@ export interface FileRouteTypes {
     | '/start'
     | '/api/chat'
     | '/guides/$slug'
+    | '/locales/$code'
     | '/pillars/$slug'
     | '/programmes/$slug'
     | '/guides'
+    | '/locales'
     | '/programmes'
   id:
     | '__root__'
@@ -141,9 +163,11 @@ export interface FileRouteTypes {
     | '/start'
     | '/api/chat'
     | '/guides/$slug'
+    | '/locales/$code'
     | '/pillars/$slug'
     | '/programmes/$slug'
     | '/guides/'
+    | '/locales/'
     | '/programmes/'
   fileRoutesById: FileRoutesById
 }
@@ -154,9 +178,11 @@ export interface RootRouteChildren {
   StartRoute: typeof StartRoute
   ApiChatRoute: typeof ApiChatRoute
   GuidesSlugRoute: typeof GuidesSlugRoute
+  LocalesCodeRoute: typeof LocalesCodeRoute
   PillarsSlugRoute: typeof PillarsSlugRoute
   ProgrammesSlugRoute: typeof ProgrammesSlugRoute
   GuidesIndexRoute: typeof GuidesIndexRoute
+  LocalesIndexRoute: typeof LocalesIndexRoute
   ProgrammesIndexRoute: typeof ProgrammesIndexRoute
 }
 
@@ -211,6 +237,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof GuidesSlugRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/locales/': {
+      id: '/locales/'
+      path: '/locales'
+      fullPath: '/locales/'
+      preLoaderRoute: typeof LocalesIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/locales/$code': {
+      id: '/locales/$code'
+      path: '/locales/$code'
+      fullPath: '/locales/$code'
+      preLoaderRoute: typeof LocalesCodeRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/pillars/$slug': {
       id: '/pillars/$slug'
       path: '/pillars/$slug'
@@ -242,9 +282,11 @@ const rootRouteChildren: RootRouteChildren = {
   StartRoute: StartRoute,
   ApiChatRoute: ApiChatRoute,
   GuidesSlugRoute: GuidesSlugRoute,
+  LocalesCodeRoute: LocalesCodeRoute,
   PillarsSlugRoute: PillarsSlugRoute,
   ProgrammesSlugRoute: ProgrammesSlugRoute,
   GuidesIndexRoute: GuidesIndexRoute,
+  LocalesIndexRoute: LocalesIndexRoute,
   ProgrammesIndexRoute: ProgrammesIndexRoute,
 }
 export const routeTree = rootRouteImport

@@ -51,18 +51,35 @@ interpretation — is a deliberate differentiator rather than an afterthought.
 Scope is its own axis (`Global` / `Local-AU` / `Common`), so "show me what is
 AU-specific" is a filter, not a reading exercise.
 
+**Under Local-AU sits a jurisdiction layer**, because "applies in Australia" is
+not precise enough to configure anything. Payroll tax, long service leave and
+workers compensation are state obligations with a different threshold, a
+different scheme and a different instrument in each of the eight jurisdictions —
+so an employer operating across a border runs two rules rather than one rule
+twice. Absence is meaningful: a topic tagged `Local-AU` with no jurisdictions is
+saying the obligation is federal and there is nothing to vary.
+
+`src/content/jurisdictions.ts` holds what changes per state — the revenue
+office, the long service leave act and any portable scheme, the workers
+compensation scheme, the procurement framework, the public finance legislation,
+the auditor-general and the economic regulator. Thresholds, rates and dates are
+deliberately **not** recorded: they move at least annually and a number
+published there would be wrong before it was useful. Name the source, go and get
+the current figure. `/locales` renders it.
+
 ## Content
 
 Everything is data. Adding or editing content never requires touching a
 component or a route.
 
-| Path                        | Holds                                                           |
-| --------------------------- | --------------------------------------------------------------- |
-| `src/content/guides.ts`     | the taxonomy — every topic's slug, parent, definition, workflow |
-| `src/content/model.ts`      | bands, modules, sub-modules, streams, considerations            |
-| `src/content/tagging.ts`    | per-topic tagging that cannot be derived                        |
-| `src/content/articles/*.md` | article bodies, one markdown file per article                   |
-| `src/content/programmes.ts` | worked programmes — one organisation, one scope, one plan       |
+| Path                           | Holds                                                           |
+| ------------------------------ | --------------------------------------------------------------- |
+| `src/content/guides.ts`        | the taxonomy — every topic's slug, parent, definition, workflow |
+| `src/content/model.ts`         | bands, modules, sub-modules, streams, considerations            |
+| `src/content/tagging.ts`       | per-topic tagging that cannot be derived                        |
+| `src/content/articles/*.md`    | article bodies, one markdown file per article                   |
+| `src/content/programmes.ts`    | worked programmes — one organisation, one scope, one plan       |
+| `src/content/jurisdictions.ts` | what changes between AU states and territories                  |
 
 Level, module, sub-module and band are **computed**, never stored — they are
 derived by walking the tree against the model, so they cannot drift from it.

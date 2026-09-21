@@ -85,6 +85,41 @@ export type Scope = "Global" | "Local-AU" | "Common";
 /** Local first: the AU material is the differentiator, not a footnote. */
 export const allScopes: Scope[] = ["Local-AU", "Common", "Global"];
 
+/**
+ * The layer under Local-AU.
+ *
+ * "Applies in Australia" is not precise enough to act on. Payroll tax, long
+ * service leave, workers compensation, procurement policy, the financial
+ * management legislation a public entity reports under and the economic
+ * regulator that sets its prices are all state and territory matters, with
+ * different thresholds, different schemes and different names. A topic tagged
+ * Local-AU and nothing else is saying the obligation is federal; one that also
+ * carries jurisdictions is saying which ones it changes between.
+ */
+export type Jurisdiction = "NSW" | "VIC" | "QLD" | "WA" | "SA" | "TAS" | "ACT" | "NT";
+
+export const allJurisdictions: Jurisdiction[] = [
+  "NSW",
+  "VIC",
+  "QLD",
+  "WA",
+  "SA",
+  "TAS",
+  "ACT",
+  "NT",
+];
+
+export const jurisdictionName: Record<Jurisdiction, string> = {
+  NSW: "New South Wales",
+  VIC: "Victoria",
+  QLD: "Queensland",
+  WA: "Western Australia",
+  SA: "South Australia",
+  TAS: "Tasmania",
+  ACT: "Australian Capital Territory",
+  NT: "Northern Territory",
+};
+
 export type Band =
   | "Finance"
   | "People/HCM"

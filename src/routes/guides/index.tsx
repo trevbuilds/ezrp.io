@@ -4,7 +4,13 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 
 import { SiteShell } from "@/components/SiteShell";
 import { parsePicks, serialisePicks } from "@/content/scope";
-import { allConsiderations, allScopes, erpBands } from "@/content/model";
+import {
+  allConsiderations,
+  allJurisdictions,
+  allScopes,
+  erpBands,
+  jurisdictionName,
+} from "@/content/model";
 import {
   allBusinessDomains,
   allCategories,
@@ -34,6 +40,8 @@ type GuideSearch = {
   category?: string | undefined;
   consideration?: string | undefined;
   scope?: string | undefined;
+  /** An AU state or territory, the layer under Local-AU. */
+  state?: string | undefined;
 };
 
 const str = (v: unknown) => (typeof v === "string" && v.length > 0 ? v : undefined);
@@ -52,6 +60,7 @@ export const Route = createFileRoute("/guides/")({
     category: str(search["category"]),
     consideration: str(search["consideration"]),
     scope: str(search["scope"]),
+    state: str(search["state"]),
   }),
   head: () => ({
     meta: [
@@ -119,6 +128,9 @@ function GuideLibrary() {
       if (search.consideration && !considerationsOf(g.slug).includes(search.consideration as never))
         return false;
       if (search.scope && !g.scope.includes(search.scope as never)) return false;
+      // A state narrows to the topics whose rule actually changes at that
+      // border, not to everything that applies there.
+      if (search.state && !g.jurisdictions.includes(search.state as never)) return false;
       if (!needle) return true;
       return [g.topic, g.definition ?? "", g.workflow.join(" ")]
         .join(" ")
@@ -133,6 +145,7 @@ function GuideLibrary() {
     search.category,
     search.consideration,
     search.scope,
+    search.state,
   ]);
 
   // Narrow the stream row to the chosen domain, so the two layers read as a
@@ -315,31 +328,72 @@ function GuideLibrary() {
             </div>
 
             <div>
-              <p className="label-xs">Applies</p>
+              <p className="label-xs">Locales</p>
               <p className="mt-1 text-xs text-muted-foreground">
                 Where the guidance holds. Combines with any concern above.
               </p>
               <ul className="mt-3 space-y-0.5">
                 <li>
                   <button
-                    onClick={() => set({ scope: undefined })}
+                    onClick={() => set({ scope: undefined, state: undefined })}
                     className={`py-0.5 text-sm transition hover:text-foreground ${
-                      search.scope ? "text-muted-foreground" : "font-semibold text-primary"
+                      search.scope || search.state
+                        ? "text-muted-foreground"
+                        : "font-semibold text-primary"
                     }`}
                   >
                     Everywhere
                   </button>
                 </li>
-                {allScopes.map((sc) => (
-                  <TreeLeaf
-                    key={sc}
-                    label={sc}
-                    mono
-                    active={search.scope === sc}
-                    onSelect={() => toggle("scope", sc)}
-                  />
-                ))}
+                {allScopes.map((sc) =>
+                  // Local-AU is the only scope with a layer under it: payroll
+                  // tax, long service leave and workers compensation are state
+                  // obligations, not national ones.
+                  sc === "Local-AU" ? (
+                    <TreeBranch
+                      key={sc}
+                      id="scope:Local-AU"
+                      label={sc}
+                      mono
+                      open={open}
+                      setOpen={setOpen}
+                      active={search.scope === sc && !search.state}
+                      onSelect={() =>
+                        set({ scope: search.scope === sc ? undefined : sc, state: undefined })
+                      }
+                    >
+                      {allJurisdictions.map((code) => (
+                        <TreeLeaf
+                          key={code}
+                          label={`${code} — ${jurisdictionName[code]}`}
+                          size="sm"
+                          active={search.state === code}
+                          onSelect={() =>
+                            set({
+                              state: search.state === code ? undefined : code,
+                              scope: search.state === code ? search.scope : "Local-AU",
+                            })
+                          }
+                        />
+                      ))}
+                    </TreeBranch>
+                  ) : (
+                    <TreeLeaf
+                      key={sc}
+                      label={sc}
+                      mono
+                      active={search.scope === sc}
+                      onSelect={() => toggle("scope", sc)}
+                    />
+                  ),
+                )}
               </ul>
+              <Link
+                to="/locales"
+                className="mt-2 inline-block text-xs text-primary transition hover:brightness-110"
+              >
+                What changes state by state →
+              </Link>
             </div>
 
             <div>
@@ -492,6 +546,7 @@ function TreeBranch({
   id,
   label,
   tone = "item",
+  mono = false,
   open,
   setOpen,
   active,
@@ -501,6 +556,8 @@ function TreeBranch({
   id: string;
   label: string;
   tone?: "band" | "item";
+  /** Matches TreeLeaf, so a branch can sit in a monospaced list. */
+  mono?: boolean;
   open: Set<string>;
   setOpen: (next: Set<string>) => void;
   active: boolean;
@@ -534,7 +591,7 @@ function TreeBranch({
         <button
           onClick={onSelect}
           className={`py-0.5 text-left transition hover:text-foreground ${
-            tone === "band" ? "font-display text-sm" : "text-sm"
+            tone === "band" ? "font-display text-sm" : mono ? "font-mono text-xs" : "text-sm"
           } ${active ? "font-semibold text-primary" : tone === "band" ? "text-foreground" : "text-muted-foreground"}`}
         >
           {label}

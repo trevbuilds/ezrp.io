@@ -19,10 +19,11 @@ import {
   subModuleBySlug,
   type Band,
   type Consideration,
+  type Jurisdiction,
   type Level,
   type Scope,
 } from "./model";
-import { considerationsBySlug, scopeBySlug, streamsBySlug } from "./tagging";
+import { considerationsBySlug, jurisdictionsBySlug, scopeBySlug, streamsBySlug } from "./tagging";
 
 export type GuideCategory =
   | "Concept"
@@ -58,6 +59,8 @@ export type Guide = {
   /** Tagged on leaves only; use considerationsOf() for the roll-up. */
   considerations: Consideration[];
   scope: Scope[];
+  /** AU states and territories this topic actually differs between. */
+  jurisdictions: Jurisdiction[];
 };
 
 /**
@@ -90,6 +93,7 @@ const raw: Array<
     | "streams"
     | "considerations"
     | "scope"
+    | "jurisdictions"
   > & { workflow?: string | null }
 > = [
   // ---------------------------------------------------------------- pillars
@@ -280,8 +284,7 @@ const raw: Array<
     parent: "supply-chain-management",
     categories: ["Component", "Process"],
     definition: "Tracking stock levels and locations.",
-    workflow:
-      "Stock Monitoring → Reorder Triggering → Receiving Stock → Inventory Auditing",
+    workflow: "Stock Monitoring → Reorder Triggering → Receiving Stock → Inventory Auditing",
     sourceUrl: null,
   },
   {
@@ -299,8 +302,7 @@ const raw: Array<
     parent: "supply-chain-management",
     categories: ["Component", "Process"],
     definition: "Coordinating transportation and distribution.",
-    workflow:
-      "Route Planning → Transportation Execution → Delivery Tracking → Return Processing",
+    workflow: "Route Planning → Transportation Execution → Delivery Tracking → Return Processing",
     sourceUrl: null,
   },
 
@@ -331,8 +333,7 @@ const raw: Array<
     parent: "manufacturing",
     categories: ["Component", "Process"],
     definition: "Managing product development from inception to discontinuation.",
-    workflow:
-      "Concept Development → Design Engineering → Prototype Testing → Product Launch",
+    workflow: "Concept Development → Design Engineering → Prototype Testing → Product Launch",
     sourceUrl: null,
   },
   {
@@ -749,6 +750,41 @@ const raw: Array<
       "Pay Run Finalised → Pay Event Assembled → ATO Lodgement → Response Handling → EOFY Finalisation",
     sourceUrl: null,
   },
+  // The three obligations that are genuinely state-by-state rather than
+  // federal. Without them the jurisdiction axis has nothing to hang on.
+  {
+    slug: "payroll-tax",
+    topic: "Payroll Tax",
+    parent: "payroll",
+    categories: ["Process", "Local-AU"],
+    definition:
+      "A state tax on wages, with its own threshold, rate and grouping rules in each jurisdiction.",
+    workflow:
+      "Liability Assessment → Registration → Monthly Return → Annual Reconciliation → Grouping Review",
+    sourceUrl: null,
+  },
+  {
+    slug: "long-service-leave",
+    topic: "Long Service Leave",
+    parent: "payroll",
+    categories: ["Process", "Local-AU"],
+    definition:
+      "A state entitlement accruing with continuous service, and in some industries a portable scheme that follows the worker instead.",
+    workflow:
+      "Service Recognition → Accrual → Portable Scheme Return → Taking or Cashing Out → Termination Payout",
+    sourceUrl: null,
+  },
+  {
+    slug: "workers-compensation",
+    topic: "Workers Compensation",
+    parent: "benefits",
+    categories: ["Process", "Local-AU"],
+    definition:
+      "Cover for work-related injury, run as a separate scheme with its own premium basis in every state and territory.",
+    workflow:
+      "Policy and Registration → Wage Declaration → Premium Calculation → Claim Lodgement → Return to Work → Reconciliation",
+    sourceUrl: null,
+  },
   {
     slug: "time-and-attendance",
     topic: "Time and Attendance",
@@ -1103,6 +1139,9 @@ export const guides: Guide[] = raw.map((g) => {
     streams: streamSlugs,
     considerations: considerationsBySlug[g.slug] ?? [],
     scope: scopeBySlug[g.slug] ?? (module ? (["Global"] as Scope[]) : []),
+    // Empty means the obligation does not vary between states — which for a
+    // Local-AU topic is a statement, not a gap.
+    jurisdictions: jurisdictionsBySlug[g.slug] ?? [],
     valueStream: primary ? (streamBySlug.get(primary)?.name ?? null) : null,
     domain: domainOf(g.slug),
     workflow: g.workflow
