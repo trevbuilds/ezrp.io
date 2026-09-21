@@ -36,29 +36,51 @@ never require touching a component or a route.
 - `src/content/guides.ts` — the taxonomy. Every node: `slug`, `topic`,
   `parent`, `categories`, `definition`, `workflow`, `sourceUrl`. The map, the
   breadcrumbs and the parent/child navigation all derive from this.
-- `src/content/articles.ts` — the `Article` and `ArticleBlock` types, the
-  AP Automation article, and the aggregation into `articleBySlug`.
-- `src/content/articles-<area>.ts` — long-form articles for one area, exporting
-  a named array that `articles.ts` spreads into `articles`.
+- `src/content/model.ts` — the structural model. Two hierarchies intersect:
+  Band → Module → Sub-module → Component, and Value stream (L1) → Sub-stream
+  (L2) → Process → Step. They join at Process, which is why a stream can cross
+  modules without being wired by hand. Also holds considerations and scope.
+- `src/content/tagging.ts` — per-topic tagging that cannot be derived: which
+  streams a topic sits in, its leaf considerations, its scope. Level, module,
+  sub-module and band are all computed in `guides.ts`, never stored.
+- `src/content/articles/<slug>.md` — article bodies, one markdown file per
+  article, loaded lazily so an article is fetched only when its guide is
+  opened. Frontmatter carries `slug` and `intro`.
+- `src/content/article.ts` — the `Article`/`ArticleBlock` types and the
+  markdown parser. `article-loader.ts` holds the Vite glob, kept separate so
+  the parser can be exercised outside a bundler.
 - `src/content/flows.ts`, `flows-<area>.ts` — end-to-end flow data, rendered by
   `EndToEndFlow`.
 
-**To add a new area:** create `articles-<area>.ts`, import the `Article` type
-with `import type` (avoids a runtime import cycle), export a named array, then
-add the import and spread it into the `articles` array in `articles.ts`. Add
-taxonomy entries to `guides.ts` only if the slugs don't already exist there.
+**To add an article:** create `src/content/articles/<slug>.md` with `slug` and
+`intro` frontmatter. The slug must match a `guides.ts` entry or the article
+will not be reachable. No registration step — the loader globs the directory.
 
-Article bodies are built from `ArticleBlock` unions only: `h`, `sub`, `p`,
-`bullets`, `steps`, `qa`, `metrics`, `callout`. Don't add block kinds without
-also updating `ArticleBody.tsx`.
+Article bodies use markdown for prose and fenced blocks for the structured
+sections, which plain markdown would flatten:
+
+- `## text` → `h`, `### text` → `sub`, paragraphs → `p`
+- `- **Term**: text` → `bullets`, `> text` → `callout`
+- ` ```steps `, ` ```qa `, ` ```metrics ` → those blocks, one item per line
+  with `::` between fields; indented `- ` lines under a step become its
+  sub-points
+
+Don't add block kinds without also updating `ArticleBody.tsx` and the parser
+in `article.ts`.
 
 ## Content provenance
 
-`articles.ts` and `guides.ts` were copied from the DX Guides wiki, and their
-header comments state that nothing is invented — empty source pages simply have
-no article. **Preserve that.** Don't fill a `null` definition or workflow in
-`guides.ts` with generated text. Authored-for-EZRP content goes in its own file
-with a header comment saying so.
+Most article bodies and `guides.ts` were copied from the DX Guides wiki, where
+nothing is invented — an empty source page simply has no article. **Preserve
+that.** Don't fill a `null` definition in `guides.ts` with generated text.
+
+`workflow` is the one field that is deliberately re-modelled rather than
+copied: streams follow the published value-stream model rather than whatever
+sequence a wiki record happened to carry. Every departure carries a comment
+naming the stream and the reason.
+
+Content authored for EZRP rather than migrated says so in its frontmatter with
+`source: authored`; migrated content uses `source: dx-guides`.
 
 House style: Australian English (`minimise`, `optimisation`, `capitalisation`).
 

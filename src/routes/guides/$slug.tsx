@@ -3,22 +3,25 @@ import { createFileRoute, Link, notFound } from "@tanstack/react-router";
 import { ArticleBody } from "@/components/ArticleBody";
 import { EndToEndFlow } from "@/components/EndToEndFlow";
 import { SiteShell } from "@/components/SiteShell";
-import { articleBySlug } from "@/content/articles";
+import { loadArticle } from "@/content/article-loader";
+import type { Article } from "@/content/article";
 import { flowBySlug } from "@/content/flows";
 import { ancestorsOf, childrenOf, guideBySlug, pillarOf, type Guide } from "@/content/guides";
 
 export const Route = createFileRoute("/guides/$slug")({
-  loader: ({ params }) => {
+  loader: async ({ params }) => {
     const guide = guideBySlug.get(params.slug);
     if (!guide) throw notFound();
-    return { guide };
+    // Article bodies are markdown, fetched per route rather than bundled.
+    const article = await loadArticle(params.slug);
+    return { guide, article };
   },
   head: ({ loaderData }) => {
     const guide = loaderData?.guide as Guide | undefined;
     const title = guide ? `${guide.topic} — EZRP guide` : "Guide — EZRP";
     const description =
       guide?.definition ??
-      (guide ? articleBySlug.get(guide.slug)?.intro : undefined) ??
+      (loaderData?.article as Article | undefined)?.intro ??
       (guide
         ? `Where ${guide.topic} sits in the EZRP delivery map, plus its recorded workflow and related guides.`
         : "EZRP guide");
@@ -37,14 +40,13 @@ export const Route = createFileRoute("/guides/$slug")({
 });
 
 function GuidePage() {
-  const { guide } = Route.useLoaderData();
+  const { guide, article } = Route.useLoaderData();
   const trail = ancestorsOf(guide.slug);
   const kids = childrenOf(guide.slug);
   const pillar = pillarOf(guide.slug);
   const siblings = guide.parent
     ? childrenOf(guide.parent).filter((g) => g.slug !== guide.slug)
     : [];
-  const article = articleBySlug.get(guide.slug);
   const flow = flowBySlug.get(guide.slug);
 
   return (

@@ -1,4 +1,4 @@
-import type { Article } from "@/content/articles";
+import type { Article } from "@/content/article";
 
 export function ArticleBody({ article }: { article: Article }) {
   return (
