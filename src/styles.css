@@ -116,3 +116,223 @@
   text-transform: uppercase;
   color: var(--muted-foreground);
 }
+
+/* Interactive guide network — a restrained, living semantic map. */
+.guide-brain {
+  background:
+    radial-gradient(circle at 50% 50%, color-mix(in oklab, var(--accent) 5%, transparent), transparent 38%),
+    color-mix(in oklab, var(--surface) 82%, transparent);
+}
+
+.guide-brain__stage svg {
+  display: block;
+  overflow: visible;
+  touch-action: none;
+  transform-origin: center;
+  transition: transform 240ms ease;
+}
+
+.guide-brain__links path,
+.guide-brain__signals path {
+  fill: none;
+  vector-effect: non-scaling-stroke;
+}
+
+.guide-brain__links path {
+  stroke: var(--foreground);
+  stroke-width: 0.75;
+  stroke-opacity: 0.1;
+  transition: stroke 360ms ease, stroke-opacity 360ms ease, stroke-width 360ms ease;
+}
+
+.guide-brain__links path.is-active {
+  stroke: var(--primary);
+  stroke-width: 1.25;
+  stroke-opacity: 0.55;
+}
+
+.guide-brain__links path.is-muted {
+  stroke-opacity: 0.025;
+}
+
+.guide-brain__signals path {
+  stroke: var(--accent);
+  stroke-dasharray: 0.08 0.92;
+  stroke-linecap: round;
+  stroke-width: 1.2;
+  stroke-opacity: 0;
+  transition: stroke-opacity 900ms ease;
+}
+
+.guide-brain__signals path.is-idle {
+  stroke-opacity: 0.42;
+  animation: guide-brain-signal 5.5s linear infinite;
+}
+
+.guide-brain__signals path.is-active {
+  stroke: var(--primary);
+  stroke-opacity: 0.85;
+  animation: guide-brain-signal 2.8s linear infinite;
+}
+
+.guide-brain__core circle {
+  fill: none;
+  stroke: var(--primary);
+  stroke-width: 0.8;
+  stroke-opacity: 0.18;
+}
+
+.guide-brain__core circle:first-child {
+  fill: var(--background);
+  stroke-opacity: 0.55;
+}
+
+.guide-brain__core text {
+  fill: var(--foreground);
+  font-family: var(--font-display-family);
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0;
+}
+
+.guide-brain__nodes g {
+  cursor: grab;
+  outline: none;
+}
+
+.guide-brain__nodes g.is-dragging {
+  cursor: grabbing;
+}
+
+.guide-brain__nodes .hit {
+  fill: transparent;
+  pointer-events: all;
+}
+
+.guide-brain__nodes .visible {
+  fill: var(--foreground);
+  opacity: 0.34;
+  transition: fill 320ms ease, opacity 320ms ease, filter 320ms ease;
+}
+
+.guide-brain__nodes .tier-1 .visible {
+  fill: var(--primary);
+  opacity: 0.78;
+}
+
+.guide-brain__nodes .tier-2 .visible {
+  fill: var(--accent);
+  opacity: 0.5;
+}
+
+.guide-brain__nodes .tier-3 .visible {
+  opacity: 0.24;
+}
+
+.guide-brain__nodes g.is-idle .visible {
+  fill: var(--accent);
+  opacity: 0.86;
+  transition-duration: 1800ms;
+}
+
+.guide-brain__nodes g.is-active .visible,
+.guide-brain__nodes g:focus-visible .visible {
+  fill: var(--primary);
+  filter: url(#guide-brain-glow);
+  opacity: 1;
+}
+
+.guide-brain__nodes g.is-muted .visible {
+  opacity: 0.055;
+}
+
+.guide-brain__nodes .focus-ring {
+  fill: none;
+  stroke: var(--primary);
+  stroke-width: 0.9;
+  stroke-opacity: 0.55;
+}
+
+.guide-brain .node-label {
+  fill: var(--foreground);
+  font-family: var(--font-body-family);
+  font-size: 12px;
+  font-weight: 400;
+  letter-spacing: 0;
+  opacity: 0;
+  paint-order: stroke;
+  pointer-events: none;
+  stroke: var(--background);
+  stroke-linejoin: round;
+  stroke-width: 5px;
+  transition: fill 320ms ease, opacity 320ms ease;
+}
+
+.guide-brain .tier-1 .node-label {
+  font-family: var(--font-display-family);
+  font-size: 17px;
+  font-weight: 600;
+  opacity: 0.82;
+}
+
+.guide-brain .tier-2 .node-label {
+  font-size: 13px;
+  opacity: 0.28;
+}
+
+.guide-brain .tier-3 .node-label {
+  font-size: 11px;
+}
+
+.guide-brain__nodes g.is-active .node-label,
+.guide-brain__nodes g:focus-visible .node-label {
+  fill: var(--primary);
+  opacity: 1;
+}
+
+.guide-brain__nodes g.is-muted .node-label {
+  opacity: 0.035;
+}
+
+.guide-brain__nodes g.is-idle .node-label {
+  opacity: 0.6;
+  transition-duration: 1800ms;
+}
+
+@keyframes guide-brain-signal {
+  to {
+    stroke-dashoffset: -1;
+  }
+}
+
+@media (max-width: 700px) {
+  .guide-brain__stage svg {
+    width: 150%;
+    max-width: none;
+    transform-origin: center;
+    translate: -16.666% 0;
+  }
+
+  .guide-brain .tier-1 .node-label {
+    font-size: 20px;
+  }
+
+  .guide-brain .tier-2 .node-label {
+    font-size: 16px;
+  }
+
+  .guide-brain .tier-3 .node-label {
+    font-size: 14px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .guide-brain__stage svg,
+  .guide-brain__links path,
+  .guide-brain__signals path,
+  .guide-brain__nodes .visible,
+  .guide-brain .node-label {
+    animation: none;
+    transition: none;
+  }
+}
