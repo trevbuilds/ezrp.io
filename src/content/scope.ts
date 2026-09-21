@@ -14,6 +14,7 @@
  */
 
 import { guideBySlug, guides, considerationsOf, type Guide } from "./guides";
+import { flowsForScope, type DataFlow } from "./integrations";
 import {
   bandOfModule,
   externalPrerequisites,
@@ -59,6 +60,8 @@ export type ScopeResult = {
   prerequisites: SubModule[];
   /** Hand-offs between modules that a stream forces. */
   integrations: IntegrationPoint[];
+  /** Named data flows: what moves, which way, and what breaks without it. */
+  flows: { internal: DataFlow[]; external: DataFlow[]; straddling: DataFlow[] };
 };
 
 /**
@@ -156,6 +159,8 @@ export function computeScope(slugs: string[]): ScopeResult {
       }),
     );
 
+  const flows = flowsForScope(topics.map((guide) => guide.slug));
+
   const considerations = unique(topics.flatMap((guide) => considerationsOf(guide.slug)));
   const localAu = topics.filter((guide) => guide.scope.includes("Local-AU"));
 
@@ -176,6 +181,7 @@ export function computeScope(slugs: string[]): ScopeResult {
     phases,
     prerequisites,
     integrations,
+    flows,
   };
 }
 

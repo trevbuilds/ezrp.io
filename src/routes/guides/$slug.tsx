@@ -8,6 +8,7 @@ import type { Article } from "@/content/article";
 import { flowBySlug } from "@/content/flows";
 import { ancestorsOf, childrenOf, guideBySlug, pillarOf, type Guide } from "@/content/guides";
 import { computeScope } from "@/content/scope";
+import { flowsFor, inboundTo } from "@/content/integrations";
 
 export const Route = createFileRoute("/guides/$slug")({
   loader: async ({ params }) => {
@@ -134,6 +135,46 @@ function GuidePage() {
             </ol>
           </section>
         )}
+
+        {/* What this topic exchanges, and with what. */}
+        {(() => {
+          const own = flowsFor(guide.slug);
+          const incoming = inboundTo(guide.slug);
+          if (own.length === 0 && incoming.length === 0) return null;
+          return (
+            <section className="panel mt-8 rounded-lg p-5">
+              <p className="label-xs">Data in and out</p>
+              <ul className="mt-3 space-y-2">
+                {own.map((flow, index) => (
+                  <li key={`o${index}`} className="text-sm">
+                    <span className="font-mono text-xs text-primary">
+                      {flow.direction === "in" ? "IN " : "OUT"}
+                    </span>{" "}
+                    <span className="font-semibold">{flow.payload}</span>{" "}
+                    <span className="text-muted-foreground">
+                      {flow.direction === "in" ? "from" : "to"}{" "}
+                      {guideBySlug.get(flow.counterpart)?.topic ?? flow.counterpart} ·{" "}
+                      {flow.cadence.toLowerCase()}
+                    </span>
+                    <span className="mt-0.5 block text-xs text-muted-foreground">
+                      Without it: {flow.breaks}
+                    </span>
+                  </li>
+                ))}
+                {incoming.map((flow, index) => (
+                  <li key={`i${index}`} className="text-sm">
+                    <span className="font-mono text-xs text-primary">IN </span>{" "}
+                    <span className="font-semibold">{flow.payload}</span>{" "}
+                    <span className="text-muted-foreground">
+                      from {guideBySlug.get(flow.topic)?.topic ?? flow.topic} ·{" "}
+                      {flow.cadence.toLowerCase()}
+                    </span>
+                  </li>
+                ))}
+              </ul>
+            </section>
+          );
+        })()}
 
         {/* What picking this one topic would actually imply. */}
         {guide.streams.length > 0 &&

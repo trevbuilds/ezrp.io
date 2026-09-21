@@ -4,6 +4,7 @@ import { SiteShell } from "@/components/SiteShell";
 import { guideBySlug } from "@/content/guides";
 import { moduleLabel } from "@/content/labels";
 import { computeScope, parsePicks, serialisePicks } from "@/content/scope";
+import type { DataFlow } from "@/content/integrations";
 
 type ScopeSearch = { pick?: string | undefined };
 
@@ -152,6 +153,40 @@ function ScopePage() {
             })}
           </div>
         </section>
+
+        {(scope.flows.external.length > 0 || scope.flows.straddling.length > 0) && (
+          <section className="mt-8">
+            <p className="label-xs">Data in and out</p>
+            <p className="mt-1 max-w-2xl text-xs text-muted-foreground">
+              What actually crosses the boundary, which way, how often, and what it costs when it
+              stops.
+            </p>
+
+            {scope.flows.straddling.length > 0 && (
+              <div className="mt-3">
+                <p className="font-mono text-xs text-primary">Crosses your scope boundary</p>
+                <div className="mt-2 space-y-2">
+                  {scope.flows.straddling.map((flow, index) => (
+                    <FlowRow key={`s${index}`} flow={flow} highlight />
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {scope.flows.external.length > 0 && (
+              <div className="mt-4">
+                <p className="font-mono text-xs text-muted-foreground">
+                  Interfaces outside the ERP
+                </p>
+                <div className="mt-2 space-y-2">
+                  {scope.flows.external.map((flow, index) => (
+                    <FlowRow key={`e${index}`} flow={flow} />
+                  ))}
+                </div>
+              </div>
+            )}
+          </section>
+        )}
 
         {scope.integrations.length > 0 && (
           <section className="mt-8">
@@ -320,6 +355,29 @@ function ScopePage() {
         </section>
       </section>
     </SiteShell>
+  );
+}
+
+/** One data flow: what moves, which way, how often, and the cost of losing it. */
+function FlowRow({ flow, highlight = false }: { flow: DataFlow; highlight?: boolean }) {
+  const other = guideBySlug.get(flow.counterpart)?.topic ?? flow.counterpart;
+  const owner = guideBySlug.get(flow.topic)?.topic ?? flow.topic;
+  return (
+    <div className={`panel rounded-lg p-3 ${highlight ? "border-l-2 border-primary" : ""}`}>
+      <div className="flex flex-wrap items-baseline justify-between gap-2">
+        <p className="text-sm">
+          <span className="font-semibold">{flow.payload}</span>
+          <span className="mx-2 font-mono text-xs text-primary">
+            {flow.direction === "in" ? "\u2190" : "\u2192"}
+          </span>
+          <span className="text-muted-foreground">{other}</span>
+        </p>
+        <p className="font-mono text-[0.65rem] uppercase text-muted-foreground">{flow.cadence}</p>
+      </div>
+      <p className="mt-1 text-xs text-muted-foreground">
+        <span className="text-foreground">{owner}</span> \u00b7 without it: {flow.breaks}
+      </p>
+    </div>
   );
 }
 
