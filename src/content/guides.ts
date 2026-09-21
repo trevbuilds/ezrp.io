@@ -263,6 +263,48 @@ const raw: Array<
     sourceUrl: null,
   },
 
+  // ----------------------------------------------------- manufacturing
+  {
+    slug: "production-planning",
+    topic: "Production Planning",
+    parent: "manufacturing",
+    categories: ["Component", "Process"],
+    definition: "Scheduling manufacturing processes.",
+    workflow:
+      "Sales Forecasting → Production Scheduling → Work Order Release → Production Monitoring",
+    sourceUrl: null,
+  },
+  {
+    slug: "materials-management",
+    topic: "Materials Management",
+    parent: "manufacturing",
+    categories: ["Component", "Process"],
+    definition: "Overseeing materials use and procurement.",
+    workflow:
+      "Requisition Creation → Purchase Order Management → Inventory Receipt → Inventory Replenishment",
+    sourceUrl: null,
+  },
+  {
+    slug: "product-lifecycle-management",
+    topic: "Product Lifecycle Management",
+    parent: "manufacturing",
+    categories: ["Component", "Process"],
+    definition: "Managing product development from inception to discontinuation.",
+    workflow:
+      "Concept Development → Design Engineering → Prototype Testing → Product Launch",
+    sourceUrl: null,
+  },
+  {
+    slug: "quality-control",
+    topic: "Quality Control",
+    parent: "manufacturing",
+    categories: ["Component", "Process"],
+    definition: "Ensuring product quality standards.",
+    workflow:
+      "Inspection Planning → Quality Inspection → Non-Conformance Handling → Quality Reporting",
+    sourceUrl: null,
+  },
+
   // ------------------------------------------------- financial accounting
   {
     slug: "accounts-payable",
