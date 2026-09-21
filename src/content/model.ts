@@ -124,14 +124,13 @@ export const bandByModule: Record<string, Band> = {
   manufacturing: "Operations",
   "enterprise-asset-management": "Assets",
 
-  // Project & Portfolio Management is a module a vendor ships. PMO and change
-  // adoption are not — they are how a programme is run, which is a delivery
-  // concern rather than a thing the ERP does. They stay in the model so their
-  // content keeps its level and tagging, but they sit in their own band and
-  // the navigation shows them as guidance rather than as ERP modules.
+  // Projects and Portfolio is a module a vendor ships. PMO and programme
+  // governance are not — they are how a programme is run, so they sit in
+  // Delivery. Change and adoption is about the workforce living through the
+  // change, so it belongs with People.
   "project-management": "Projects & Portfolio",
   pmo: "Delivery",
-  "change-people-and-adoption": "Delivery",
+  "change-people-and-adoption": "People/HCM",
 
   // The technical substrate every other band depends on.
   "data-services": "Data & Technology",

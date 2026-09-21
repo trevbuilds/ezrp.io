@@ -17,27 +17,18 @@ import {
   type BusinessDomain,
   type Guide,
 } from "@/content/guides";
-import {
-  allConsiderations,
-  allScopes,
-  streamsInBand,
-  subStreamsOf,
-  type Consideration,
-  type Scope,
-  type Stream,
-} from "@/content/model";
+import { streamsInBand, subStreamsOf, type Stream } from "@/content/model";
+import { BAND_ANCHORS, brainCandidates, claimNear } from "./brain-layout";
 
 type MapNode = {
   id: string;
   label: string;
   x: number;
   y: number;
-  kind: "root" | "domain" | "stream" | "substream" | "guide" | "cross" | "locale";
+  kind: "domain" | "stream" | "substream" | "guide";
   guide?: Guide;
   domain?: BusinessDomain;
   stream?: Stream;
-  consideration?: Consideration;
-  locale?: Scope;
   /** Distance from the band, used to stagger the chain fill. */
   depth?: number;
 };
@@ -57,171 +48,110 @@ const point = (angle: number, radiusX: number, radiusY: number) => ({
 });
 
 /**
- * Two trees, deliberately disconnected.
+ * The map is the ERP, drawn into the Clariti brain silhouette. The
+ * considerations are guidance that cuts across it, and they live in the
+ * library's navigation rather than here — drawing them on the map meant a link
+ * from nearly every concern to nearly every band, which was a hairball.
  *
- * The left tree is the ERP itself: bands, their value streams, the sub-streams
- * beneath those, and the guides at the edge. The right tree is the general
- * guidance that cuts across all of it: the nine concerns, each with the
- * localities it applies in.
- *
- * They used to be one graph, with every concern linked to every band it
- * touched. Because considerations roll up, almost every concern touched almost
- * every band, so that produced sixty-odd crossing lines and no legible
- * structure. Separating them means each tree can be read on its own, and a
- * concern is reached by asking for it rather than by tracing a thread out of a
- * hairball.
+ * Bands are hand-placed inside the silhouette; everything below them is
+ * generated into it, seeded from its parent so a branch holds together.
  */
-const MODULE_ORIGIN = { x: -430, y: 0 };
-const CONCERN_ORIGIN = { x: 700, y: 0 };
-
-const shift = (origin: { x: number; y: number }, position: { x: number; y: number }) => ({
-  x: origin.x + position.x,
-  y: origin.y + position.y,
-});
-
 function useLayout() {
   return useMemo(() => {
     const nodes = new Map<string, MapNode>();
     const links: MapLink[] = [];
     const placed = new Set<string>();
 
-    nodes.set("root:modules", {
-      id: "root:modules",
-      label: "ERP Modules",
-      ...MODULE_ORIGIN,
-      kind: "root",
-      depth: 0,
-    });
-    nodes.set("root:concerns", {
-      id: "root:concerns",
-      label: "Considerations",
-      ...CONCERN_ORIGIN,
-      kind: "root",
-      depth: 0,
-    });
+    const anchors = allBusinessDomains
+      .map((band) => BAND_ANCHORS[band])
+      .filter((point): point is { x: number; y: number } => Boolean(point));
+    const candidates = brainCandidates(anchors);
+    const used = new Set<number>();
 
-    // ------------------------------------------------------------ the ERP
     const guidesOnStream = (slug: string) =>
       guides.filter(
         (guide) =>
           guide.streams.includes(slug) && guide.parent !== null && guide.slug !== guide.module,
       );
 
-    allBusinessDomains.forEach((domain, domainIndex) => {
-      const angle = -Math.PI / 2 + (domainIndex / allBusinessDomains.length) * TAU;
-      const domainId = `domain:${domain}`;
+    allBusinessDomains.forEach((band) => {
+      const anchor = BAND_ANCHORS[band];
+      if (!anchor) return;
+      const domainId = `domain:${band}`;
       nodes.set(domainId, {
         id: domainId,
-        label: domain,
-        ...shift(MODULE_ORIGIN, point(angle, 250, 215)),
+        label: band,
+        x: anchor.x,
+        y: anchor.y,
         kind: "domain",
-        domain,
-        depth: 1,
+        domain: band,
+        depth: 0,
       });
-      links.push({ from: "root:modules", to: domainId, depth: 1 });
 
-      const streams = streamsInBand(domain);
-      streams.forEach((stream, streamIndex) => {
-        const spread = Math.min(1.02, Math.max(0.42, streams.length * 0.13));
-        const offset =
-          streams.length === 1 ? 0 : (streamIndex / (streams.length - 1) - 0.5) * spread;
-        const streamAngle = angle + offset;
+      streamsInBand(band).forEach((stream, streamIndex) => {
+        const streamPoint = claimNear(candidates, used, anchor, 34 + streamIndex * 5, streamIndex);
         const streamId = `stream:${stream.slug}`;
         nodes.set(streamId, {
           id: streamId,
           label: stream.name,
-          ...shift(MODULE_ORIGIN, point(streamAngle, 370, 318)),
+          ...streamPoint,
           kind: "stream",
-          domain,
+          domain: band,
           stream,
-          depth: 2,
+          depth: 1,
         });
-        links.push({ from: domainId, to: streamId, depth: 2 });
+        links.push({ from: domainId, to: streamId, depth: 1 });
 
-        const subStreams = subStreamsOf(stream.slug);
-        const branches: Array<{ id: string; angle: number; depth: number; slug: string }> = [];
+        const branches: Array<{
+          id: string;
+          at: { x: number; y: number };
+          depth: number;
+          slug: string;
+        }> = [];
 
-        subStreams.forEach((sub, subIndex) => {
-          const subSpread = Math.min(0.5, Math.max(0.16, subStreams.length * 0.11));
-          const subOffset =
-            subStreams.length === 1 ? 0 : (subIndex / (subStreams.length - 1) - 0.5) * subSpread;
-          const subAngle = streamAngle + subOffset;
+        subStreamsOf(stream.slug).forEach((sub, subIndex) => {
+          const subPoint = claimNear(
+            candidates,
+            used,
+            streamPoint,
+            22 + subIndex * 4,
+            subIndex + 3,
+          );
           const subId = `stream:${sub.slug}`;
           nodes.set(subId, {
             id: subId,
             label: sub.name,
-            ...shift(MODULE_ORIGIN, point(subAngle, 460, 395)),
+            ...subPoint,
             kind: "substream",
-            domain,
+            domain: band,
             stream: sub,
-            depth: 3,
+            depth: 2,
           });
-          links.push({ from: streamId, to: subId, depth: 3 });
-          branches.push({ id: subId, angle: subAngle, depth: 4, slug: sub.slug });
+          links.push({ from: streamId, to: subId, depth: 2 });
+          branches.push({ id: subId, at: subPoint, depth: 3, slug: sub.slug });
         });
 
-        branches.push({ id: streamId, angle: streamAngle, depth: 3, slug: stream.slug });
+        branches.push({ id: streamId, at: streamPoint, depth: 2, slug: stream.slug });
 
         branches.forEach((branch) => {
-          const attached = guidesOnStream(branch.slug).filter((guide) => !placed.has(guide.slug));
-          attached.forEach((guide, guideIndex) => {
-            placed.add(guide.slug);
-            const guideOffset = (guideIndex - (attached.length - 1) / 2) * 0.05;
-            const radiusX = (branch.depth === 4 ? 545 : 500) + (guideIndex % 2) * 26;
-            const radiusY = (branch.depth === 4 ? 468 : 430) + (guideIndex % 2) * 20;
-            nodes.set(guide.slug, {
-              id: guide.slug,
-              label: guide.topic,
-              ...shift(MODULE_ORIGIN, point(branch.angle + guideOffset, radiusX, radiusY)),
-              kind: "guide",
-              guide,
-              domain,
-              stream,
-              depth: branch.depth,
+          guidesOnStream(branch.slug)
+            .filter((guide) => !placed.has(guide.slug))
+            .forEach((guide, guideIndex) => {
+              placed.add(guide.slug);
+              const at = claimNear(candidates, used, branch.at, 15 + guideIndex * 3.5, guideIndex);
+              nodes.set(guide.slug, {
+                id: guide.slug,
+                label: guide.topic,
+                ...at,
+                kind: "guide",
+                guide,
+                domain: band,
+                stream,
+                depth: branch.depth,
+              });
+              links.push({ from: branch.id, to: guide.slug, depth: branch.depth });
             });
-            links.push({ from: branch.id, to: guide.slug, depth: branch.depth });
-          });
         });
-      });
-    });
-
-    // ------------------------------------------------ the general guidance
-    allConsiderations.forEach((consideration, index) => {
-      const angle = -Math.PI / 2 + (index / allConsiderations.length) * TAU;
-      const id = `cross:${consideration}`;
-      nodes.set(id, {
-        id,
-        label: consideration,
-        ...shift(CONCERN_ORIGIN, point(angle, 175, 168)),
-        kind: "cross",
-        consideration,
-        depth: 1,
-      });
-      links.push({ from: "root:concerns", to: id, depth: 1 });
-
-      // A locality hangs off a concern only where the library actually holds
-      // something with both, so the tree never promises an empty view.
-      const localities = allScopes.filter((scope) =>
-        guides.some(
-          (guide) =>
-            guide.scope.includes(scope) && considerationsOf(guide.slug).includes(consideration),
-        ),
-      );
-      localities.forEach((scope, localeIndex) => {
-        const spread = localities.length === 1 ? 0 : 0.34;
-        const offset =
-          localities.length === 1 ? 0 : (localeIndex / (localities.length - 1) - 0.5) * spread;
-        const localeId = `locale:${consideration}:${scope}`;
-        nodes.set(localeId, {
-          id: localeId,
-          label: scope,
-          ...shift(CONCERN_ORIGIN, point(angle + offset, 285, 274)),
-          kind: "locale",
-          consideration,
-          locale: scope,
-          depth: 2,
-        });
-        links.push({ from: id, to: localeId, depth: 2 });
       });
     });
 
@@ -236,20 +166,18 @@ function useLayout() {
  * distance-based ones are scaled.
  */
 const SPRING = 0.007;
-const REPULSION_RANGE = 50;
+const REPULSION_RANGE = 20;
 const REPULSION = 0.003;
 const ANCHOR_PULL = {
-  root: 0.02,
   domain: 0.009,
-  cross: 0.009,
-  locale: 0.008,
   stream: 0.007,
   substream: 0.006,
   guide: 0.0045,
 } as const;
 const DAMPING = 0.945;
-const SWAY = { base: 0.11, leaf: 0.145 } as const;
-const BOUNDS = { x: 1050, y: 560 } as const;
+const SWAY = { base: 0.044, leaf: 0.058 } as const;
+/** The silhouette lives in the Clariti coordinate space. */
+const BOUNDS = { minX: 45, maxX: 675, minY: 35, maxY: 465 } as const;
 
 type Motion = { x: number; y: number; vx: number; vy: number };
 
@@ -296,11 +224,12 @@ export function GuideMap() {
   );
 
   // Every fifth link carries the idle signal, as the brain does.
-  // The two roots are fixed points; everything else settles around them.
+  // Bands are the fixed points of the silhouette; everything else settles
+  // around them, which is what keeps the shape recognisable while it moves.
   const rootIndexes = useMemo(
     () =>
       new Set(
-        nodeList.map((node, index) => (node.kind === "root" ? index : -1)).filter((i) => i >= 0),
+        nodeList.map((node, index) => (node.kind === "domain" ? index : -1)).filter((i) => i >= 0),
       ),
     [nodeList],
   );
@@ -453,8 +382,8 @@ export function GuideMap() {
           position.vx = 0;
           position.vy = 0;
         }
-        position.x = Math.min(BOUNDS.x, Math.max(-BOUNDS.x, position.x));
-        position.y = Math.min(BOUNDS.y, Math.max(-BOUNDS.y, position.y));
+        position.x = Math.min(BOUNDS.maxX, Math.max(BOUNDS.minX, position.x));
+        position.y = Math.min(BOUNDS.maxY, Math.max(BOUNDS.minY, position.y));
       });
 
       nodeRefs.current.forEach((element, index) => {
@@ -523,29 +452,15 @@ export function GuideMap() {
       });
     };
 
-    if (node.kind === "cross") {
-      links
-        .filter((link) => link.cross && link.from === node.id)
-        .forEach((link) => {
-          set.add(link.to);
-          descend(link.to);
-        });
-      return set;
-    }
-
     descend(active);
     ascend(active);
 
-    if (node.kind === "guide" && node.guide) {
-      considerationsOf(node.guide.slug).forEach((item) => set.add(`cross:${item}`));
-    }
     return set;
   }, [active, graph, links, nodes]);
 
   const selected = active ? nodes.get(active) : undefined;
   const panelConsiderations = useMemo(() => {
     if (!selected) return [];
-    if (selected.kind === "cross") return [];
     if (selected.guide) return considerationsOf(selected.guide.slug);
     // For a band or stream, roll up everything inside it.
     const inside = [...related]
@@ -609,29 +524,26 @@ export function GuideMap() {
 
   const nodeMark = (node: MapNode) => {
     const radius =
-      node.kind === "root"
-        ? 20
-        : node.kind === "domain"
-          ? 14
-          : node.kind === "stream"
-            ? 8
-            : node.kind === "substream"
-              ? 6
-              : node.kind === "cross"
-                ? 9
-                : node.kind === "locale"
-                  ? 5
-                  : 4;
-    const labelY = node.kind === "guide" ? 17 : node.kind === "root" ? 36 : 25;
+      node.kind === "domain"
+        ? 2.8
+        : node.kind === "stream"
+          ? 2.3
+          : node.kind === "substream"
+            ? 1.8
+            : 1.2;
+    const labelY = node.kind === "guide" ? -6 : -9;
     return (
       <>
-        <circle className="hit" cx={0} cy={0} r={23} />
-        {(node.kind === "domain" || node.kind === "root") && (
-          <circle className="orbit" cx={0} cy={0} r={node.kind === "root" ? 31 : 23} />
-        )}
+        <circle className="hit" cx={0} cy={0} r={node.kind === "guide" ? 7 : 11} />
+
         <circle className="visible" cx={0} cy={0} r={radius} />
-        <text className="node-label" x={0} y={labelY} textAnchor="middle">
-          {node.label.length > 27 ? `${node.label.slice(0, 25)}…` : node.label}
+        <text
+          className="node-label"
+          x={node.x > 540 ? -7 : 7}
+          y={labelY}
+          textAnchor={node.x > 540 ? "end" : "start"}
+        >
+          {node.label.length > 30 ? `${node.label.slice(0, 28)}…` : node.label}
         </text>
       </>
     );
@@ -658,7 +570,7 @@ export function GuideMap() {
           <motion.div drag dragMomentum={false} className="size-full">
             <svg
               ref={svgRef}
-              viewBox="-1080 -580 2160 1160"
+              viewBox="56 36 604 424"
               className="size-full"
               style={{ transform: `scale(${zoom})` }}
               aria-label="EZRP knowledge map showing business domains, value streams, guide topics, and cross-cutting capabilities"
@@ -714,19 +626,13 @@ export function GuideMap() {
                   const inNetwork = active !== null && related.has(node.id);
                   const muted = active !== null && !inNetwork;
                   const tier =
-                    node.kind === "root"
-                      ? "tier-root"
-                      : node.kind === "domain"
-                        ? "tier-1"
-                        : node.kind === "stream"
-                          ? "tier-2"
-                          : node.kind === "substream"
-                            ? "tier-2b"
-                            : node.kind === "cross"
-                              ? "cross-cutting"
-                              : node.kind === "locale"
-                                ? "locale"
-                                : "tier-3";
+                    node.kind === "domain"
+                      ? "tier-1"
+                      : node.kind === "stream"
+                        ? "tier-2"
+                        : node.kind === "substream"
+                          ? "tier-2b"
+                          : "tier-3";
                   const state =
                     active === node.id
                       ? "is-active"
@@ -768,36 +674,6 @@ export function GuideMap() {
                     </g>
                   );
 
-                  if (node.kind === "root") {
-                    return (
-                      <Link
-                        key={node.id}
-                        to="/guides"
-                        search={
-                          node.id === "root:concerns"
-                            ? { category: undefined }
-                            : { module: undefined }
-                        }
-                        className={className}
-                        {...handlers}
-                      >
-                        {mark}
-                      </Link>
-                    );
-                  }
-                  if (node.kind === "locale") {
-                    return (
-                      <Link
-                        key={node.id}
-                        to="/guides"
-                        search={{ consideration: node.consideration, scope: node.locale }}
-                        className={className}
-                        {...handlers}
-                      >
-                        {mark}
-                      </Link>
-                    );
-                  }
                   if (node.kind === "domain") {
                     return (
                       <Link
@@ -817,19 +693,6 @@ export function GuideMap() {
                         key={node.id}
                         to="/guides"
                         search={{ stream: node.stream?.name }}
-                        className={className}
-                        {...handlers}
-                      >
-                        {mark}
-                      </Link>
-                    );
-                  }
-                  if (node.kind === "cross") {
-                    return (
-                      <Link
-                        key={node.id}
-                        to="/guides"
-                        search={{ consideration: node.consideration }}
                         className={className}
                         {...handlers}
                       >
@@ -884,19 +747,13 @@ export function GuideMap() {
         {selected ? (
           <div>
             <p className="label-xs">
-              {selected.kind === "root"
-                ? "Tree"
-                : selected.kind === "locale"
-                  ? `Applies · ${selected.consideration}`
-                  : selected.kind === "cross"
-                    ? "Shared concern"
-                    : selected.kind === "domain"
-                      ? "Band"
-                      : selected.kind === "stream"
-                        ? "Value stream"
-                        : selected.kind === "substream"
-                          ? "Sub-stream"
-                          : (selected.guide?.level ?? "Guide")}
+              {selected.kind === "domain"
+                ? "Band"
+                : selected.kind === "stream"
+                  ? "Value stream"
+                  : selected.kind === "substream"
+                    ? "Sub-stream"
+                    : (selected.guide?.level ?? "Guide")}
             </p>
             <h3 className="mt-1 text-xl font-semibold">{selected.label}</h3>
             {selected.guide?.definition && (
