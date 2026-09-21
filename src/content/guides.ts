@@ -11,7 +11,18 @@
  * Definitions are still never invented.
  */
 
-import { allBands, bandByModule, type Band } from "./model";
+import {
+  allBands,
+  bandByModule,
+  streamBySlug,
+  streamsInBand,
+  subModuleBySlug,
+  type Band,
+  type Consideration,
+  type Level,
+  type Scope,
+} from "./model";
+import { considerationsBySlug, scopeBySlug, streamsBySlug } from "./tagging";
 
 export type GuideCategory =
   | "Concept"
@@ -36,6 +47,17 @@ export type Guide = {
   sourceUrl: string | null;
   valueStream: ValueStream | null;
   domain: BusinessDomain | null;
+  /** Where this sits in the structural or flow hierarchy. */
+  level: Level | null;
+  /** Top-level module this belongs to. */
+  module: string | null;
+  /** Nearest sub-module at or above this topic. */
+  subModule: string | null;
+  /** Stream slugs this topic sits in. */
+  streams: string[];
+  /** Tagged on leaves only; use considerationsOf() for the roll-up. */
+  considerations: Consideration[];
+  scope: Scope[];
 };
 
 /**
@@ -50,207 +72,25 @@ export type BusinessDomain = Band;
  * tagged with the one it belongs to. Topics with no stream stay null rather
  * than being forced into one.
  */
-export type ValueStream =
-  // Financial Accounting
-  | "Record-to-Report"
-  | "Procure-to-Pay"
-  | "Order-to-Cash"
-  | "Acquire-to-Retire (Assets)"
-  | "Cash & Treasury"
-  // Human Capital Management
-  | "Hire-to-Retire"
-  | "Time-to-Pay"
-  | "Performance & Development"
-  | "Benefits & Compliance"
-  // Customer Relationship Management
-  | "Lead-to-Order"
-  | "Service-to-Resolution"
-  | "Campaign-to-Conversion"
-  | "Dispatch-to-Done (Field Service)"
-  // Supply Chain Management
-  | "Plan-to-Replenish"
-  | "Source-to-Contract"
-  | "Order-to-Ship"
-  | "Plan-to-Deliver (Logistics)"
-  // Manufacturing
-  | "Design-to-Production"
-  | "Plan-to-Produce"
-  | "Quality-to-Confidence"
-  // Enterprise Asset Management
-  | "Plan-to-Maintain"
-  | "Detect-to-Respond (Condition)"
-  | "Acquire-to-Retire (Physical)"
-  // Project & Portfolio Management
-  | "Idea-to-Investment (Portfolio)"
-  | "Plan-to-Deliver (Project)"
-  | "Resource-to-Utilisation"
-  | "Bill-to-Recognise"
-  // Data & Analytics
-  | "Source-to-Insight"
-  | "Migrate-to-Steady-State"
-  | "Govern-to-Trust"
-  // Integration
-  | "Specify-to-Live (Build)"
-  | "Detect-to-Recover (Failure)"
-  // Security & Identity
-  | "Identity-to-Access"
-  | "Control-to-Evidence"
-  | "Detect-to-Continue (BCP/DR)"
-  // PMO & Programme Governance
-  | "Initiate-to-Gate"
-  | "Track-to-Decide (Status)"
-  | "Plan-to-Cutover (Go-Live)"
-  // Change, People & Adoption
-  | "Awareness-to-Adoption"
-  | "Impact-to-Mitigation"
-  | "Train-to-Capable";
-
-/** Module slug -> the streams that module owns, in field-guide order. */
-const streamsByModule: Record<string, ValueStream[]> = {
-  "financial-accounting": [
-    "Record-to-Report",
-    "Procure-to-Pay",
-    "Order-to-Cash",
-    "Acquire-to-Retire (Assets)",
-    "Cash & Treasury",
-  ],
-  "human-capital-management": [
-    "Hire-to-Retire",
-    "Time-to-Pay",
-    "Performance & Development",
-    "Benefits & Compliance",
-  ],
-  "customer-relationship-management": [
-    "Lead-to-Order",
-    "Service-to-Resolution",
-    "Campaign-to-Conversion",
-    "Dispatch-to-Done (Field Service)",
-  ],
-  "supply-chain-management": [
-    "Plan-to-Replenish",
-    "Source-to-Contract",
-    "Order-to-Ship",
-    "Plan-to-Deliver (Logistics)",
-  ],
-  manufacturing: ["Design-to-Production", "Plan-to-Produce", "Quality-to-Confidence"],
-  "enterprise-asset-management": [
-    "Plan-to-Maintain",
-    "Detect-to-Respond (Condition)",
-    "Acquire-to-Retire (Physical)",
-  ],
-  "project-management": [
-    "Idea-to-Investment (Portfolio)",
-    "Plan-to-Deliver (Project)",
-    "Resource-to-Utilisation",
-    "Bill-to-Recognise",
-  ],
-  "data-services": ["Source-to-Insight", "Migrate-to-Steady-State", "Govern-to-Trust"],
-  integration: ["Specify-to-Live (Build)", "Detect-to-Recover (Failure)"],
-  security: ["Identity-to-Access", "Control-to-Evidence", "Detect-to-Continue (BCP/DR)"],
-  pmo: ["Initiate-to-Gate", "Track-to-Decide (Status)", "Plan-to-Cutover (Go-Live)"],
-  "change-people-and-adoption": [
-    "Awareness-to-Adoption",
-    "Impact-to-Mitigation",
-    "Train-to-Capable",
-  ],
-};
-
-const valueStreamBySlug: Record<string, ValueStream> = {
-  // Financial Accounting
-  "financial-accounting": "Record-to-Report",
-  "general-ledger": "Record-to-Report",
-  "accounts-payable": "Procure-to-Pay",
-  "3-way-matching": "Procure-to-Pay",
-  "ap-automation": "Procure-to-Pay",
-  payments: "Procure-to-Pay",
-  "eft-files": "Procure-to-Pay",
-  aba: "Procure-to-Pay",
-  "accounts-receivable": "Order-to-Cash",
-  "order-to-cash": "Order-to-Cash",
-  "order-to-fulfil": "Order-to-Cash",
-  "fulfil-to-invoice": "Order-to-Cash",
-  "invoice-to-cash": "Order-to-Cash",
-  "asset-management": "Acquire-to-Retire (Assets)",
-  "cash-management": "Cash & Treasury",
-  "bank-reconciliation": "Cash & Treasury",
-
-  // Human Capital Management
-  "human-capital-management": "Hire-to-Retire",
-  "core-hr": "Hire-to-Retire",
-  "org-and-position-management": "Hire-to-Retire",
-  "employee-self-service": "Hire-to-Retire",
-  onboarding: "Hire-to-Retire",
-  offboarding: "Hire-to-Retire",
-  "talent-acquisition": "Hire-to-Retire",
-  payroll: "Time-to-Pay",
-  "payroll-automation": "Time-to-Pay",
-  superannuation: "Time-to-Pay",
-  "single-touch-payroll": "Time-to-Pay",
-  "time-and-attendance": "Time-to-Pay",
-  "rostering-and-scheduling": "Time-to-Pay",
-  "leave-management": "Time-to-Pay",
-  "award-interpretation": "Time-to-Pay",
-  "performance-management": "Performance & Development",
-  "learning-and-development": "Performance & Development",
-  "workforce-analytics": "Performance & Development",
-  benefits: "Benefits & Compliance",
-  compliance: "Benefits & Compliance",
-
-  // Customer Relationship Management
-  "customer-relationship-management": "Lead-to-Order",
-  "sales-force-automation": "Lead-to-Order",
-  "contact-to-lead": "Lead-to-Order",
-  "lead-to-opportunity": "Lead-to-Order",
-  "opportunity-to-quote": "Lead-to-Order",
-  "quote-to-order": "Lead-to-Order",
-  "marketing-automation": "Campaign-to-Conversion",
-  "customer-support": "Service-to-Resolution",
-  "field-service": "Dispatch-to-Done (Field Service)",
-
-  // Project & Portfolio Management
-  "project-management": "Plan-to-Deliver (Project)",
-  billing: "Bill-to-Recognise",
-
-  // Data & Analytics
-  "data-services": "Source-to-Insight",
-  "business-intelligence": "Source-to-Insight",
-  "data-models": "Source-to-Insight",
-  "data-warehousing": "Source-to-Insight",
-  "data-migration": "Migrate-to-Steady-State",
-
-  // Integration
-  integration: "Specify-to-Live (Build)",
-  "integration-catalogue": "Specify-to-Live (Build)",
-  "development-standards": "Specify-to-Live (Build)",
-  "environment-and-deployment-management": "Specify-to-Live (Build)",
-
-  // Security & Identity
-  security: "Identity-to-Access",
-  "sod-and-rbac": "Identity-to-Access",
-  bcp: "Detect-to-Continue (BCP/DR)",
-  "disaster-recovery": "Detect-to-Continue (BCP/DR)",
-
-  // PMO & Programme Governance
-  pmo: "Initiate-to-Gate",
-  "erp-project-budgeting": "Initiate-to-Gate",
-  governance: "Track-to-Decide (Status)",
-  "actions-and-decisions": "Track-to-Decide (Status)",
-  "change-requests": "Track-to-Decide (Status)",
-  "functional-specifications": "Track-to-Decide (Status)",
-  "technical-specifications": "Track-to-Decide (Status)",
-  "go-live-toolkit": "Plan-to-Cutover (Go-Live)",
-  "cutover-and-go-live": "Plan-to-Cutover (Go-Live)",
-  "cutover-checklist": "Plan-to-Cutover (Go-Live)",
-  "functional-module-implementation": "Plan-to-Cutover (Go-Live)",
-
-  // Enterprise Asset Management
-  "enterprise-asset-management": "Plan-to-Maintain",
-  "asset-lifecycle-management": "Acquire-to-Retire (Physical)",
-  "energy-management": "Detect-to-Respond (Condition)",
-};
+/**
+ * Display name of a stream. Stream identity lives in ./model; this is the
+ * label the UI shows.
+ */
+export type ValueStream = string;
 
 const raw: Array<
-  Omit<Guide, "workflow" | "valueStream" | "domain"> & { workflow?: string | null }
+  Omit<
+    Guide,
+    | "workflow"
+    | "valueStream"
+    | "domain"
+    | "level"
+    | "module"
+    | "subModule"
+    | "streams"
+    | "considerations"
+    | "scope"
+  > & { workflow?: string | null }
 > = [
   // ---------------------------------------------------------------- pillars
   {
@@ -321,8 +161,8 @@ const raw: Array<
   },
   {
     slug: "governance",
-    topic: "Governance",
-    parent: null,
+    topic: "Programme Governance",
+    parent: "pmo",
     categories: ["Process", "Project Management"],
     definition: null,
     workflow: null,
@@ -357,8 +197,8 @@ const raw: Array<
   },
   {
     slug: "go-live-toolkit",
-    topic: "Go Live Toolkit",
-    parent: null,
+    topic: "Cutover & Go-Live",
+    parent: "pmo",
     categories: ["Process"],
     definition: null,
     workflow: null,
@@ -385,7 +225,7 @@ const raw: Array<
   {
     slug: "payments",
     topic: "Payments",
-    parent: null,
+    parent: "accounts-payable",
     categories: ["Solution"],
     definition: null,
     workflow: null,
@@ -1147,17 +987,49 @@ const rootModuleOf = (slug: string): string => {
 export const domainOf = (slug: string): BusinessDomain | null =>
   bandByModule[rootModuleOf(slug)] ?? null;
 
-export const guides: Guide[] = raw.map((g) => ({
-  ...g,
-  valueStream: valueStreamBySlug[g.slug] ?? null,
-  domain: domainOf(g.slug),
-  workflow: g.workflow
-    ? g.workflow
-        .split("→")
-        .map((s) => s.trim())
-        .filter((s) => s.length > 0 && !/no article found/i.test(s))
-    : [],
-}));
+/** Nearest sub-module at or above this topic. */
+const subModuleOf = (slug: string): string | null => {
+  let current: string | null = slug;
+  for (let hops = 0; hops < 10 && current; hops += 1) {
+    if (subModuleBySlug.has(current)) return current;
+    current = raw.find((r) => r.slug === current)?.parent ?? null;
+  }
+  return null;
+};
+
+/** Level is derived, never restated: a slug that is a module, sub-module or
+ * stream says so by being one. Editorial collections are not model nodes. */
+const levelOf = (slug: string): Level | null => {
+  if (bandByModule[slug]) return "Module";
+  if (subModuleBySlug.has(slug)) return "Sub-module";
+  const stream = streamBySlug.get(slug);
+  if (stream) return stream.parent === null ? "Value stream" : "Sub-stream";
+  return bandByModule[rootModuleOf(slug)] ? "Process" : null;
+};
+
+export const guides: Guide[] = raw.map((g) => {
+  const root = rootModuleOf(g.slug);
+  const module = bandByModule[root] ? root : null;
+  const streamSlugs = streamsBySlug[g.slug] ?? [];
+  const primary = streamSlugs[0];
+  return {
+    ...g,
+    level: levelOf(g.slug),
+    module,
+    subModule: subModuleOf(g.slug),
+    streams: streamSlugs,
+    considerations: considerationsBySlug[g.slug] ?? [],
+    scope: scopeBySlug[g.slug] ?? (module ? (["Global"] as Scope[]) : []),
+    valueStream: primary ? (streamBySlug.get(primary)?.name ?? null) : null,
+    domain: domainOf(g.slug),
+    workflow: g.workflow
+      ? g.workflow
+          .split("→")
+          .map((step) => step.trim())
+          .filter((step) => step.length > 0 && !/no article found/i.test(step))
+      : [],
+  };
+});
 
 export const guideBySlug = new Map(guides.map((g) => [g.slug, g]));
 
@@ -1186,23 +1058,26 @@ export function pillarOf(slug: string): Guide | undefined {
 
 export const allBusinessDomains: BusinessDomain[] = allBands;
 
-/** Streams in band order, so the two facet rows read as a hierarchy. */
-export const allValueStreams: ValueStream[] = allBusinessDomains.flatMap((band) =>
-  Object.entries(bandByModule)
-    .filter(([, b]) => b === band)
-    .flatMap(([moduleSlug]) => streamsByModule[moduleSlug] ?? []),
+/** L1 stream display names, in band order. */
+export const allValueStreams: ValueStream[] = allBands.flatMap((band) =>
+  streamsInBand(band).map((stream) => stream.name),
 );
 
 export const streamsInDomain = (domain: BusinessDomain): ValueStream[] =>
-  Object.entries(bandByModule)
-    .filter(([, band]) => band === domain)
-    .flatMap(([moduleSlug]) => streamsByModule[moduleSlug] ?? []);
-
-/** The streams a given module owns. */
-export const streamsOfModule = (moduleSlug: string): ValueStream[] =>
-  streamsByModule[moduleSlug] ?? [];
+  streamsInBand(domain).map((stream) => stream.name);
 
 export const guidesInStream = (stream: ValueStream) =>
   guides.filter((g) => g.valueStream === stream);
+
+/** Considerations a topic raises, including every topic beneath it. */
+export const considerationsOf = (slug: string): Consideration[] => {
+  const seen = new Set<Consideration>();
+  const walk = (s: string) => {
+    (considerationsBySlug[s] ?? []).forEach((c) => seen.add(c));
+    guides.filter((g) => g.parent === s).forEach((child) => walk(child.slug));
+  };
+  walk(slug);
+  return Array.from(seen);
+};
 
 export const allCategories = Array.from(new Set(guides.flatMap((g) => g.categories))).sort();

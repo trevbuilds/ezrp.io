@@ -44,10 +44,15 @@ export const allConsiderations: Consideration[] = [
 export type Scope = "Global" | "Local-AU" | "Common";
 
 export type Band =
-  "Finance & People" | "Customer & Revenue" | "Operations & Assets" | "Programmes, Projects & Data";
+  | "Finance"
+  | "People"
+  | "Customer & Revenue"
+  | "Operations & Assets"
+  | "Programmes, Projects & Data";
 
 export const allBands: Band[] = [
-  "Finance & People",
+  "Finance",
+  "People",
   "Customer & Revenue",
   "Operations & Assets",
   "Programmes, Projects & Data",
@@ -55,8 +60,10 @@ export const allBands: Band[] = [
 
 /** Module slug → band. The twelve modules of the ERP Field Guide. */
 export const bandByModule: Record<string, Band> = {
-  "financial-accounting": "Finance & People",
-  "human-capital-management": "Finance & People",
+  // Finance and People are separate functions and stay separate at the top
+  // level, which differs from the field guide's combined "Finance & People".
+  "financial-accounting": "Finance",
+  "human-capital-management": "People",
   "customer-relationship-management": "Customer & Revenue",
   "supply-chain-management": "Customer & Revenue",
   manufacturing: "Operations & Assets",
