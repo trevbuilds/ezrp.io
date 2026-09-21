@@ -78,7 +78,9 @@ component or a route.
 | `src/content/model.ts`         | bands, modules, sub-modules, streams, considerations            |
 | `src/content/tagging.ts`       | per-topic tagging that cannot be derived                        |
 | `src/content/articles/*.md`    | article bodies, one markdown file per article                   |
-| `src/content/programmes.ts`    | worked programmes — one organisation, one scope, one plan       |
+| `src/content/programmes.ts`    | worked templates — one organisation, one scope, one plan        |
+| `src/content/deliverables.ts`  | build deliverables and the inputs each one needs                |
+| `src/content/build.ts`         | artefacts per sub-module, the gates, and the derived plan       |
 | `src/content/jurisdictions.ts` | what changes between AU states and territories                  |
 
 Level, module, sub-module and band are **computed**, never stored — they are
@@ -123,17 +125,38 @@ migrated, `source: authored` for written-for-EZRP.
 `workflow` is the one field deliberately re-modelled rather than copied, against
 published value streams rather than whatever sequence a wiki record carried.
 
-## Programmes
+## Build
 
-`/programmes` holds worked examples: one organisation, one decision, one set of
-constraints. A programme names only what is being changed and what is
+`/scope` answers what is in. That is a diagnostic, and a diagnostic is not a
+plan. **Build** is the step after it: the documents somebody actually has to
+write, each one starting with its inputs.
+
+Most of these get started from a template someone had lying around, which is why
+so many carry the previous programme's assumptions. The useful part of a template
+is not its headings — it is knowing what has to be gathered before the headings
+can be answered honestly. So `src/content/deliverables.ts` records, per
+deliverable, each input: what it is, where it comes from (`/start`, `/scope`, the
+library, or only the organisation), who owns it, and whether the document can be
+drafted without it.
+
+Six deliverables, all alpha, in a dropdown under Build: investment decision
+brief, business case, project management plan, business analysis plan, workshop
+plan, change impact assessment. The inputs are the settled part; generating the
+document is not built yet.
+
+`src/content/build.ts` holds the other half — per sub-module, the artefacts a
+team has to produce before it can be called done, plus the five gates. Given a
+scope, `buildPlan()` derives the releases from the model's own phase order,
+assigns each interface to the release that owns it, and counts what is actually
+in front of the programme.
+
+**Templates** live under `/build/template/$slug`: a whole programme mapped
+against the model. A template names only what is being changed and what is
 deliberately not — the streams, the modules it drags in, the phase order and the
-interfaces that straddle the boundary are all computed by `computeScope` from
-the same model the rest of the site runs on. If the model is wrong, the
-programme page is wrong in the same way, which is the point.
-
-They are worked plans rather than status reports, built from publicly known
-sector shape plus the model, and each page says so.
+interfaces that straddle the boundary are all computed by `computeScope`. If the
+model is wrong, the template is wrong in the same way, which is the point. They
+are worked plans rather than status reports, built from publicly known sector
+shape plus the model, and each page says so.
 
 ## Running it
 

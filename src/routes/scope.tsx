@@ -59,10 +59,10 @@ function ScopePage() {
               Browse the library
             </Link>
             <Link
-              to="/programmes"
+              to="/build"
               className="rounded border border-border px-4 py-2 font-display text-sm font-semibold text-muted-foreground transition hover:border-primary hover:text-foreground"
             >
-              See a worked programme
+              See a worked template
             </Link>
           </div>
         </section>
@@ -354,7 +354,24 @@ function ScopePage() {
           </div>
         </section>
 
-        <section className="panel mt-8 rounded-lg p-5">
+        <section className="panel mt-8 rounded-lg border-l-2 border-primary p-5">
+          <p className="label-xs">Next</p>
+          <h2 className="mt-2 text-xl font-semibold">This is a diagnosis, not a plan</h2>
+          <p className="mt-2 max-w-2xl text-sm text-muted-foreground">
+            Build takes the same scope and turns it into the documents somebody has to write — the
+            investment brief, the business case, the plans — starting with what each one needs as an
+            input before its headings can be answered honestly.
+          </p>
+          <Link
+            to="/build"
+            search={{ pick: search.pick }}
+            className="mt-3 inline-block rounded bg-primary px-3 py-1.5 font-display text-xs font-semibold text-primary-foreground transition hover:brightness-110"
+          >
+            Build it →
+          </Link>
+        </section>
+
+        <section className="panel mt-4 rounded-lg p-5">
           <p className="label-xs">Share this scope</p>
           <p className="mt-2 text-sm text-muted-foreground">
             The scope is in the address bar. Send the link and the other person sees the same

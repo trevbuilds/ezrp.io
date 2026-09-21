@@ -14,6 +14,8 @@ import { Route as FrameworkRouteImport } from './routes/framework'
 import { Route as ScopeRouteImport } from './routes/scope'
 import { Route as StartRouteImport } from './routes/start'
 import { Route as ApiChatRouteImport } from './routes/api/chat'
+import { Route as BuildIndexRouteImport } from './routes/build/index'
+import { Route as BuildSlugRouteImport } from './routes/build/$slug'
 import { Route as GuidesIndexRouteImport } from './routes/guides/index'
 import { Route as GuidesSlugRouteImport } from './routes/guides/$slug'
 import { Route as LocalesIndexRouteImport } from './routes/locales/index'
@@ -21,6 +23,7 @@ import { Route as LocalesCodeRouteImport } from './routes/locales/$code'
 import { Route as PillarsSlugRouteImport } from './routes/pillars/$slug'
 import { Route as ProgrammesIndexRouteImport } from './routes/programmes/index'
 import { Route as ProgrammesSlugRouteImport } from './routes/programmes/$slug'
+import { Route as BuildTemplateSlugRouteImport } from './routes/build/template/$slug'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -45,6 +48,16 @@ const StartRoute = StartRouteImport.update({
 const ApiChatRoute = ApiChatRouteImport.update({
   id: '/api/chat',
   path: '/api/chat',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const BuildIndexRoute = BuildIndexRouteImport.update({
+  id: '/build/',
+  path: '/build/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const BuildSlugRoute = BuildSlugRouteImport.update({
+  id: '/build/$slug',
+  path: '/build/$slug',
   getParentRoute: () => rootRouteImport,
 } as any)
 const GuidesIndexRoute = GuidesIndexRouteImport.update({
@@ -82,6 +95,11 @@ const ProgrammesSlugRoute = ProgrammesSlugRouteImport.update({
   path: '/programmes/$slug',
   getParentRoute: () => rootRouteImport,
 } as any)
+const BuildTemplateSlugRoute = BuildTemplateSlugRouteImport.update({
+  id: '/build/template/$slug',
+  path: '/build/template/$slug',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -89,13 +107,16 @@ export interface FileRoutesByFullPath {
   '/scope': typeof ScopeRoute
   '/start': typeof StartRoute
   '/api/chat': typeof ApiChatRoute
+  '/build/$slug': typeof BuildSlugRoute
   '/guides/$slug': typeof GuidesSlugRoute
   '/locales/$code': typeof LocalesCodeRoute
   '/pillars/$slug': typeof PillarsSlugRoute
   '/programmes/$slug': typeof ProgrammesSlugRoute
+  '/build/': typeof BuildIndexRoute
   '/guides/': typeof GuidesIndexRoute
   '/locales/': typeof LocalesIndexRoute
   '/programmes/': typeof ProgrammesIndexRoute
+  '/build/template/$slug': typeof BuildTemplateSlugRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -103,13 +124,16 @@ export interface FileRoutesByTo {
   '/scope': typeof ScopeRoute
   '/start': typeof StartRoute
   '/api/chat': typeof ApiChatRoute
+  '/build/$slug': typeof BuildSlugRoute
   '/guides/$slug': typeof GuidesSlugRoute
   '/locales/$code': typeof LocalesCodeRoute
   '/pillars/$slug': typeof PillarsSlugRoute
   '/programmes/$slug': typeof ProgrammesSlugRoute
+  '/build': typeof BuildIndexRoute
   '/guides': typeof GuidesIndexRoute
   '/locales': typeof LocalesIndexRoute
   '/programmes': typeof ProgrammesIndexRoute
+  '/build/template/$slug': typeof BuildTemplateSlugRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -118,13 +142,16 @@ export interface FileRoutesById {
   '/scope': typeof ScopeRoute
   '/start': typeof StartRoute
   '/api/chat': typeof ApiChatRoute
+  '/build/$slug': typeof BuildSlugRoute
   '/guides/$slug': typeof GuidesSlugRoute
   '/locales/$code': typeof LocalesCodeRoute
   '/pillars/$slug': typeof PillarsSlugRoute
   '/programmes/$slug': typeof ProgrammesSlugRoute
+  '/build/': typeof BuildIndexRoute
   '/guides/': typeof GuidesIndexRoute
   '/locales/': typeof LocalesIndexRoute
   '/programmes/': typeof ProgrammesIndexRoute
+  '/build/template/$slug': typeof BuildTemplateSlugRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -134,13 +161,16 @@ export interface FileRouteTypes {
     | '/scope'
     | '/start'
     | '/api/chat'
+    | '/build/$slug'
     | '/guides/$slug'
     | '/locales/$code'
     | '/pillars/$slug'
     | '/programmes/$slug'
+    | '/build/'
     | '/guides/'
     | '/locales/'
     | '/programmes/'
+    | '/build/template/$slug'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -148,13 +178,16 @@ export interface FileRouteTypes {
     | '/scope'
     | '/start'
     | '/api/chat'
+    | '/build/$slug'
     | '/guides/$slug'
     | '/locales/$code'
     | '/pillars/$slug'
     | '/programmes/$slug'
+    | '/build'
     | '/guides'
     | '/locales'
     | '/programmes'
+    | '/build/template/$slug'
   id:
     | '__root__'
     | '/'
@@ -162,13 +195,16 @@ export interface FileRouteTypes {
     | '/scope'
     | '/start'
     | '/api/chat'
+    | '/build/$slug'
     | '/guides/$slug'
     | '/locales/$code'
     | '/pillars/$slug'
     | '/programmes/$slug'
+    | '/build/'
     | '/guides/'
     | '/locales/'
     | '/programmes/'
+    | '/build/template/$slug'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -177,13 +213,16 @@ export interface RootRouteChildren {
   ScopeRoute: typeof ScopeRoute
   StartRoute: typeof StartRoute
   ApiChatRoute: typeof ApiChatRoute
+  BuildSlugRoute: typeof BuildSlugRoute
   GuidesSlugRoute: typeof GuidesSlugRoute
   LocalesCodeRoute: typeof LocalesCodeRoute
   PillarsSlugRoute: typeof PillarsSlugRoute
   ProgrammesSlugRoute: typeof ProgrammesSlugRoute
+  BuildIndexRoute: typeof BuildIndexRoute
   GuidesIndexRoute: typeof GuidesIndexRoute
   LocalesIndexRoute: typeof LocalesIndexRoute
   ProgrammesIndexRoute: typeof ProgrammesIndexRoute
+  BuildTemplateSlugRoute: typeof BuildTemplateSlugRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -221,6 +260,20 @@ declare module '@tanstack/react-router' {
       path: '/api/chat'
       fullPath: '/api/chat'
       preLoaderRoute: typeof ApiChatRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/build/': {
+      id: '/build/'
+      path: '/build'
+      fullPath: '/build/'
+      preLoaderRoute: typeof BuildIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/build/$slug': {
+      id: '/build/$slug'
+      path: '/build/$slug'
+      fullPath: '/build/$slug'
+      preLoaderRoute: typeof BuildSlugRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/guides/': {
@@ -272,6 +325,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ProgrammesSlugRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/build/template/$slug': {
+      id: '/build/template/$slug'
+      path: '/build/template/$slug'
+      fullPath: '/build/template/$slug'
+      preLoaderRoute: typeof BuildTemplateSlugRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -281,13 +341,16 @@ const rootRouteChildren: RootRouteChildren = {
   ScopeRoute: ScopeRoute,
   StartRoute: StartRoute,
   ApiChatRoute: ApiChatRoute,
+  BuildSlugRoute: BuildSlugRoute,
   GuidesSlugRoute: GuidesSlugRoute,
   LocalesCodeRoute: LocalesCodeRoute,
   PillarsSlugRoute: PillarsSlugRoute,
   ProgrammesSlugRoute: ProgrammesSlugRoute,
+  BuildIndexRoute: BuildIndexRoute,
   GuidesIndexRoute: GuidesIndexRoute,
   LocalesIndexRoute: LocalesIndexRoute,
   ProgrammesIndexRoute: ProgrammesIndexRoute,
+  BuildTemplateSlugRoute: BuildTemplateSlugRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
