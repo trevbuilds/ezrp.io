@@ -517,14 +517,14 @@ function FlowRow({ flow, highlight = false }: { flow: DataFlow; highlight?: bool
         <p className="text-sm">
           <span className="font-semibold">{flow.payload}</span>
           <span className="mx-2 font-mono text-xs text-primary">
-            {flow.direction === "in" ? "\u2190" : "\u2192"}
+            {flow.direction === "in" ? "←" : "→"}
           </span>
           <span className="text-muted-foreground">{other}</span>
         </p>
         <p className="font-mono text-[0.65rem] uppercase text-muted-foreground">{flow.cadence}</p>
       </div>
       <p className="mt-1 text-xs text-muted-foreground">
-        <span className="text-foreground">{owner}</span> \u00b7 without it: {flow.breaks}
+        <span className="text-foreground">{owner}</span> · without it: {flow.breaks}
       </p>
     </div>
   );
