@@ -42,6 +42,14 @@ export type ScopeResult = {
   topics: Guide[];
   /** Topics implied that were not picked. */
   implied: Guide[];
+  /**
+   * For each implied topic, the picks that pull it in.
+   *
+   * An implied topic cannot be dropped on its own — it is there because
+   * something you did pick sits on the same stream. Saying which pick is
+   * responsible turns "why is this here" into a decision you can act on.
+   */
+  impliedBy: Record<string, string[]>;
   /** Modules the work happens in. */
   modules: string[];
   /** Modules the picks themselves belong to. */
@@ -124,6 +132,27 @@ export function computeScope(slugs: string[]): ScopeResult {
   );
   const implied = topics.filter((guide) => !pickedSlugs.has(guide.slug));
 
+  // A pick is responsible for an implied topic when they share a stream, or
+  // when the pick's L1 stream contains the sub-stream the topic sits on.
+  const impliedBy: Record<string, string[]> = {};
+  implied.forEach((guide) => {
+    const reasons = picked
+      .filter((pick) =>
+        pick.streams.some((slug) => {
+          const stream = streamBySlug.get(slug);
+          if (!stream) return false;
+          const family = new Set([
+            stream.slug,
+            rootStream(stream).slug,
+            ...subStreamsOf(rootStream(stream).slug).map((sub) => sub.slug),
+          ]);
+          return guide.streams.some((other) => family.has(other));
+        }),
+      )
+      .map((pick) => pick.slug);
+    if (reasons.length > 0) impliedBy[guide.slug] = reasons;
+  });
+
   const modules = unique(streams.flatMap((stream) => stream.modules));
   const pickedModules = unique(
     picked.map((guide) => guide.module).filter((module): module is string => Boolean(module)),
@@ -172,6 +201,7 @@ export function computeScope(slugs: string[]): ScopeResult {
     impliedStreams,
     topics,
     implied,
+    impliedBy,
     modules,
     pickedModules,
     draggedIn,

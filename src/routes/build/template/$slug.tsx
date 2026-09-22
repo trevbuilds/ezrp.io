@@ -270,6 +270,28 @@ function ProgrammePage() {
               );
             })}
           </div>
+          {/* The model can phase further than the written narration goes —
+              cutover in particular sorts last. Show it rather than drop it. */}
+          {scope.phases.length > programme.releases.length && (
+            <div className="panel mt-3 rounded-lg border-l-2 border-border p-4">
+              <p className="label-xs">Then</p>
+              <p className="mt-1.5 font-mono text-xs text-muted-foreground">
+                {scope.phases
+                  .slice(programme.releases.length)
+                  .map(
+                    (phase, index) =>
+                      `${programme.releases.length + index + 1}. ${phase.map((sub) => sub.name).join(" · ")}`,
+                  )
+                  .join("   ")}
+              </p>
+              <p className="mt-1.5 text-sm text-muted-foreground">
+                The dependency order puts {scope.phases.length - programme.releases.length} more{" "}
+                {scope.phases.length - programme.releases.length === 1 ? "phase" : "phases"} after
+                the narrated releases.
+              </p>
+            </div>
+          )}
+
           {scope.prerequisites.length > 0 && (
             <p className="mt-3 max-w-2xl text-xs text-muted-foreground">
               The model also flags{" "}

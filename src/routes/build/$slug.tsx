@@ -2,6 +2,7 @@ import { createFileRoute, Link, notFound } from "@tanstack/react-router";
 
 import { SiteShell } from "@/components/SiteShell";
 import { buildPlan } from "@/content/build";
+import { draftDeliverable, draftMarkdown } from "@/content/draft";
 import {
   deliverableBySlug,
   deliverables,
@@ -48,6 +49,7 @@ function DeliverablePage() {
   const search = Route.useSearch();
   const picks = parsePicks(search.pick);
   const plan = picks.length > 0 ? buildPlan(picks) : null;
+  const draft = picks.length > 0 ? draftDeliverable(deliverable.slug, picks) : null;
   const { blocking, optional } = groupInputs(deliverable.inputs);
   const others = deliverables.filter((item) => item.slug !== deliverable.slug);
 
@@ -188,6 +190,64 @@ function DeliverablePage() {
             >
               Scope it first →
             </Link>
+          </section>
+        )}
+
+        {draft && (
+          <section className="mt-10">
+            <div className="flex flex-wrap items-baseline justify-between gap-2">
+              <p className="label-xs">First draft</p>
+              <p className="font-mono text-xs text-muted-foreground">
+                {draft.coverage.filled}/{draft.coverage.total} sections the scope could speak to
+              </p>
+            </div>
+            <p className="mt-1 max-w-2xl text-xs text-muted-foreground">
+              Generated from your scope. It is not a finished document and it does not pretend to be
+              — where a section needs something only you have, it says so rather than inventing a
+              plausible sentence, because plausible sentences are the ones that get left in.
+            </p>
+
+            <div className="panel mt-3 rounded-lg p-5">
+              <h2 className="font-display text-lg font-semibold">{draft.title}</h2>
+              {draft.sections.map((section) => (
+                <div key={section.heading} className="mt-4">
+                  <p className="font-display text-sm font-semibold">{section.heading}</p>
+                  {section.body.length > 0 ? (
+                    section.body.map((paragraph) => (
+                      <p key={paragraph} className="mt-1.5 text-sm text-muted-foreground">
+                        {paragraph}
+                      </p>
+                    ))
+                  ) : (
+                    <p className="mt-1.5 border-l-2 border-border pl-3 text-sm text-muted-foreground">
+                      To write. The scope cannot supply this one.
+                    </p>
+                  )}
+                </div>
+              ))}
+
+              {draft.outstanding.length > 0 && (
+                <div className="mt-5 border-t border-border pt-4">
+                  <p className="font-display text-sm font-semibold">Still needed</p>
+                  <ul className="mt-2 space-y-1.5">
+                    {draft.outstanding.map((gap) => (
+                      <li key={gap.name} className="text-sm text-muted-foreground">
+                        <span className="text-foreground">{gap.name}</span> — {gap.what}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+            </div>
+
+            <details className="mt-3">
+              <summary className="cursor-pointer text-xs text-primary transition hover:brightness-110">
+                As markdown, to lift into a document
+              </summary>
+              <pre className="panel mt-2 max-h-96 overflow-auto rounded-lg p-4 text-xs whitespace-pre-wrap text-muted-foreground">
+                {draftMarkdown(draft)}
+              </pre>
+            </details>
           </section>
         )}
 

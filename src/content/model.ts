@@ -198,6 +198,21 @@ export type SubModule = {
    * consequence of a wrong edge is a phase in the wrong order, nothing worse.
    */
   dependsOn?: string[];
+  /**
+   * Position a dependency edge cannot express.
+   *
+   * Cutover depends on everything in scope being standing, but declaring an
+   * edge to every other sub-module would be unmaintainable and would still be
+   * wrong the moment one is added. Worse, its only real edge is to programme
+   * governance, which is usually out of scope — so the sort correctly ignored
+   * it and put cutover in the first phase, which is the one place it cannot
+   * go.
+   *
+   * "final" holds an item back to its own last phase. Only used where the
+   * ordering is a fact about delivery rather than a judgement about
+   * dependencies.
+   */
+  sequence?: "final";
 };
 
 export const subModules: SubModule[] = [
@@ -383,7 +398,13 @@ export const subModules: SubModule[] = [
 
   // PMO & Programme Governance
   { slug: "governance", name: "Programme Governance", module: "pmo" },
-  { slug: "go-live-toolkit", name: "Cutover & Go-Live", module: "pmo", dependsOn: ["governance"] },
+  {
+    slug: "go-live-toolkit",
+    name: "Cutover & Go-Live",
+    module: "pmo",
+    dependsOn: ["governance"],
+    sequence: "final",
+  },
 
   // Change and adoption: delivery work, and a consideration on every
   // programme rather than a module anyone buys.
@@ -408,7 +429,16 @@ export const subModuleBySlug = new Map(subModules.map((s) => [s.slug, s]));
  * one final phase rather than dropped, so nothing silently disappears.
  */
 export function phaseSubModules(slugs: string[]): SubModule[][] {
-  const inScope = new Set(slugs.filter((slug) => subModuleBySlug.has(slug)));
+  const all = new Set(slugs.filter((slug) => subModuleBySlug.has(slug)));
+
+  // Hold back the terminal ones — but only where nothing in scope depends on
+  // them, so deferring can never produce an ordering violation.
+  const deferred = [...all].filter((slug) => {
+    if (subModuleBySlug.get(slug)?.sequence !== "final") return false;
+    return ![...all].some((other) => (subModuleBySlug.get(other)?.dependsOn ?? []).includes(slug));
+  });
+  const deferredSet = new Set(deferred);
+  const inScope = new Set([...all].filter((slug) => !deferredSet.has(slug)));
   const done = new Set<string>();
   const phases: SubModule[][] = [];
 
@@ -436,6 +466,14 @@ export function phaseSubModules(slugs: string[]): SubModule[][] {
         .filter((sub): sub is SubModule => Boolean(sub)),
     );
     ready.forEach((slug) => done.add(slug));
+  }
+
+  if (deferred.length > 0) {
+    phases.push(
+      deferred
+        .map((slug) => subModuleBySlug.get(slug))
+        .filter((sub): sub is SubModule => Boolean(sub)),
+    );
   }
 
   return phases;

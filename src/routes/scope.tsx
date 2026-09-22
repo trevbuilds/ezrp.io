@@ -3,6 +3,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { SiteShell } from "@/components/SiteShell";
 import { guideBySlug } from "@/content/guides";
 import { moduleLabel } from "@/content/labels";
+import { programmes } from "@/content/programmes";
 import { computeScope, parsePicks, serialisePicks } from "@/content/scope";
 import type { DataFlow } from "@/content/integrations";
 
@@ -36,12 +37,18 @@ function ScopePage() {
 
   // Dropping a pick rewrites the URL; without resetScroll the page jumps to
   // the top, which is the last thing you want when you are comparing sections.
-  const drop = (slug: string) =>
-    navigate({
-      search: { pick: serialisePicks(picks.filter((item) => item !== slug)) },
-      replace: true,
-      resetScroll: false,
-    });
+  const write = (next: string[]) =>
+    navigate({ search: { pick: serialisePicks(next) }, replace: true, resetScroll: false });
+  const drop = (slug: string) => write(picks.filter((item) => item !== slug));
+  /** Promote an implied topic to an explicit pick — "yes, we are changing that". */
+  const add = (slug: string) => write([...picks, slug]);
+
+  /** Which recipe this scope started from, when the picks still match one. */
+  const recipe = programmes.find(
+    (programme) =>
+      programme.picks.length === picks.length &&
+      programme.picks.every((slug) => picks.includes(slug)),
+  );
 
   if (picks.length === 0) {
     return (
@@ -62,12 +69,39 @@ function ScopePage() {
               Browse the library
             </Link>
             <Link
-              to="/build"
+              to="/start"
               className="rounded border border-border px-4 py-2 font-display text-sm font-semibold text-muted-foreground transition hover:border-primary hover:text-foreground"
             >
-              See a worked template
+              Answer four questions first
             </Link>
           </div>
+
+          {/* A recipe is a starting point, not an answer. Take one and change it. */}
+          <section className="mt-10">
+            <p className="label-xs">Or start from a recipe</p>
+            <p className="mt-1 max-w-2xl text-xs text-muted-foreground">
+              A worked scope for a common shape of programme. Take it, then add and drop areas until
+              it matches what you are actually changing — the whole point is that you remix it.
+            </p>
+            <div className="mt-3 space-y-2">
+              {programmes.map((programme) => (
+                <Link
+                  key={programme.slug}
+                  to="/scope"
+                  search={{ pick: serialisePicks(programme.picks) }}
+                  className="panel block rounded-lg p-4 transition hover:border-primary"
+                >
+                  <h2 className="font-display text-base font-semibold">{programme.name}</h2>
+                  <p className="mt-1 max-w-2xl text-sm text-muted-foreground">
+                    {programme.summary}
+                  </p>
+                  <p className="mt-2 font-mono text-xs text-muted-foreground">
+                    {programme.picks.length} areas · start here and change it
+                  </p>
+                </Link>
+              ))}
+            </div>
+          </section>
         </section>
       </SiteShell>
     );
@@ -82,6 +116,20 @@ function ScopePage() {
           {scope.topics.length} topics across {scope.modules.length}{" "}
           {scope.modules.length === 1 ? "module" : "modules"}
         </h1>
+
+        {recipe && (
+          <p className="mt-3 text-sm text-muted-foreground">
+            Started from the <strong className="text-foreground">{recipe.name}</strong> recipe —{" "}
+            <Link
+              to="/build/template/$slug"
+              params={{ slug: recipe.slug }}
+              className="text-primary hover:underline"
+            >
+              see the full worked plan
+            </Link>
+            . Add or drop anything below; it is a starting point, not an answer.
+          </p>
+        )}
 
         <div className="mt-5 flex flex-wrap gap-2">
           {scope.picked.map((guide) => (
@@ -330,30 +378,103 @@ function ScopePage() {
         </div>
 
         <section className="mt-8">
-          <p className="label-xs">
-            Everything in scope — {scope.topics.length} topics, {scope.implied.length} you did not
-            pick
+          <p className="label-xs">Everything in scope — {scope.topics.length} topics</p>
+          <p className="mt-1 max-w-2xl text-xs text-muted-foreground">
+            The ones you chose, and the ones they brought with them. An implied topic cannot be
+            dropped on its own — it is here because of a pick, and the pick is named.
           </p>
-          <div className="mt-3 grid gap-2 sm:grid-cols-2">
-            {scope.topics.map((guide) => {
-              const isPick = scope.picked.some((item) => item.slug === guide.slug);
-              return (
-                <Link
+
+          <div className="mt-4">
+            <p className="font-mono text-xs text-primary">
+              You picked these — {scope.picked.length}
+            </p>
+            <div className="mt-2 grid gap-2 sm:grid-cols-2">
+              {scope.picked.map((guide) => (
+                <div
                   key={guide.slug}
-                  to="/guides/$slug"
-                  params={{ slug: guide.slug }}
-                  className={`panel rounded p-3 text-sm transition hover:border-primary ${
-                    isPick ? "border-primary" : ""
-                  }`}
+                  className="panel rounded border-l-2 border-primary p-3 text-sm"
                 >
-                  <span className="font-semibold">{guide.topic}</span>
+                  <div className="flex items-start justify-between gap-2">
+                    <Link
+                      to="/guides/$slug"
+                      params={{ slug: guide.slug }}
+                      className="font-semibold transition hover:text-primary"
+                    >
+                      {guide.topic}
+                    </Link>
+                    <button
+                      onClick={() => drop(guide.slug)}
+                      className="shrink-0 font-mono text-[0.65rem] uppercase text-muted-foreground transition hover:text-foreground"
+                    >
+                      descope
+                    </button>
+                  </div>
                   <span className="mt-1 block text-xs text-muted-foreground">
                     {guide.level ?? "Topic"} · {guide.module ? moduleLabel(guide.module) : "—"}
-                    {isPick ? " · picked" : ""}
                   </span>
-                </Link>
-              );
-            })}
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {scope.implied.length > 0 && (
+            <div className="mt-6">
+              <p className="font-mono text-xs text-muted-foreground">
+                Came with them — {scope.implied.length} you did not pick
+              </p>
+              <div className="mt-2 grid gap-2 sm:grid-cols-2">
+                {scope.implied.map((guide) => {
+                  const because = scope.impliedBy[guide.slug] ?? [];
+                  return (
+                    <div
+                      key={guide.slug}
+                      className="rounded border border-dashed border-border p-3 text-sm"
+                    >
+                      <div className="flex items-start justify-between gap-2">
+                        <Link
+                          to="/guides/$slug"
+                          params={{ slug: guide.slug }}
+                          className="text-muted-foreground transition hover:text-foreground"
+                        >
+                          {guide.topic}
+                        </Link>
+                        <button
+                          onClick={() => add(guide.slug)}
+                          className="shrink-0 font-mono text-[0.65rem] uppercase text-primary transition hover:brightness-110"
+                        >
+                          + scope it
+                        </button>
+                      </div>
+                      <span className="mt-1 block text-xs text-muted-foreground">
+                        {guide.level ?? "Topic"} · {guide.module ? moduleLabel(guide.module) : "—"}
+                      </span>
+                      {because.length > 0 && (
+                        <span className="mt-1 block text-xs text-muted-foreground">
+                          here because of{" "}
+                          {because.map((slug) => guideBySlug.get(slug)?.topic ?? slug).join(", ")}
+                        </span>
+                      )}
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          )}
+
+          <div className="mt-4 flex flex-wrap gap-2">
+            <Link
+              to="/guides"
+              search={{ pick: search.pick }}
+              className="rounded border border-border px-3 py-1.5 font-display text-xs font-semibold text-muted-foreground transition hover:border-primary hover:text-foreground"
+            >
+              Scope more from the library →
+            </Link>
+            <Link
+              to="/start"
+              className="rounded border border-border px-3 py-1.5 font-display text-xs font-semibold text-muted-foreground transition hover:border-primary hover:text-foreground"
+            >
+              Change the context
+            </Link>
           </div>
         </section>
 
