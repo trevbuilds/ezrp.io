@@ -4,3 +4,6 @@
 - [x] Add a field guide link and explain how to use the library.
 - [x] Rework the map into an organic Clariti-style hierarchy with cross-cutting links.
 - [x] Verify desktop, mobile, navigation, interactions, and build health.
+- [x] GSC: create new ezrp.io property (not existing)
+- [ ] GA: user wants new property, not existing measurement ID — needs new GA4 property + reconnect
+- [ ] Publish done, verify tag, add site, submit sitemap
