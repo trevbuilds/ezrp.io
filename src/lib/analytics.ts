@@ -1,6 +1,4 @@
-const measurementId = import.meta.env["VITE_LOVABLE_CONNECTOR_GOOGLE_ANALYTICS_API_KEY"] as
-  | string
-  | undefined;
+import { getMeasurementId } from "./analytics.functions";
 
 declare global {
   interface Window {
@@ -13,22 +11,40 @@ function gtag(...args: unknown[]) {
 }
 
 let initialised = false;
+let pendingPath: string | null = null;
 
 export function initAnalytics() {
-  if (initialised || !measurementId || typeof window === "undefined") return;
+  if (initialised || typeof window === "undefined") return;
   initialised = true;
 
-  const script = document.createElement("script");
-  script.async = true;
-  script.src = `https://www.googletagmanager.com/gtag/js?id=${measurementId}`;
-  document.head.appendChild(script);
+  void getMeasurementId()
+    .then((measurementId) => {
+      if (!measurementId) return;
 
-  window.dataLayer = window.dataLayer || [];
-  gtag("js", new Date());
-  gtag("config", measurementId);
+      const script = document.createElement("script");
+      script.async = true;
+      script.src = `https://www.googletagmanager.com/gtag/js?id=${measurementId}`;
+      document.head.appendChild(script);
+
+      window.dataLayer = window.dataLayer || [];
+      gtag("js", new Date());
+      gtag("config", measurementId);
+
+      if (pendingPath) {
+        gtag("event", "page_view", { page_path: pendingPath });
+        pendingPath = null;
+      }
+    })
+    .catch(() => {
+      // Analytics is best-effort; never block the app on it.
+    });
 }
 
 export function trackPageView(path: string) {
-  if (!initialised || typeof window === "undefined") return;
+  if (typeof window === "undefined") return;
+  if (!initialised) {
+    pendingPath = path;
+    return;
+  }
   gtag("event", "page_view", { page_path: path });
 }
