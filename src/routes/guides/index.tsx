@@ -96,8 +96,15 @@ function GuideLibrary() {
   const navigate = Route.useNavigate();
   const [q, setQ] = useState(search.q ?? "");
 
+  // A filter change is a navigation, and a navigation scrolls to the top
+  // unless told not to. Nobody picking a facet halfway down the tree wants to
+  // be sent back to the heading.
   const set = (patch: Partial<GuideSearch>) =>
-    navigate({ search: (prev) => ({ ...prev, ...patch }), replace: true });
+    navigate({
+      search: (prev) => ({ ...prev, ...patch }),
+      replace: true,
+      resetScroll: false,
+    });
 
   const toggle = (key: keyof GuideSearch, value: string) =>
     set({ [key]: search[key] === value ? undefined : value });
@@ -459,7 +466,7 @@ function GuideLibrary() {
                 <button
                   onClick={() => {
                     setQ("");
-                    navigate({ search: {} });
+                    navigate({ search: {}, resetScroll: false });
                   }}
                   className="text-xs text-muted-foreground underline hover:text-foreground"
                 >

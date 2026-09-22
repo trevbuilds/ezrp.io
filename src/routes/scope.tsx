@@ -34,10 +34,13 @@ function ScopePage() {
   const picks = parsePicks(search.pick);
   const scope = computeScope(picks);
 
+  // Dropping a pick rewrites the URL; without resetScroll the page jumps to
+  // the top, which is the last thing you want when you are comparing sections.
   const drop = (slug: string) =>
     navigate({
       search: { pick: serialisePicks(picks.filter((item) => item !== slug)) },
       replace: true,
+      resetScroll: false,
     });
 
   if (picks.length === 0) {

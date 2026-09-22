@@ -80,8 +80,15 @@ function StartPage() {
   const search = Route.useSearch();
   const navigate = Route.useNavigate();
 
+  // Filters live in the URL, so every pick is a navigation — and a navigation
+  // scrolls to the top by default, which throws the page away under whoever is
+  // halfway down a list of pills. resetScroll keeps them where they were.
   const set = (patch: Partial<StartSearch>) =>
-    navigate({ search: (prev) => ({ ...prev, ...patch }), replace: true });
+    navigate({
+      search: (prev) => ({ ...prev, ...patch }),
+      replace: true,
+      resetScroll: false,
+    });
 
   const industry = search.industry as Industry | undefined;
   const dial = industry ? dialUpFor(industry) : undefined;
