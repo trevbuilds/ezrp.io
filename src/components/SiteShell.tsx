@@ -1,5 +1,5 @@
 import { Link, useRouterState } from "@tanstack/react-router";
-import { ChevronDown, MessageSquarePlus } from "lucide-react";
+import { ChevronDown, MessageSquarePlus, Moon, Sun } from "lucide-react";
 import { useEffect, useRef, useState, type ReactNode } from "react";
 
 import { deliverables } from "@/content/deliverables";
@@ -71,6 +71,7 @@ export function SiteShell({ children }: { children: ReactNode }) {
                 {item.label}
               </Link>
             ))}
+            <ThemeToggle />
             <a
               href={FEEDBACK_URL}
               target="_blank"
@@ -117,6 +118,38 @@ export function SiteShell({ children }: { children: ReactNode }) {
       </footer>
       <ChatPanel />
     </div>
+  );
+}
+
+/**
+ * Light/dark switch. The class is set before paint by the script in
+ * __root.tsx; this only flips it and remembers the choice.
+ */
+function ThemeToggle() {
+  const [dark, setDark] = useState(false);
+
+  useEffect(() => setDark(document.documentElement.classList.contains("dark")), []);
+
+  const toggle = () => {
+    const next = !dark;
+    document.documentElement.classList.toggle("dark", next);
+    try {
+      localStorage.setItem("ezrp-theme", next ? "dark" : "light");
+    } catch {
+      /* storage blocked: the choice just won't persist */
+    }
+    setDark(next);
+  };
+
+  return (
+    <button
+      type="button"
+      onClick={toggle}
+      aria-label={dark ? "Switch to light mode" : "Switch to dark mode"}
+      className="ml-1 inline-flex size-8 items-center justify-center rounded border border-border text-muted-foreground transition hover:border-primary hover:text-foreground"
+    >
+      {dark ? <Sun className="size-3.5" /> : <Moon className="size-3.5" />}
+    </button>
   );
 }
 
