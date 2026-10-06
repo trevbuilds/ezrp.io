@@ -7,8 +7,9 @@ import { loadArticle } from "@/content/article-loader";
 import type { Article } from "@/content/article";
 import { flowBySlug } from "@/content/flows";
 import { ancestorsOf, childrenOf, guideBySlug, pillarOf, type Guide } from "@/content/guides";
-import { computeScope } from "@/content/scope";
+import { computeScope, serialisePicks } from "@/content/scope";
 import { flowsFor, inboundTo } from "@/content/integrations";
+import { setStoredPicks, useStoredPicks } from "@/hooks/use-scope";
 
 export const Route = createFileRoute("/guides/$slug")({
   loader: async ({ params }) => {
@@ -50,6 +51,16 @@ function GuidePage() {
     ? childrenOf(guide.parent).filter((g) => g.slug !== guide.slug)
     : [];
   const flow = flowBySlug.get(guide.slug);
+
+  // This page has no picks in its URL, so the basket is the scope here.
+  const basket = useStoredPicks();
+  const inScope = basket.includes(guide.slug);
+  const toggleScope = () =>
+    setStoredPicks(
+      inScope ? basket.filter((slug) => slug !== guide.slug) : [...basket, guide.slug],
+    );
+  /** The basket with this topic in it, for the links that lead to the scope. */
+  const withThis = serialisePicks([...basket, guide.slug]);
 
   return (
     <SiteShell>
@@ -119,6 +130,31 @@ function GuidePage() {
             what the library holds.
           </p>
         )}
+
+        {/* The cart control: add this topic to the scope being built, from here. */}
+        <div className="mt-5 flex flex-wrap items-center gap-2">
+          <button
+            type="button"
+            onClick={toggleScope}
+            aria-pressed={inScope}
+            className={`rounded border px-4 py-2 font-display text-sm font-semibold transition ${
+              inScope
+                ? "border-primary bg-primary text-primary-foreground hover:brightness-110"
+                : "border-border text-muted-foreground hover:border-primary hover:text-foreground"
+            }`}
+          >
+            {inScope ? "In scope ✓" : "+ Add to scope"}
+          </button>
+          {basket.length > 0 && (
+            <Link
+              to="/scope"
+              search={{ pick: serialisePicks(basket) }}
+              className="rounded border border-border px-4 py-2 font-display text-sm font-semibold text-muted-foreground transition hover:border-primary hover:text-foreground"
+            >
+              View scope ({basket.length}) →
+            </Link>
+          )}
+        </div>
 
         {guide.workflow.length > 0 && (
           <section className="panel mt-8 rounded-lg p-5">
@@ -202,10 +238,12 @@ function GuidePage() {
                 </p>
                 <Link
                   to="/scope"
-                  search={{ pick: guide.slug }}
-                  className="mt-3 inline-block rounded bg-primary px-3 py-1.5 font-display text-xs font-semibold text-primary-foreground transition hover:brightness-110"
+                  search={{ pick: withThis }}
+                  className="mt-3 inline-block rounded bg-primary px-4 py-2 font-display text-sm font-semibold text-primary-foreground transition hover:brightness-110"
                 >
-                  See the path ahead →
+                  {inScope || basket.length === 0
+                    ? "See the path ahead →"
+                    : "Add it and see the path ahead →"}
                 </Link>
               </section>
             );

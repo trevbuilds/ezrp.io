@@ -5,6 +5,7 @@ import { buildPlan } from "@/content/build";
 import { deliverables, groupInputs } from "@/content/deliverables";
 import { programmes } from "@/content/programmes";
 import { parsePicks } from "@/content/scope";
+import { useScopeSync } from "@/hooks/use-scope";
 
 type BuildSearch = { pick?: string | undefined };
 
@@ -30,7 +31,9 @@ export const Route = createFileRoute("/build/")({
 
 function BuildIndex() {
   const search = Route.useSearch();
+  const navigate = Route.useNavigate();
   const picks = parsePicks(search.pick);
+  useScopeSync(search.pick, (pick) => navigate({ search: { pick }, replace: true }));
   const plan = picks.length > 0 ? buildPlan(picks) : null;
 
   return (
