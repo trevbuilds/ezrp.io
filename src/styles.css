@@ -141,6 +141,17 @@
   backdrop-filter: blur(6px);
 }
 
+@utility cover-grid {
+  background-image:
+    linear-gradient(color-mix(in oklab, var(--foreground) 5%, transparent) 1px, transparent 1px),
+    linear-gradient(
+      90deg,
+      color-mix(in oklab, var(--foreground) 5%, transparent) 1px,
+      transparent 1px
+    );
+  background-size: 54px 54px;
+}
+
 @utility label-xs {
   font-family: var(--font-body-family);
   font-size: 0.6875rem;
