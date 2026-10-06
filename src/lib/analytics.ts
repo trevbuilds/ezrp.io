@@ -6,8 +6,11 @@ declare global {
   }
 }
 
+// The tag script creates the data layer when it loads; until then, or when it
+// never loads (blocked, no measurement id), the layer has to exist here, or
+// the first client-side navigation throws inside the router and blanks the page.
 function gtag(...args: unknown[]) {
-  window.dataLayer.push(args);
+  (window.dataLayer ??= []).push(args);
 }
 
 let initialised = false;
