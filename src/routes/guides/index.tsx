@@ -4,6 +4,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 
 import { SiteShell } from "@/components/SiteShell";
 import { parsePicks, serialisePicks } from "@/content/scope";
+import { useScopeSync } from "@/hooks/use-scope";
 import {
   allConsiderations,
   allJurisdictions,
@@ -109,6 +110,10 @@ function GuideLibrary() {
   const toggle = (key: keyof GuideSearch, value: string) =>
     set({ [key]: search[key] === value ? undefined : value });
 
+  // Picks live in the URL while browsing; the basket carries them across a
+  // guide page or a bare visit and puts them back here.
+  useScopeSync(search.pick, (pick) => set({ pick }));
+
   // Expansion is independent of filtering: a branch can be opened to look
   // inside without narrowing the results to it.
   const [open, setOpen] = useState<Set<string>>(new Set());
@@ -210,19 +215,28 @@ function GuideLibrary() {
                 </button>
               </span>
             ))}
-            <Link
-              to="/scope"
-              search={{ pick: search.pick }}
-              className="ml-auto rounded bg-primary px-3 py-1 font-display text-xs font-semibold text-primary-foreground transition hover:brightness-110"
-            >
-              See the path ahead →
-            </Link>
-            <button
-              onClick={() => set({ pick: undefined })}
-              className="text-xs text-muted-foreground underline hover:text-foreground"
-            >
-              Clear
-            </button>
+            <div className="ml-auto flex flex-wrap items-center gap-2">
+              <Link
+                to="/scope"
+                search={{ pick: search.pick }}
+                className="rounded bg-primary px-4 py-2 font-display text-sm font-semibold text-primary-foreground transition hover:brightness-110"
+              >
+                View scope ({picks.length}) →
+              </Link>
+              <Link
+                to="/build"
+                search={{ pick: search.pick }}
+                className="rounded border border-border px-4 py-2 font-display text-sm font-semibold text-muted-foreground transition hover:border-primary hover:text-foreground"
+              >
+                Build →
+              </Link>
+              <button
+                onClick={() => set({ pick: undefined })}
+                className="text-xs text-muted-foreground underline hover:text-foreground"
+              >
+                Clear
+              </button>
+            </div>
           </div>
         )}
 

@@ -4,15 +4,18 @@ import { useEffect, useRef, useState, type ReactNode } from "react";
 
 import { deliverables } from "@/content/deliverables";
 import { programmes } from "@/content/programmes";
+import { useStoredPick, useStoredPicks } from "@/hooks/use-scope";
 import { ChatPanel } from "./ChatPanel";
 
 const nav = [
   { to: "/", label: "Map" },
   { to: "/start", label: "Start here" },
   { to: "/guides", label: "Guides" },
-  { to: "/scope", label: "Scope" },
   { to: "/framework", label: "Framework" },
 ] as const;
+
+const navLinkClass =
+  "rounded px-3 py-1.5 text-sm text-muted-foreground transition hover:text-foreground data-[status=active]:bg-muted data-[status=active]:text-foreground";
 
 const REPO = "https://github.com/trevbuilds/ezrp.io";
 
@@ -50,23 +53,24 @@ export function SiteShell({ children }: { children: ReactNode }) {
             </span>
           </div>
           <nav className="flex flex-wrap items-center justify-end gap-1">
-            {nav.slice(0, 4).map((item) => (
+            {nav.slice(0, 3).map((item) => (
               <Link
                 key={item.to}
                 to={item.to}
                 activeOptions={{ exact: item.to === "/" }}
-                className="rounded px-3 py-1.5 text-sm text-muted-foreground transition hover:text-foreground data-[status=active]:bg-muted data-[status=active]:text-foreground"
+                className={navLinkClass}
               >
                 {item.label}
               </Link>
             ))}
+            <ScopeLink />
             <BuildMenu />
-            {nav.slice(4).map((item) => (
+            {nav.slice(3).map((item) => (
               <Link
                 key={item.to}
                 to={item.to}
                 activeOptions={{ exact: item.to === "/" }}
-                className="rounded px-3 py-1.5 text-sm text-muted-foreground transition hover:text-foreground data-[status=active]:bg-muted data-[status=active]:text-foreground"
+                className={navLinkClass}
               >
                 {item.label}
               </Link>
@@ -154,6 +158,33 @@ function ThemeToggle() {
 }
 
 /**
+ * The Scope link carries the basket, so it never lands on "Nothing picked
+ * yet" after you have picked something elsewhere. The count is the cart
+ * badge: it is how you can tell, from any page, that a scope is building.
+ */
+function ScopeLink() {
+  const picks = useStoredPicks();
+  const pick = useStoredPick();
+  return (
+    <Link
+      to="/scope"
+      search={pick ? { pick } : {}}
+      className={`${navLinkClass} inline-flex items-center gap-1.5`}
+    >
+      Scope
+      {picks.length > 0 && (
+        <span
+          aria-label={`${picks.length} ${picks.length === 1 ? "area" : "areas"} in scope`}
+          className="inline-flex min-w-[1.25rem] items-center justify-center rounded-full bg-primary px-1.5 font-mono text-[0.625rem] font-semibold leading-[1.25rem] text-primary-foreground"
+        >
+          {picks.length}
+        </span>
+      )}
+    </Link>
+  );
+}
+
+/**
  * Build is a section rather than a page, so it gets a menu.
  *
  * Click rather than hover: hover menus are unusable on touch, and the whole
@@ -165,6 +196,9 @@ function BuildMenu() {
   const ref = useRef<HTMLDivElement>(null);
   const pathname = useRouterState({ select: (state) => state.location.pathname });
   const onBuild = pathname.startsWith("/build");
+  // The overview and the deliverables take a scope; templates bring their own.
+  const pick = useStoredPick();
+  const withScope = pick ? { pick } : {};
 
   useEffect(() => setOpen(false), [pathname]);
 
@@ -204,6 +238,7 @@ function BuildMenu() {
         >
           <Link
             to="/build"
+            search={withScope}
             role="menuitem"
             className="block rounded px-2.5 py-1.5 text-sm text-foreground transition hover:bg-muted"
           >
@@ -215,6 +250,7 @@ function BuildMenu() {
               key={item.slug}
               to="/build/$slug"
               params={{ slug: item.slug }}
+              search={withScope}
               role="menuitem"
               className="flex items-baseline justify-between gap-2 rounded px-2.5 py-1.5 text-sm text-muted-foreground transition hover:bg-muted hover:text-foreground"
             >

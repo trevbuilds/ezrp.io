@@ -14,6 +14,7 @@ import {
 import { guideBySlug } from "@/content/guides";
 import { moduleLabel } from "@/content/labels";
 import { parsePicks } from "@/content/scope";
+import { useScopeSync } from "@/hooks/use-scope";
 
 type DeliverableSearch = { pick?: string | undefined };
 
@@ -47,7 +48,9 @@ export const Route = createFileRoute("/build/$slug")({
 function DeliverablePage() {
   const { deliverable } = Route.useLoaderData();
   const search = Route.useSearch();
+  const navigate = Route.useNavigate();
   const picks = parsePicks(search.pick);
+  useScopeSync(search.pick, (pick) => navigate({ params: true, search: { pick }, replace: true }));
   const plan = picks.length > 0 ? buildPlan(picks) : null;
   const draft = picks.length > 0 ? draftDeliverable(deliverable.slug, picks) : null;
   const { blocking, optional } = groupInputs(deliverable.inputs);

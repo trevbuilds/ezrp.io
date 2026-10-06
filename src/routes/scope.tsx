@@ -6,6 +6,7 @@ import { moduleLabel } from "@/content/labels";
 import { programmes } from "@/content/programmes";
 import { computeScope, parsePicks, serialisePicks } from "@/content/scope";
 import type { DataFlow } from "@/content/integrations";
+import { useScopeSync } from "@/hooks/use-scope";
 
 type ScopeSearch = { pick?: string | undefined };
 
@@ -34,6 +35,10 @@ function ScopePage() {
   const navigate = Route.useNavigate();
   const picks = parsePicks(search.pick);
   const scope = computeScope(picks);
+
+  // The URL is the scope; the basket remembers it between pages and puts it
+  // back when this page is opened bare.
+  useScopeSync(search.pick, (pick) => navigate({ search: { pick }, replace: true }));
 
   // Dropping a pick rewrites the URL; without resetScroll the page jumps to
   // the top, which is the last thing you want when you are comparing sections.
@@ -147,13 +152,27 @@ function ScopePage() {
               </button>
             </span>
           ))}
+        </div>
+
+        {/* The two things to do with a scope, where they can be seen. */}
+        <div className="mt-5 flex flex-wrap items-center gap-3">
+          <Link
+            to="/build"
+            search={{ pick: search.pick }}
+            className="rounded bg-primary px-4 py-2 font-display text-sm font-semibold text-primary-foreground transition hover:brightness-110"
+          >
+            Build from this scope →
+          </Link>
           <Link
             to="/guides"
             search={{ pick: search.pick }}
-            className="rounded-full border border-border px-3 py-1 text-sm text-muted-foreground transition hover:text-foreground"
+            className="rounded border border-border px-4 py-2 font-display text-sm font-semibold text-muted-foreground transition hover:border-primary hover:text-foreground"
           >
-            + Add more
+            + Add more areas
           </Link>
+          <p className="text-xs text-muted-foreground">
+            Remembered on this device, and in the link.
+          </p>
         </div>
 
         {scope.unknown.length > 0 && (
