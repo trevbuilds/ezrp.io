@@ -34,31 +34,33 @@ export const Route = createFileRoute("/")({
 function Index() {
   return (
     <SiteShell>
-      <section className="dark cover-grid relative overflow-hidden bg-background px-5 pb-0 pt-12 text-foreground md:px-8 md:pt-16 lg:px-12">
-        <div className="mx-auto max-w-6xl">
-          <p className="label-xs">Easy Resource Planning · Alpha</p>
-          <h1 className="mt-3 max-w-4xl text-4xl font-bold leading-tight md:text-6xl">
-            Making ERP and digital transformation easier for everyone.
-          </h1>
-          <p className="mt-5 max-w-3xl text-base leading-relaxed text-muted-foreground md:text-lg">
-            ERP programmes connect nearly every part of an organisation, which means small decisions
-            can create expensive problems elsewhere. EZRP turns that complexity into practical maps
-            and field guides so more people can understand the work, spot the pitfalls, and make
-            better decisions.
-          </p>
-          <div className="mt-6 flex flex-wrap gap-3">
-            <Button asChild>
-              <Link to="/guides">
-                Open the field guide <ArrowRight />
-              </Link>
-            </Button>
-            <Button asChild variant="outline">
-              <Link to="/framework">Understand the framework</Link>
-            </Button>
+      <section className="dark cover-grid relative overflow-hidden bg-background px-5 py-12 text-foreground md:px-8 md:py-16 lg:px-12">
+        <div className="mx-auto grid max-w-6xl items-center gap-10 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.1fr)] lg:gap-8">
+          <div>
+            <p className="label-xs">Easy Resource Planning · Alpha</p>
+            <h1 className="mt-3 max-w-4xl text-4xl font-bold leading-tight md:text-5xl">
+              Making ERP and digital transformation easier for everyone.
+            </h1>
+            <p className="mt-5 max-w-3xl text-base leading-relaxed text-muted-foreground md:text-lg">
+              ERP programmes connect nearly every part of an organisation, which means small
+              decisions can create expensive problems elsewhere. EZRP turns that complexity into
+              practical maps and field guides so more people can understand the work, spot the
+              pitfalls, and make better decisions.
+            </p>
+            <div className="mt-6 flex flex-wrap gap-3">
+              <Button asChild>
+                <Link to="/guides">
+                  Open the field guide <ArrowRight />
+                </Link>
+              </Button>
+              <Button asChild variant="outline">
+                <Link to="/framework">Understand the framework</Link>
+              </Button>
+            </div>
           </div>
-        </div>
-        <div className="mx-auto mt-14 w-full max-w-[1120px] md:mt-20">
-          <SemanticBrain />
+          <div className="w-full min-w-0">
+            <SemanticBrain />
+          </div>
         </div>
       </section>
 
@@ -87,8 +89,9 @@ function Index() {
             <h2 className="mt-3 text-xl font-semibold">What is involved?</h2>
             <p className="mt-3 text-sm leading-relaxed text-muted-foreground">
               Strategy and scope, process design, data, integrations, controls, implementation,
-              testing, migration, training, cutover and ongoing improvement. The map above shows how
-              those concerns connect rather than treating them as separate projects.
+              testing, migration, training, cutover and ongoing improvement. The map at the top of
+              the page shows how those concerns connect rather than treating them as separate
+              projects.
             </p>
           </article>
         </div>
