@@ -5,9 +5,11 @@
 @custom-variant dark (&:is(.dark *));
 
 /*
- * EZRP design system — technical blueprint.
- * Dark slate ground, fine grid lines, one warm amber accent.
- * All colours are oklch tokens; components must never hardcode colours.
+ * EZRP design system — Clariti editorial.
+ * Warm paper, deep ink navy and one orange accent, set in Playfair Display
+ * and DM Sans (carried over from clariti.global). Light is the default;
+ * `.dark` flips paper and ink. All colours are oklch tokens; components must
+ * never hardcode colours.
  */
 
 @theme inline {
@@ -46,36 +48,64 @@
 }
 
 :root {
-  --radius: 0.25rem;
-  --font-display-family: "Chakra Petch", ui-sans-serif, system-ui, sans-serif;
-  --font-body-family: "IBM Plex Sans", ui-sans-serif, system-ui, sans-serif;
+  --radius: 0.1875rem;
+  --font-display-family: "Playfair Display", ui-serif, Georgia, serif;
+  --font-body-family: "DM Sans", ui-sans-serif, system-ui, sans-serif;
   --font-mono-family: "IBM Plex Mono", ui-monospace, monospace;
 
-  --background: oklch(0.18 0.021 250);
-  --foreground: oklch(0.94 0.008 250);
-  --surface: oklch(0.22 0.024 252);
-  --surface-foreground: oklch(0.94 0.008 250);
-  --card: oklch(0.225 0.024 252);
-  --card-foreground: oklch(0.94 0.008 250);
-  --popover: oklch(0.21 0.024 252);
-  --popover-foreground: oklch(0.94 0.008 250);
-  --primary: oklch(0.79 0.148 64);
-  --primary-foreground: oklch(0.2 0.03 60);
-  --secondary: oklch(0.28 0.028 252);
-  --secondary-foreground: oklch(0.92 0.01 250);
-  --muted: oklch(0.26 0.024 252);
-  --muted-foreground: oklch(0.7 0.018 252);
-  --accent: oklch(0.72 0.09 210);
-  --accent-foreground: oklch(0.18 0.021 250);
-  --destructive: oklch(0.62 0.2 25);
-  --destructive-foreground: oklch(0.97 0.01 250);
-  --border: oklch(0.32 0.026 252);
-  --grid: oklch(0.27 0.022 252);
-  --input: oklch(0.3 0.026 252);
-  --ring: oklch(0.79 0.148 64);
-  --tier-1: oklch(0.79 0.148 64);
-  --tier-2: oklch(0.72 0.09 210);
-  --tier-3: oklch(0.68 0.03 252);
+  --background: oklch(0.982 0.009 75);
+  --foreground: oklch(0.19 0.055 265);
+  --surface: oklch(0.965 0.008 73);
+  --surface-foreground: oklch(0.19 0.055 265);
+  --card: oklch(1 0 0);
+  --card-foreground: oklch(0.19 0.055 265);
+  --popover: oklch(1 0 0);
+  --popover-foreground: oklch(0.19 0.055 265);
+  --primary: oklch(0.57 0.17 40);
+  --primary-foreground: oklch(0.982 0.009 75);
+  --secondary: oklch(0.934 0.018 78);
+  --secondary-foreground: oklch(0.19 0.055 265);
+  --muted: oklch(0.955 0.012 75);
+  --muted-foreground: oklch(0.46 0.02 265);
+  --accent: oklch(0.48 0.07 255);
+  --accent-foreground: oklch(0.982 0.009 75);
+  --destructive: oklch(0.55 0.22 27);
+  --destructive-foreground: oklch(0.98 0.005 75);
+  --border: oklch(0.9 0.012 78);
+  --grid: oklch(0.9 0.012 78);
+  --input: oklch(0.9 0.012 78);
+  --ring: oklch(0.67 0.18 40);
+  --tier-1: oklch(0.57 0.17 40);
+  --tier-2: oklch(0.48 0.07 255);
+  --tier-3: oklch(0.55 0.02 260);
+}
+
+.dark {
+  --background: oklch(0.14 0.04 274);
+  --foreground: oklch(0.96 0.01 75);
+  --surface: oklch(0.19 0.055 265);
+  --surface-foreground: oklch(0.96 0.01 75);
+  --card: oklch(0.2 0.05 266);
+  --card-foreground: oklch(0.96 0.01 75);
+  --popover: oklch(0.19 0.055 265);
+  --popover-foreground: oklch(0.96 0.01 75);
+  --primary: oklch(0.72 0.17 45);
+  --primary-foreground: oklch(0.14 0.04 274);
+  --secondary: oklch(0.26 0.05 266);
+  --secondary-foreground: oklch(0.96 0.01 75);
+  --muted: oklch(0.24 0.045 266);
+  --muted-foreground: oklch(0.72 0.02 265);
+  --accent: oklch(0.74 0.08 250);
+  --accent-foreground: oklch(0.14 0.04 274);
+  --destructive: oklch(0.65 0.2 25);
+  --destructive-foreground: oklch(0.98 0.005 75);
+  --border: oklch(0.3 0.04 266);
+  --grid: oklch(0.3 0.04 266);
+  --input: oklch(0.3 0.04 266);
+  --ring: oklch(0.72 0.17 45);
+  --tier-1: oklch(0.72 0.17 45);
+  --tier-2: oklch(0.74 0.08 250);
+  --tier-3: oklch(0.68 0.03 265);
 }
 
 @layer base {
@@ -87,11 +117,7 @@
     background-color: var(--color-background);
     color: var(--color-foreground);
     font-family: var(--font-body-family);
-    background-image:
-      linear-gradient(to right, var(--grid) 1px, transparent 1px),
-      linear-gradient(to bottom, var(--grid) 1px, transparent 1px);
-    background-size: 56px 56px;
-    background-attachment: fixed;
+    text-rendering: optimizeLegibility;
   }
 
   h1,
@@ -99,7 +125,13 @@
   h3,
   h4 {
     font-family: var(--font-display-family);
-    letter-spacing: -0.01em;
+    font-weight: 500;
+    letter-spacing: 0;
+  }
+
+  ::selection {
+    background: var(--primary);
+    color: var(--primary-foreground);
   }
 }
 
@@ -110,9 +142,10 @@
 }
 
 @utility label-xs {
-  font-family: var(--font-mono-family);
+  font-family: var(--font-body-family);
   font-size: 0.6875rem;
-  letter-spacing: 0.14em;
+  font-weight: 600;
+  letter-spacing: 0.16em;
   text-transform: uppercase;
   color: var(--muted-foreground);
 }
