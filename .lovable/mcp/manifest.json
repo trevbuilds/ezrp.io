@@ -1,0 +1,99 @@
+{
+  "version": 1,
+  "sdk_version": "3.0.5",
+  "path": "/mcp",
+  "auth": {
+    "type": "none"
+  },
+  "mcp": {
+    "server": {
+      "name": "ezrp",
+      "version": "0.1.0",
+      "title": "EZRP"
+    },
+    "tools": [
+      {
+        "name": "search_guides",
+        "title": "Search guides",
+        "description": "Search the EZRP ERP and digital transformation guide library by keyword, domain or category.",
+        "annotations": {
+          "readOnlyHint": true,
+          "idempotentHint": true,
+          "openWorldHint": false
+        },
+        "inputSchema": {
+          "type": "object",
+          "properties": {
+            "query": {
+              "type": "string",
+              "maxLength": 200,
+              "description": "Keywords, e.g. 'accounts payable'."
+            },
+            "domain": {
+              "type": "string",
+              "maxLength": 100,
+              "description": "Business domain name to filter by."
+            },
+            "category": {
+              "type": "string",
+              "maxLength": 50,
+              "description": "Category such as Process, Module, Local-AU."
+            },
+            "limit": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 50
+            }
+          },
+          "additionalProperties": false,
+          "$schema": "http://json-schema.org/draft-07/schema#"
+        },
+        "outputSchema": null
+      },
+      {
+        "name": "get_guide",
+        "title": "Get guide",
+        "description": "Get one EZRP guide by slug, including its definition, workflow, child guides and full article if one exists.",
+        "annotations": {
+          "readOnlyHint": true,
+          "idempotentHint": true,
+          "openWorldHint": false
+        },
+        "inputSchema": {
+          "type": "object",
+          "properties": {
+            "slug": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 120,
+              "description": "Guide slug, e.g. 'ap-automation'."
+            }
+          },
+          "required": [
+            "slug"
+          ],
+          "additionalProperties": false,
+          "$schema": "http://json-schema.org/draft-07/schema#"
+        },
+        "outputSchema": null
+      },
+      {
+        "name": "list_domains",
+        "title": "List domains",
+        "description": "List EZRP business domains with their value streams and guide counts.",
+        "annotations": {
+          "readOnlyHint": true,
+          "idempotentHint": true,
+          "openWorldHint": false
+        },
+        "inputSchema": {
+          "$schema": "https://json-schema.org/draft/2020-12/schema",
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "outputSchema": null
+      }
+    ]
+  }
+}
