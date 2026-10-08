@@ -11,8 +11,10 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as FrameworkRouteImport } from './routes/framework'
+import { Route as McpRouteImport } from './routes/mcp'
 import { Route as ScopeRouteImport } from './routes/scope'
 import { Route as StartRouteImport } from './routes/start'
+import { Route as Char91DotwellKnownChar93OauthProtectedResourceRouteImport } from './routes/[.well-known]/oauth-protected-resource'
 import { Route as ApiChatRouteImport } from './routes/api/chat'
 import { Route as BuildIndexRouteImport } from './routes/build/index'
 import { Route as BuildSlugRouteImport } from './routes/build/$slug'
@@ -35,6 +37,11 @@ const FrameworkRoute = FrameworkRouteImport.update({
   path: '/framework',
   getParentRoute: () => rootRouteImport,
 } as any)
+const McpRoute = McpRouteImport.update({
+  id: '/mcp',
+  path: '/mcp',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ScopeRoute = ScopeRouteImport.update({
   id: '/scope',
   path: '/scope',
@@ -45,6 +52,12 @@ const StartRoute = StartRouteImport.update({
   path: '/start',
   getParentRoute: () => rootRouteImport,
 } as any)
+const Char91DotwellKnownChar93OauthProtectedResourceRoute =
+  Char91DotwellKnownChar93OauthProtectedResourceRouteImport.update({
+    id: '/.well-known/oauth-protected-resource',
+    path: '/.well-known/oauth-protected-resource',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const ApiChatRoute = ApiChatRouteImport.update({
   id: '/api/chat',
   path: '/api/chat',
@@ -104,8 +117,10 @@ const BuildTemplateSlugRoute = BuildTemplateSlugRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/framework': typeof FrameworkRoute
+  '/mcp': typeof McpRoute
   '/scope': typeof ScopeRoute
   '/start': typeof StartRoute
+  '/.well-known/oauth-protected-resource': typeof Char91DotwellKnownChar93OauthProtectedResourceRoute
   '/api/chat': typeof ApiChatRoute
   '/build/$slug': typeof BuildSlugRoute
   '/guides/$slug': typeof GuidesSlugRoute
@@ -121,8 +136,10 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/framework': typeof FrameworkRoute
+  '/mcp': typeof McpRoute
   '/scope': typeof ScopeRoute
   '/start': typeof StartRoute
+  '/.well-known/oauth-protected-resource': typeof Char91DotwellKnownChar93OauthProtectedResourceRoute
   '/api/chat': typeof ApiChatRoute
   '/build/$slug': typeof BuildSlugRoute
   '/guides/$slug': typeof GuidesSlugRoute
@@ -139,8 +156,10 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/framework': typeof FrameworkRoute
+  '/mcp': typeof McpRoute
   '/scope': typeof ScopeRoute
   '/start': typeof StartRoute
+  '/.well-known/oauth-protected-resource': typeof Char91DotwellKnownChar93OauthProtectedResourceRoute
   '/api/chat': typeof ApiChatRoute
   '/build/$slug': typeof BuildSlugRoute
   '/guides/$slug': typeof GuidesSlugRoute
@@ -158,8 +177,10 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/framework'
+    | '/mcp'
     | '/scope'
     | '/start'
+    | '/.well-known/oauth-protected-resource'
     | '/api/chat'
     | '/build/$slug'
     | '/guides/$slug'
@@ -175,8 +196,10 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/framework'
+    | '/mcp'
     | '/scope'
     | '/start'
+    | '/.well-known/oauth-protected-resource'
     | '/api/chat'
     | '/build/$slug'
     | '/guides/$slug'
@@ -192,8 +215,10 @@ export interface FileRouteTypes {
     | '__root__'
     | '/'
     | '/framework'
+    | '/mcp'
     | '/scope'
     | '/start'
+    | '/.well-known/oauth-protected-resource'
     | '/api/chat'
     | '/build/$slug'
     | '/guides/$slug'
@@ -210,8 +235,10 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   FrameworkRoute: typeof FrameworkRoute
+  McpRoute: typeof McpRoute
   ScopeRoute: typeof ScopeRoute
   StartRoute: typeof StartRoute
+  Char91DotwellKnownChar93OauthProtectedResourceRoute: typeof Char91DotwellKnownChar93OauthProtectedResourceRoute
   ApiChatRoute: typeof ApiChatRoute
   BuildSlugRoute: typeof BuildSlugRoute
   GuidesSlugRoute: typeof GuidesSlugRoute
@@ -241,6 +268,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof FrameworkRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/mcp': {
+      id: '/mcp'
+      path: '/mcp'
+      fullPath: '/mcp'
+      preLoaderRoute: typeof McpRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/scope': {
       id: '/scope'
       path: '/scope'
@@ -253,6 +287,13 @@ declare module '@tanstack/react-router' {
       path: '/start'
       fullPath: '/start'
       preLoaderRoute: typeof StartRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/.well-known/oauth-protected-resource': {
+      id: '/.well-known/oauth-protected-resource'
+      path: '/.well-known/oauth-protected-resource'
+      fullPath: '/.well-known/oauth-protected-resource'
+      preLoaderRoute: typeof Char91DotwellKnownChar93OauthProtectedResourceRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/api/chat': {
@@ -338,8 +379,11 @@ declare module '@tanstack/react-router' {
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   FrameworkRoute: FrameworkRoute,
+  McpRoute: McpRoute,
   ScopeRoute: ScopeRoute,
   StartRoute: StartRoute,
+  Char91DotwellKnownChar93OauthProtectedResourceRoute:
+    Char91DotwellKnownChar93OauthProtectedResourceRoute,
   ApiChatRoute: ApiChatRoute,
   BuildSlugRoute: BuildSlugRoute,
   GuidesSlugRoute: GuidesSlugRoute,
