@@ -6,7 +6,7 @@
  * an ASX-listed company carries obligations a family business does not.
  *
  * The ten industry dial-ups are migrated from the ERP Field Guide
- * (trevbuilds.github.io/guides/erp), which names for each sector which modules
+ * (trevin.co/library/erp-field-guide.html), which names for each sector which modules
  * dominate, which controls intensify, which integration patterns are
  * mandatory, and where the operating-model commitments hide.
  *
