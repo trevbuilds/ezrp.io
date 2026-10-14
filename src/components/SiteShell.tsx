@@ -4,8 +4,10 @@ import { useEffect, useRef, useState, type ReactNode } from "react";
 
 import { deliverables } from "@/content/deliverables";
 import { programmes } from "@/content/programmes";
-import { useStoredPick, useStoredPicks } from "@/hooks/use-scope";
+import { forgetScope, useStoredPick, useStoredPicks } from "@/hooks/use-scope";
+import { signOut, useAuth } from "@/lib/auth";
 import { ChatPanel } from "./ChatPanel";
+import { SignInButton } from "./SignInButton";
 
 const nav = [
   { to: "/", label: "Map" },
@@ -85,6 +87,7 @@ export function SiteShell({ children }: { children: ReactNode }) {
               <MessageSquarePlus className="size-3.5" />
               <span className="hidden sm:inline">Feedback</span>
             </a>
+            <AccountMenu />
           </nav>
         </div>
       </header>
@@ -185,20 +188,16 @@ function ScopeLink() {
 }
 
 /**
- * Build is a section rather than a page, so it gets a menu.
+ * Open/close behaviour shared by the header menus.
  *
  * Click rather than hover: hover menus are unusable on touch, and the whole
  * site has to work on a phone. Closes on outside click, on Escape and on
- * navigation, so it never strands itself open behind a new page.
+ * navigation, so a menu never strands itself open behind a new page.
  */
-function BuildMenu() {
+function useDismissableMenu() {
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
   const pathname = useRouterState({ select: (state) => state.location.pathname });
-  const onBuild = pathname.startsWith("/build");
-  // The overview and the deliverables take a scope; templates bring their own.
-  const pick = useStoredPick();
-  const withScope = pick ? { pick } : {};
 
   useEffect(() => setOpen(false), [pathname]);
 
@@ -217,6 +216,101 @@ function BuildMenu() {
       document.removeEventListener("keydown", onKey);
     };
   }, [open]);
+
+  return { open, setOpen, ref, pathname };
+}
+
+/**
+ * Sign in, or the account menu once you have. Signing in is optional, so the
+ * signed-out state is a quiet button rather than a gate, and while the session
+ * is still being read nothing is shown that could turn out to be wrong.
+ */
+function AccountMenu() {
+  const auth = useAuth();
+  const { open, setOpen, ref } = useDismissableMenu();
+
+  if (auth.status === "loading") {
+    return <span aria-hidden className="ml-1 inline-block h-8 w-16" />;
+  }
+
+  if (auth.status === "signed-out") {
+    return (
+      <div className="relative ml-1">
+        <SignInButton
+          className="rounded border border-border px-3 py-1.5 text-sm text-muted-foreground transition hover:border-primary hover:text-foreground disabled:opacity-60"
+          noticeClassName="absolute right-0 top-full z-50 mt-1 w-64 rounded-lg border border-border bg-background p-2.5 text-xs text-destructive shadow-lg"
+          showsRedirectNotice
+        >
+          Sign in
+        </SignInButton>
+      </div>
+    );
+  }
+
+  const label = auth.name ?? auth.email ?? "Account";
+  const initial = label.trim().charAt(0).toUpperCase() || "?";
+
+  const onSignOut = async () => {
+    setOpen(false);
+    // This device's copy goes with the session: the scope is safe in the
+    // account, and the next person to use this browser should not inherit it.
+    forgetScope();
+    await signOut();
+  };
+
+  return (
+    <div ref={ref} className="relative ml-1">
+      <button
+        type="button"
+        onClick={() => setOpen((value) => !value)}
+        aria-expanded={open}
+        aria-haspopup="menu"
+        aria-label={`Account: ${label}`}
+        className="inline-flex size-8 items-center justify-center rounded-full bg-primary font-display text-sm font-semibold text-primary-foreground transition hover:brightness-110"
+      >
+        {initial}
+      </button>
+      {open && (
+        <div
+          role="menu"
+          className="absolute right-0 z-50 mt-1 w-[min(16rem,calc(100vw-2.5rem))] rounded-lg border border-border bg-background p-1.5 shadow-lg"
+        >
+          <div className="px-2.5 py-1.5">
+            <p className="truncate text-sm font-semibold text-foreground">
+              {auth.name ?? "Signed in"}
+            </p>
+            {auth.email && <p className="truncate text-xs text-muted-foreground">{auth.email}</p>}
+          </div>
+          <Link
+            to="/work"
+            role="menuitem"
+            className="block rounded px-2.5 py-1.5 text-sm text-foreground transition hover:bg-muted"
+          >
+            My work
+          </Link>
+          <button
+            type="button"
+            role="menuitem"
+            onClick={() => void onSignOut()}
+            className="block w-full rounded px-2.5 py-1.5 text-left text-sm text-muted-foreground transition hover:bg-muted hover:text-foreground"
+          >
+            Sign out
+          </button>
+        </div>
+      )}
+    </div>
+  );
+}
+
+/**
+ * Build is a section rather than a page, so it gets a menu.
+ */
+function BuildMenu() {
+  const { open, setOpen, ref, pathname } = useDismissableMenu();
+  const onBuild = pathname.startsWith("/build");
+  // The overview and the deliverables take a scope; templates bring their own.
+  const pick = useStoredPick();
+  const withScope = pick ? { pick } : {};
 
   return (
     <div ref={ref} className="relative">

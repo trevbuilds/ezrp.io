@@ -13,6 +13,7 @@ import { useEffect, type ReactNode } from "react";
 import appCss from "../styles.css?url";
 import { reportLovableError } from "../lib/lovable-error-reporting";
 import { initAnalytics, trackPageView } from "../lib/analytics";
+import { ScopeAutosave } from "../components/ScopeAutosave";
 
 function NotFoundComponent() {
   return (
@@ -152,6 +153,8 @@ function RootComponent() {
     <QueryClientProvider client={queryClient}>
       {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
       <Outlet />
+      {/* Once, here, so autosave outlives any one page. Renders nothing. */}
+      <ScopeAutosave />
     </QueryClientProvider>
   );
 }

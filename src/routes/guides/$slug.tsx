@@ -239,6 +239,10 @@ function GuidePage() {
                 <Link
                   to="/scope"
                   search={{ pick: withThis }}
+                  // Put it in the basket first, so the scope page opens on a
+                  // basket that already matches and the saved scope (if there
+                  // is one) is extended rather than treated as a different scope.
+                  onClick={() => setStoredPicks(inScope ? basket : [...basket, guide.slug])}
                   className="mt-3 inline-block rounded bg-primary px-4 py-2 font-display text-sm font-semibold text-primary-foreground transition hover:brightness-110"
                 >
                   {inScope || basket.length === 0
