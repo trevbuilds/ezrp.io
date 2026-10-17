@@ -6,6 +6,7 @@ import { moduleLabel } from "@/content/labels";
 import { programmes } from "@/content/programmes";
 import { computeScope, parsePicks, serialisePicks } from "@/content/scope";
 import type { DataFlow } from "@/content/integrations";
+import { ScopeSaveStatus } from "@/components/ScopeSaveStatus";
 import { useScopeSync } from "@/hooks/use-scope";
 
 type ScopeSearch = { pick?: string | undefined };
@@ -170,9 +171,9 @@ function ScopePage() {
           >
             + Add more areas
           </Link>
-          <p className="text-xs text-muted-foreground">
-            Remembered on this device, and in the link.
-          </p>
+        </div>
+        <div className="mt-3">
+          <ScopeSaveStatus />
         </div>
 
         {scope.unknown.length > 0 && (
