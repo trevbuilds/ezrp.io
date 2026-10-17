@@ -3,6 +3,7 @@ import { ArrowRight, BookOpen, GitBranch, Search } from "lucide-react";
 
 import { SemanticBrain } from "@/components/SemanticBrain";
 import { SiteShell } from "@/components/SiteShell";
+import { SolutionFinder } from "@/components/SolutionFinder";
 import { Button } from "@/components/ui/button";
 import { guides, pillars } from "@/content/guides";
 
@@ -62,6 +63,18 @@ function Index() {
             <SemanticBrain />
           </div>
         </div>
+      </section>
+
+      <section className="mx-auto mt-12 max-w-6xl px-5">
+        <p className="label-xs">Find your starting point</p>
+        <h2 className="mt-2 text-2xl font-bold md:text-3xl">
+          Tell us three things, we'll scope it.
+        </h2>
+        <p className="mb-5 mt-2 max-w-2xl text-sm text-muted-foreground">
+          Pick your industry and the area you are changing. We open the scoping tool with your
+          answers filled in and show what that area drags in.
+        </p>
+        <SolutionFinder />
       </section>
 
       <section className="mx-auto mt-14 max-w-6xl px-5">
