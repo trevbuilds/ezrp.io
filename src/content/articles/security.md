@@ -3,7 +3,7 @@ slug: security
 source: authored
 intro: >-
   Security and identity decides who can do what without supervision.
-  In an ERP that is not an IT question — it is the structural answer to segregation of duties, and it is where fraud either is or is not possible.
+  In an ERP that is a financial control, not an IT preference: it is the structural answer to segregation of duties, and the place where fraud either is or is not possible.
 ---
 
 ## Why it matters

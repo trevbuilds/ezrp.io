@@ -3,7 +3,7 @@ slug: aba
 source: authored
 intro: >-
   The ABA file is how an Australian organisation actually pays anyone at volume — a fixed-width text file, lodged with the bank, that moves money out the door.
-  It is the last step of Procure-to-Pay and of payroll, and the point at which a configuration error becomes a real payment to a real stranger.
+  It is the last step of procure-to-pay and of payroll, and the point at which a configuration error becomes a real payment to a real stranger.
 ---
 
 ## Why it matters

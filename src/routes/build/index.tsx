@@ -45,9 +45,9 @@ function BuildIndex() {
         </h1>
         <p className="mt-4 max-w-2xl text-base text-muted-foreground">
           Most of these documents get started from a template someone had lying around, which is why
-          so many of them carry the previous programme&rsquo;s assumptions. The useful part of a
-          template is not its headings — it is knowing what has to be gathered before the headings
-          can be answered honestly. So each one starts with its inputs.
+          so many of them carry the previous programme&rsquo;s assumptions. Bring a scope and each
+          deliverable can produce a first draft from the map — with gaps left open where only you
+          have the answer — plus the inputs checklist and markdown you can lift into a real document.
         </p>
 
         {plan && (
@@ -73,8 +73,8 @@ function BuildIndex() {
         <section className="mt-10">
           <p className="label-xs">Deliverables</p>
           <p className="mt-1 max-w-2xl text-xs text-muted-foreground">
-            All alpha. The inputs are the settled part; generating the document itself is not built
-            yet.
+            Drafts. With a scope, each deliverable generates a first draft you can copy as markdown;
+            without one, you still get the inputs and outline.
           </p>
           <div className="mt-3 space-y-2">
             {deliverables.map((item) => {
@@ -90,7 +90,7 @@ function BuildIndex() {
                   <div className="flex flex-wrap items-baseline gap-2">
                     <h2 className="font-display text-lg font-semibold">{item.name}</h2>
                     <span className="rounded border border-primary/45 px-1.5 py-0.5 font-mono text-[0.625rem] uppercase text-primary">
-                      Alpha
+                      Draft
                     </span>
                   </div>
                   <p className="mt-1.5 max-w-2xl text-sm text-muted-foreground">{item.summary}</p>

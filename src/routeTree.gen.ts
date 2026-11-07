@@ -10,6 +10,7 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as DisclaimerRouteImport } from './routes/disclaimer'
 import { Route as FrameworkRouteImport } from './routes/framework'
 import { Route as McpRouteImport } from './routes/mcp'
 import { Route as ScopeRouteImport } from './routes/scope'
@@ -31,6 +32,11 @@ import { Route as BuildTemplateSlugRouteImport } from './routes/build/template/$
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const DisclaimerRoute = DisclaimerRouteImport.update({
+  id: '/disclaimer',
+  path: '/disclaimer',
   getParentRoute: () => rootRouteImport,
 } as any)
 const FrameworkRoute = FrameworkRouteImport.update({
@@ -122,6 +128,7 @@ const BuildTemplateSlugRoute = BuildTemplateSlugRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/disclaimer': typeof DisclaimerRoute
   '/framework': typeof FrameworkRoute
   '/mcp': typeof McpRoute
   '/scope': typeof ScopeRoute
@@ -142,6 +149,7 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/disclaimer': typeof DisclaimerRoute
   '/framework': typeof FrameworkRoute
   '/mcp': typeof McpRoute
   '/scope': typeof ScopeRoute
@@ -163,6 +171,7 @@ export interface FileRoutesByTo {
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/disclaimer': typeof DisclaimerRoute
   '/framework': typeof FrameworkRoute
   '/mcp': typeof McpRoute
   '/scope': typeof ScopeRoute
@@ -185,6 +194,7 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/disclaimer'
     | '/framework'
     | '/mcp'
     | '/scope'
@@ -205,6 +215,7 @@ export interface FileRouteTypes {
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
+    | '/disclaimer'
     | '/framework'
     | '/mcp'
     | '/scope'
@@ -225,6 +236,7 @@ export interface FileRouteTypes {
   id:
     | '__root__'
     | '/'
+    | '/disclaimer'
     | '/framework'
     | '/mcp'
     | '/scope'
@@ -246,6 +258,7 @@ export interface FileRouteTypes {
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  DisclaimerRoute: typeof DisclaimerRoute
   FrameworkRoute: typeof FrameworkRoute
   McpRoute: typeof McpRoute
   ScopeRoute: typeof ScopeRoute
@@ -272,6 +285,13 @@ declare module '@tanstack/react-router' {
       path: '/'
       fullPath: '/'
       preLoaderRoute: typeof IndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/disclaimer': {
+      id: '/disclaimer'
+      path: '/disclaimer'
+      fullPath: '/disclaimer'
+      preLoaderRoute: typeof DisclaimerRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/framework': {
@@ -398,6 +418,7 @@ declare module '@tanstack/react-router' {
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  DisclaimerRoute: DisclaimerRoute,
   FrameworkRoute: FrameworkRoute,
   McpRoute: McpRoute,
   ScopeRoute: ScopeRoute,

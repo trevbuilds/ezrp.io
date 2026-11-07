@@ -85,7 +85,7 @@ function StartPage() {
   // halfway down a list of pills. resetScroll keeps them where they were.
   const set = (patch: Partial<StartSearch>) =>
     navigate({
-      search: (prev) => ({ ...prev, ...patch }),
+      search: (prev: StartSearch) => ({ ...prev, ...patch }),
       replace: true,
       resetScroll: false,
     });
@@ -155,6 +155,15 @@ function StartPage() {
           What dominates for a water utility is not what dominates for a consultancy, and a listed
           company carries obligations a family business does not. Four questions, then a starting
           scope you can argue with.
+        </p>
+        <p className="panel mt-5 max-w-2xl rounded-lg border-l-2 border-primary p-4 text-sm text-muted-foreground">
+          Australian obligations split federal vs state. Pick Australia below to open the states;
+          or open{" "}
+          <Link to="/locales" className="text-primary hover:underline">
+            Locales
+          </Link>{" "}
+          for what actually changes jurisdiction by jurisdiction — without stale rates embedded in
+          the page.
         </p>
 
         <div className="mt-8 space-y-6">
