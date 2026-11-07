@@ -68,6 +68,17 @@ function Index() {
               maps federal vs state obligations — payroll tax, long service leave, workers
               compensation and the rest — without embedding rates that go stale.
             </p>
+            <p className="mt-3 max-w-2xl text-sm text-muted-foreground">
+              Demo walkthrough:{" "}
+              <Link
+                to="/guides/$slug"
+                params={{ slug: "procurement" }}
+                className="text-primary hover:underline"
+              >
+                Procure-to-Pay end to end
+              </Link>
+              , then Scope → Build → Locales.
+            </p>
           </div>
           <div className="w-full min-w-0">
             <SemanticBrain />
