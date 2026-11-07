@@ -60,6 +60,14 @@ function Index() {
                 <Link to="/framework">Understand the framework</Link>
               </Button>
             </div>
+            <p className="mt-5 max-w-2xl text-sm text-muted-foreground">
+              Working in Australia?{" "}
+              <Link to="/locales" className="text-primary hover:underline">
+                Locales
+              </Link>{" "}
+              maps federal vs state obligations — payroll tax, long service leave, workers
+              compensation and the rest — without embedding rates that go stale.
+            </p>
           </div>
           <div className="w-full min-w-0">
             <SemanticBrain />

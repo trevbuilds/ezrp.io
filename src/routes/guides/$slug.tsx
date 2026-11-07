@@ -43,7 +43,10 @@ export const Route = createFileRoute("/guides/$slug")({
 });
 
 function GuidePage() {
-  const { guide, article } = Route.useLoaderData();
+  const { guide, article } = Route.useLoaderData() as {
+    guide: Guide;
+    article: Article | null;
+  };
   const trail = ancestorsOf(guide.slug);
   const kids = childrenOf(guide.slug);
   const pillar = pillarOf(guide.slug);
@@ -110,7 +113,7 @@ function GuidePage() {
               {pillar.topic}
             </Link>
           )}
-          {guide.categories.map((c) => (
+            {guide.categories.map((c) => (
             <Link
               key={c}
               to="/guides"
