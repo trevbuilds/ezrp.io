@@ -1256,6 +1256,404 @@ export const programmes: Programme[] = [
       },
     ],
   },
+
+  // ------------------------------------------- Multi-state AU payroll
+  {
+    slug: "multi-state-payroll",
+    name: "Multi-state Australian payroll",
+    summary:
+      "A national employer paying people in several Australian jurisdictions — where the hard part is not the pay run, it is that payroll tax, long service leave and workers compensation multiply at every border.",
+    industry: "Manufacturing & Industrial",
+    orgType: "Private",
+    size: "2,000–10,000",
+    country: "Australia",
+    provenance:
+      "A composite worked example, not a client. It is assembled from patterns that recur in national Australian employers with sites in more than one state or territory, and from this library's model. No organisation is described, and every derived section is computed from the same model the rest of the site runs on. No rates, thresholds or scheme premiums are stated — those change, and the programme has to name the current source rather than freeze a figure.",
+
+    situation: [
+      "People are employed in more than one state, paid from one payroll system, and reported as if the obligation were national. The pay run works; the lodgements around it are assembled afterwards.",
+      "Payroll tax is treated as a single national calculation and then split. Grouping, taxable wage definitions and lodgement calendars differ by jurisdiction, and the spreadsheet that bridges them is held by one person.",
+      "Long service leave accrues under the rule of the state where each employee works, but balances were migrated as numbers rather than as service. Nobody can reconstruct a contested payout from the record alone.",
+      "Workers compensation is declared annually against an industry classification set at registration and rarely revisited. The wage base used for the declaration matches neither payroll tax nor superannuation.",
+      "Single Touch Payroll and superannuation submit on time. They are the national obligations that work, which is why the state obligations are the ones that get deferred.",
+    ],
+
+    drivers: [
+      "Growth into additional states has turned one payroll tax and one long service scheme into several, without the design catching up.",
+      "A grouping or nexus question from a revenue office would today be answered from a spreadsheet, not from the system.",
+      "Long service leave liability is an estimate that cannot be recalculated from service history, and the first contested payout will expose that.",
+      "Award and enterprise agreement interpretation differs by site and by instrument, and the gaps are discovered in the pay run rather than in design.",
+      "None of those is an end-of-support clock on its own. Together they are the reason a replacement or re-platform has to treat jurisdictions as first-class design, not as reporting afterthoughts.",
+    ],
+
+    picks: [
+      "payroll",
+      "time-and-attendance",
+      "award-interpretation",
+      "single-touch-payroll",
+      "superannuation",
+      "payroll-tax",
+      "long-service-leave",
+      "workers-compensation",
+      "data-migration",
+    ],
+
+    excluded: [
+      {
+        area: "Core HR and the establishment",
+        why: "Out of scope for this release, in scope as a master. Payroll still needs a reliable employee, assignment and location record; if HR is not changing, the interface and the ownership of work-state are named rather than assumed.",
+      },
+      {
+        area: "Recruitment, learning and performance",
+        why: "Deliberately later. They do not change the jurisdictional obligations this programme exists to get right, and adding them now doubles the change load on the same payroll team.",
+      },
+      {
+        area: "Finance beyond the payroll journal",
+        why: "Out of scope, in scope as an interface. The period journal, the net pay file and the superannuation payment all land in finance, so not changing the ledger still means testing the postings — especially costed by state and site.",
+      },
+      {
+        area: "Roster optimisation and workforce planning",
+        why: "Stay with operations. This programme needs approved time and interpreted allowances out of those tools, not to replace how sites are staffed.",
+      },
+    ],
+
+    contextDesign: [
+      {
+        heading: "Jurisdiction is an attribute on the person, not a report filter",
+        detail:
+          "Payroll tax, long service leave and workers compensation are assessed where the employee works (and sometimes where the employer is grouped). Work location, employing entity and cost centre are different facts. If the system only knows cost centre, every state obligation is reconstructed outside it.",
+      },
+      {
+        heading: "Payroll tax is one obligation per jurisdiction",
+        detail:
+          "Thresholds, rates, grouping rules and lodgement calendars are set by each state and territory. The taxable wage base rarely matches gross pay. Mapping reportable classifications onto the wage type — and deciding the grouping position in writing — belongs in design, not in the lodgement spreadsheet.",
+      },
+      {
+        heading: "Long service leave follows the workplace, and sometimes the worker",
+        detail:
+          "Accrual, qualifying periods and pro-rata rules differ by jurisdiction. In some industries a portable scheme means the entitlement follows the worker rather than the employer. Migrating balances without service history makes every one of those rules unenforceable.",
+      },
+      {
+        heading: "Workers compensation has its own wage definition",
+        detail:
+          "Each scheme declares on a wage base that matches neither payroll tax nor the superannuation guarantee, rated on an industry classification that is usually set once and never revisited. Build the mapping on the wage type; do not reconstruct it annually.",
+      },
+      {
+        heading: "Federal obligations do not vary at the border",
+        detail:
+          "Single Touch Payroll, the superannuation guarantee and the Fair Work modern award system are national. They are not the part that changes when a site opens in another state — which is exactly why the state obligations above are the ones a national payroll design has to make explicit.",
+      },
+      {
+        heading: "Awards and agreements are site-local even when the employer is national",
+        detail:
+          "A multi-site employer often carries more than one modern award and more than one enterprise agreement. Penalty, allowance and overtime interactions have to be interpreted per instrument and per roster pattern, including public holidays that fall on different dates in different states.",
+      },
+      {
+        heading: "Do not freeze rates in the design",
+        detail:
+          "Thresholds, rates, portable-scheme levies and premium bases move. The design names the current published source and the owner who updates the figure; it does not treat a number copied into a workbook as the specification.",
+      },
+    ],
+
+    boundary: [
+      {
+        name: "Employee master and work location",
+        counterpart: "HR / employee master",
+        payload: "Starters, movers, leavers, employing entity and primary work state",
+        direction: "in",
+        disposition: "rebuild",
+        note: "Without a trusted work-state on the assignment, every jurisdictional calculation is a guess. Mover is the case that usually breaks it — people change site without the payroll attribute following.",
+      },
+      {
+        name: "Approved time and allowances",
+        counterpart: "Time, rostering or works systems",
+        payload: "Approved hours, penalties earned, site allowances, public-holiday flags",
+        direction: "in",
+        disposition: "rebuild",
+        note: "Public holidays and site allowances differ by state. If time arrives without jurisdiction context, interpretation re-creates it by hand.",
+      },
+      {
+        name: "Payroll journal",
+        counterpart: "Finance / general ledger",
+        payload: "Period journal costed to cost centre, site, project and jurisdiction where needed",
+        direction: "out",
+        disposition: "rebuild",
+        note: "Finance will ask for labour cost by state the first time a payroll-tax or workers-compensation reconciliation fails. Design the grain now rather than add it after go-live.",
+      },
+      {
+        name: "Net pay and deductions",
+        counterpart: "Banking platform",
+        payload: "ABA direct entry file",
+        direction: "out",
+        disposition: "rebuild",
+        note: "The bank's testing window sits on the critical path and is outside the programme's control. Book it before the plan is baselined.",
+      },
+      {
+        name: "Superannuation contributions",
+        counterpart: "SuperStream gateway and funds",
+        payload: "Contribution data and payments",
+        direction: "out",
+        disposition: "rebuild",
+        note: "National obligation, but still on the critical path. Late or failed contributions attract the superannuation guarantee charge, which is not tax deductible.",
+      },
+      {
+        name: "Single Touch Payroll",
+        counterpart: "ATO",
+        payload: "Pay event, on or before each pay day",
+        direction: "out",
+        disposition: "rebuild",
+        note: "Phase 2 disaggregates gross into components, so wage-type design and reporting design are the same decision — and that decision has to survive multi-state allowance structures.",
+      },
+      {
+        name: "Payroll tax lodgement",
+        counterpart: "State and territory revenue offices",
+        payload: "Taxable wages, deductions and grouping position per jurisdiction",
+        direction: "out",
+        disposition: "rebuild",
+        note: "Today assembled in a spreadsheet. The replacement either produces each jurisdiction's return from the wage-type mapping or inherits the spreadsheet deliberately.",
+      },
+      {
+        name: "Workers compensation declarations",
+        counterpart: "Scheme insurer in each jurisdiction",
+        payload: "Declarable wages by jurisdiction and classification",
+        direction: "out",
+        disposition: "rebuild",
+        note: "Own wage definition, per state. Classification drift since registration is a common silent error — review it as part of design, not as part of the annual return.",
+      },
+      {
+        name: "Portable long service scheme returns",
+        counterpart: "State portable schemes, where industry coverage applies",
+        payload: "Service returns and levies",
+        direction: "out",
+        disposition: "decide",
+        note: "Whether any site or occupation is covered has to be closed before entitlement rules are configured. The obligation can exist whether or not leave has been claimed.",
+      },
+    ],
+
+    releases: [
+      {
+        name: "Jurisdiction foundation",
+        goal: "Work location and employing entity trusted on every assignment, wage types mapped to payroll tax, workers compensation and STP components, and the grouping position written down.",
+        proves:
+          "A payroll-tax extract per jurisdiction produced from the system that reconciles to the current lodgement method, with differences explained rather than forced.",
+      },
+      {
+        name: "Time, awards and entitlements",
+        goal: "Time and award interpretation live across sites, including state public holidays and site allowances, and long service leave accruing under the rule for where each employee works — recalculated from service history, not carried as a balance.",
+        proves:
+          "A full cycle of multi-state time flowing without re-keying of jurisdiction, and long service leave verifiable for the longest-serving cohort in each state employed.",
+      },
+      {
+        name: "Pay and statutory lodging",
+        goal: "Payroll live with STP, superannuation, payroll tax and workers compensation produced from the run, after parallel runs that agree across jurisdictions.",
+        proves:
+          "Consecutive parallel runs agreeing on gross, net, tax, super and allowances, and each jurisdictional return reconciling without a side spreadsheet as the system of record.",
+      },
+    ],
+
+    decisions: [
+      {
+        question: "In which jurisdictions do we employ, and under which employing entities?",
+        stake:
+          "It sets how many payroll-tax, long-service and workers-compensation regimes apply, and whether grouping is available or already locked in by structure.",
+        by: "Before wage-type and entitlement design starts.",
+        topic: "payroll-tax",
+      },
+      {
+        question: "What is the grouping position for payroll tax?",
+        stake:
+          "Related entities, thresholds and who lodges where. Left informal, it is rediscovered under enquiry; written early, it constrains entity and costing design usefully.",
+        by: "With scope, with tax advice named as an input rather than assumed.",
+        topic: "payroll-tax",
+      },
+      {
+        question: "Is work state mastered in HR or derived in payroll?",
+        stake:
+          "Every jurisdictional calculation hangs off it. Dual maintenance diverges within a quarter; a single owner with a tested mover process does not.",
+        by: "Before the HR interface is specified.",
+        topic: "payroll",
+      },
+      {
+        question: "Which awards and agreements apply at which sites?",
+        stake:
+          "Interpretation effort scales with instruments, not with headcount. Discovering a second agreement during parallel running extends the tail by months.",
+        by: "Before award configuration, with industrial relations in the room.",
+        topic: "award-interpretation",
+      },
+      {
+        question: "Are any occupations covered by a portable long service scheme?",
+        stake:
+          "Portable schemes add levies and service reporting whether or not leave is taken. Deciding after go-live means catching up underpaid levies and rebuilding history.",
+        by: "Before leave rules are configured.",
+        topic: "long-service-leave",
+      },
+      {
+        question: "How many parallel runs, and what makes one pass across states?",
+        stake:
+          "A run that agrees nationally but fails a state allowance or public-holiday case is not a pass. Criteria have to include jurisdictional samples, not only company totals.",
+        by: "At mobilisation, because it sets the length of the plan's tail.",
+        topic: "payroll",
+      },
+      {
+        question: "Who runs the pays — and the lodgements — while the programme is running?",
+        stake:
+          "The people who know the state returns are the people who lodge them. Without funded backfill, both the programme and the lodgement calendar degrade together.",
+        by: "Before mobilisation, with the budget.",
+        topic: "digital-transformation-readiness-checklist",
+      },
+    ],
+
+    risks: [
+      {
+        risk: "Jurisdiction is treated as a reporting dimension added at the end.",
+        consequence:
+          "Wage types, time interfaces and the employee master ship without work-state integrity, and every state return stays a spreadsheet.",
+        mitigation:
+          "Make work location and wage-type jurisdictional mapping a foundation-release gate, proven against a current lodgement before entitlements are configured.",
+      },
+      {
+        risk: "Service history is migrated as long service balances.",
+        consequence:
+          "Entitlements cannot be recalculated under the correct state rule, and the first contested payout cannot be defended from the system.",
+        mitigation:
+          "Migrate continuous service, verify the longest-serving cohort per jurisdiction before trial load, and reconcile recalculated entitlement to the ledger provision.",
+      },
+      {
+        risk: "Public holidays and site allowances are modelled from one state's calendar.",
+        consequence:
+          "The first conflicting holiday or remote-site allowance produces mass corrections in a live pay run.",
+        mitigation:
+          "Build interpretation tests from real multi-state rosters, including overlapping holiday periods, before signing off the rule set.",
+      },
+      {
+        risk: "Workers compensation classifications are copied forward unexamined.",
+        consequence:
+          "Premium and declaration error accumulates quietly until a scheme audit, then becomes a prior-period correction across every state employed.",
+        mitigation:
+          "Review classification per jurisdiction as a design input, and map declarable wages on the wage type rather than in the annual return.",
+      },
+      {
+        risk: "Parallel running passes on national totals only.",
+        consequence:
+          "Go-live with unexplained state-level variances that become live defects affecting real people at real sites.",
+        mitigation:
+          "Set pass criteria that include jurisdictional samples and allowance cohorts, require consecutive passes, and keep no-go as a genuine gate option.",
+      },
+      {
+        risk: "Rates and thresholds are pasted into design documents.",
+        consequence:
+          "The specification is stale before configuration finishes, and somebody treats the outdated figure as authoritative.",
+        mitigation:
+          "Reference the published source and name the owner who updates it; configuration holds the figure, documents hold the pointer.",
+      },
+    ],
+
+    readiness: [
+      {
+        item: "Employment footprint by jurisdiction confirmed",
+        state: "gap",
+        note: "Headcount and employing entity per state and territory, agreed by HR and payroll rather than inferred from cost centres.",
+      },
+      {
+        item: "Payroll tax grouping advice current",
+        state: "unknown",
+        note: "Written position on grouping, nexus and who lodges where — or an explicit decision to obtain it before design.",
+      },
+      {
+        item: "Industrial instruments collected per site",
+        state: "gap",
+        note: "Awards, enterprise agreements and side letters that actually apply, not the ones people remember applying.",
+      },
+      {
+        item: "Service history verifiable per jurisdiction",
+        state: "gap",
+        note: "Continuous service dates for the longest-serving employees in each state employed, evidenced rather than carried forward.",
+      },
+      {
+        item: "Workers compensation classifications reviewed",
+        state: "gap",
+        note: "Current scheme, classification and wage definition in each jurisdiction, checked rather than assumed from registration.",
+      },
+      {
+        item: "Portable scheme coverage decided",
+        state: "unknown",
+        note: "Which occupations or sites fall under a portable long service scheme, closed before leave configuration.",
+      },
+      {
+        item: "Payroll capacity released and backfilled",
+        state: "gap",
+        note: "Named people for the pay run and for each jurisdictional lodgement, with funded backfill — or the programme is resourced on goodwill.",
+      },
+    ],
+
+    work: [
+      {
+        artefact: "Jurisdiction and employing-entity matrix, with work-state ownership",
+        owner: "Payroll and HR",
+        topic: "payroll",
+      },
+      {
+        artefact: "Wage-type catalogue mapped to STP, payroll tax and workers compensation",
+        owner: "Payroll",
+        topic: "payroll",
+      },
+      {
+        artefact: "Payroll tax grouping position and lodgement design per jurisdiction",
+        owner: "Payroll and finance",
+        topic: "payroll-tax",
+      },
+      {
+        artefact: "Award and agreement interpretation rule set per instrument and site",
+        owner: "Payroll and HR",
+        topic: "award-interpretation",
+      },
+      {
+        artefact: "Multi-state time and public-holiday interface specification",
+        owner: "Payroll and operations",
+        topic: "time-and-attendance",
+      },
+      {
+        artefact: "Long service leave rules per jurisdiction, including portable schemes",
+        owner: "Payroll",
+        topic: "long-service-leave",
+      },
+      {
+        artefact: "Workers compensation declaration basis and classification review",
+        owner: "Payroll and risk",
+        topic: "workers-compensation",
+      },
+      {
+        artefact: "Superannuation and Single Touch Payroll reporting setup",
+        owner: "Payroll",
+        topic: "single-touch-payroll",
+      },
+      {
+        artefact: "Service history migration and reconciliation plan",
+        owner: "Payroll and data",
+        topic: "data-migration",
+      },
+      {
+        artefact: "ABA payment file specification and bank testing plan",
+        owner: "Payroll and treasury",
+        topic: "aba",
+      },
+      {
+        artefact: "Parallel run plan with jurisdictional pass criteria",
+        owner: "Payroll",
+        topic: "payroll",
+      },
+      {
+        artefact: "Payroll journal grain design, including state and site where required",
+        owner: "Payroll and finance",
+        topic: "general-ledger",
+      },
+      {
+        artefact: "Change impact assessment by site and by role",
+        owner: "Change",
+        topic: "change-people-and-adoption",
+      },
+    ],
+  },
 ];
 
 export const programmeBySlug = new Map(programmes.map((p) => [p.slug, p]));
