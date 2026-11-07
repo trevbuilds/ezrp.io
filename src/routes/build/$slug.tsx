@@ -70,7 +70,7 @@ function DeliverablePage() {
         <div className="mt-4 flex flex-wrap items-baseline gap-3">
           <h1 className="text-3xl font-bold leading-tight md:text-4xl">{deliverable.name}</h1>
           <span className="rounded border border-primary/45 px-1.5 py-0.5 font-mono text-[0.625rem] uppercase text-primary">
-            Alpha
+            Draft
           </span>
         </div>
         <p className="mt-3 text-lg text-muted-foreground">{deliverable.summary}</p>

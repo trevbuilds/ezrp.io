@@ -4,8 +4,8 @@
 what that actually drags in — the value streams they sit on, the modules they
 cross, and the concerns they raise.
 
-Live at **[ezrp.io](https://ezrp.io)**. Alpha: the model is settled, the content
-is still filling in.
+Live at **[ezrp.io](https://ezrp.io)**. Beta: the model, scoping path and draft
+generation are usable; treat drafts as starting points, not finished advice.
 
 ## Why it exists
 
@@ -139,10 +139,10 @@ deliverable, each input: what it is, where it comes from (`/start`, `/scope`, th
 library, or only the organisation), who owns it, and whether the document can be
 drafted without it.
 
-Six deliverables, all alpha, in a dropdown under Build: investment decision
+Six deliverables, labelled draft, in a dropdown under Build: investment decision
 brief, business case, project management plan, business analysis plan, workshop
-plan, change impact assessment. The inputs are the settled part; generating the
-document is not built yet.
+plan, change impact assessment. With a scope, each can produce a first draft
+(plus markdown copy); gaps stay open where only the organisation has the answer.
 
 `src/content/build.ts` holds the other half — per sub-module, the artefacts a
 team has to produce before it can be called done, plus the five gates. Given a

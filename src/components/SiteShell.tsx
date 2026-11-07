@@ -22,8 +22,8 @@ const navLinkClass =
 const REPO = "https://github.com/trevbuilds/ezrp.io";
 
 /**
- * Feedback goes to GitHub issues, pre-filled. The content is alpha and
- * incomplete, so a correction naming the page it came from is worth far more
+ * Feedback goes to GitHub issues, pre-filled. The content is beta and still
+ * contested, so a correction naming the page it came from is worth far more
  * than a general comment.
  */
 const FEEDBACK_URL = `${REPO}/issues/new?labels=feedback&title=${encodeURIComponent(
@@ -51,7 +51,7 @@ export function SiteShell({ children }: { children: ReactNode }) {
               ezrp<span className="text-primary">.io</span>
             </Link>
             <span className="rounded border border-primary/45 px-1.5 py-0.5 font-mono text-[0.625rem] uppercase tracking-normal text-primary">
-              Alpha
+              Beta
             </span>
           </div>
           <nav className="flex flex-wrap items-center justify-end gap-1">
@@ -100,8 +100,8 @@ export function SiteShell({ children }: { children: ReactNode }) {
             steps teams actually run.
           </p>
           <p className="mt-4 max-w-xl text-sm text-muted-foreground">
-            Alpha, and the content is still filling in. Corrections are more useful than compliments
-            —{" "}
+            Beta — the map and scoping path are usable; treat the drafts as starting points, not
+            finished advice. Corrections are more useful than compliments —{" "}
             <a
               href={FEEDBACK_URL}
               target="_blank"
@@ -350,7 +350,7 @@ function BuildMenu() {
             >
               <span>{item.short}</span>
               <span className="shrink-0 rounded border border-primary/45 px-1 font-mono text-[0.5625rem] uppercase text-primary">
-                Alpha
+                Draft
               </span>
             </Link>
           ))}

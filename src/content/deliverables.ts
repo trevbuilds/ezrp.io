@@ -14,8 +14,9 @@
  * is, where it comes from, who owns it, and whether the document can be
  * drafted without it.
  *
- * All five are alpha. The inputs are the part that is settled; the generated
- * output is not built yet.
+ * Deliverables ship as draft: a scoped first draft can be generated from the
+ * map, with gaps left open rather than invented. The inputs are the settled
+ * part; the draft is a starting point, not a finished document.
  */
 
 export type InputSource =
@@ -52,7 +53,7 @@ export type Deliverable = {
   name: string;
   /** Short label for the nav dropdown. */
   short: string;
-  status: "alpha";
+  status: "draft";
   /** One line, for listings. */
   summary: string;
   /** What the document is for. */
@@ -73,7 +74,7 @@ export const deliverables: Deliverable[] = [
     slug: "investment-brief",
     name: "Investment decision brief",
     short: "Investment brief",
-    status: "alpha",
+    status: "draft",
     summary:
       "What goes in front of the people who hold the delegation: the ask, the options, the three numbers they will ask about, and what happens if they wait.",
     purpose:
@@ -185,7 +186,7 @@ export const deliverables: Deliverable[] = [
     slug: "business-case",
     name: "Business case",
     short: "Business case",
-    status: "alpha",
+    status: "draft",
     summary:
       "The case for spending the money, with the costs that are usually left out and benefits that somebody has agreed to own.",
     purpose:
@@ -295,7 +296,7 @@ export const deliverables: Deliverable[] = [
     slug: "project-management-plan",
     name: "Project management plan",
     short: "PM plan",
-    status: "alpha",
+    status: "draft",
     summary:
       "How the programme will actually be run: decision rights, one plan, the change route, and what each gate has to prove.",
     purpose:
@@ -416,7 +417,7 @@ export const deliverables: Deliverable[] = [
     slug: "business-analysis-plan",
     name: "Business analysis plan",
     short: "BA plan",
-    status: "alpha",
+    status: "draft",
     summary:
       "How requirements will be produced, tested and traced — and which design artefacts the scope actually demands.",
     purpose:
@@ -528,7 +529,7 @@ export const deliverables: Deliverable[] = [
     slug: "workshop-plan",
     name: "Workshop plan",
     short: "Workshop plan",
-    status: "alpha",
+    status: "draft",
     summary:
       "How design actually gets decided in a room: which workshops, who has authority in each, and what leaves with a decision attached.",
     purpose:
@@ -629,7 +630,7 @@ export const deliverables: Deliverable[] = [
     slug: "change-impact-assessment",
     name: "Change impact assessment",
     short: "Change impact",
-    status: "alpha",
+    status: "draft",
     summary:
       "Role by role, what changes about how each person spends their day — specific enough for a manager to act on.",
     purpose:

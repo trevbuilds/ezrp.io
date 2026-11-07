@@ -10,20 +10,22 @@ import { guides, pillars } from "@/content/guides";
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "EZRP — making ERP and digital transformation easier" },
+      {
+        title: "EZRP — map the change before you absorb it",
+      },
       {
         name: "description",
         content:
-          "Plain-English guidance for navigating ERP and digital transformation, understanding the moving parts, and avoiding common delivery pitfalls.",
+          "ERP programmes fail on change capacity, not features. EZRP maps modules, processes and Australian obligations so you can see what a change actually asks for.",
       },
       {
         property: "og:title",
-        content: "EZRP — making ERP and digital transformation easier",
+        content: "EZRP — map the change before you absorb it",
       },
       {
         property: "og:description",
         content:
-          "Understand ERP, follow end-to-end value streams, and use practical field guides to avoid common transformation pitfalls.",
+          "See what a change drags in across modules and value streams, with Australian federal vs state obligations mapped alongside the work.",
       },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
@@ -38,20 +40,20 @@ function Index() {
       <section className="dark cover-grid relative overflow-hidden bg-background px-5 py-12 text-foreground md:px-8 md:py-16 lg:px-12">
         <div className="mx-auto grid max-w-6xl items-center gap-10 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.1fr)] lg:gap-8">
           <div>
-            <p className="label-xs">Easy Resource Planning · Alpha</p>
+            <p className="label-xs">Easy Resource Planning · Beta</p>
             <h1 className="mt-3 max-w-4xl text-4xl font-bold leading-tight md:text-5xl">
-              Making ERP and digital transformation easier for everyone.
+              Map how much change you are asking for.
             </h1>
             <p className="mt-5 max-w-3xl text-base leading-relaxed text-muted-foreground md:text-lg">
-              ERP programmes connect nearly every part of an organisation, which means small
-              decisions can create expensive problems elsewhere. EZRP turns that complexity into
-              practical maps and field guides so more people can understand the work, spot the
-              pitfalls, and make better decisions.
+              ERP programmes rarely fail on features. They fail because an organisation can only
+              absorb so much change at once — and nobody maps how much is being asked for. EZRP
+              makes the shape of the work visible: modules, processes, value streams, and the
+              Australian obligations that differ federal vs state.
             </p>
             <div className="mt-6 flex flex-wrap gap-3">
               <Button asChild>
-                <Link to="/guides">
-                  Open the field guide <ArrowRight />
+                <Link to="/start">
+                  Scope a change <ArrowRight />
                 </Link>
               </Button>
               <Button asChild variant="outline">
@@ -155,7 +157,7 @@ function Index() {
         <div className="mt-8 flex flex-wrap items-center justify-between gap-5">
           <p className="max-w-2xl text-sm text-muted-foreground">
             The library currently connects {guides.length} guides across {pillars.length} top-level
-            areas, and will keep growing during Alpha.
+            areas. Feedback during Beta shapes what gets sharpened next.
           </p>
           <Button asChild>
             <Link to="/guides">
