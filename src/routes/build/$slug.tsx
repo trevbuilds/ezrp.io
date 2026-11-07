@@ -46,7 +46,7 @@ export const Route = createFileRoute("/build/$slug")({
 });
 
 function DeliverablePage() {
-  const { deliverable } = Route.useLoaderData();
+  const { deliverable } = Route.useLoaderData() as { deliverable: Deliverable };
   const search = Route.useSearch();
   const navigate = Route.useNavigate();
   const picks = parsePicks(search.pick);

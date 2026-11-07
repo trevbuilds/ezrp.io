@@ -2,7 +2,8 @@
 slug: ap-automation
 source: dx-guides
 intro: >-
-  AP automation, or Accounts Payable automation, refers to the technology used to streamline and automate accounts payable processes, eliminating manual tasks, reducing processing time, and improving accuracy.
+  AP automation is the tooling that takes invoice capture, matching, exception routing and payment preparation out of inboxes and spreadsheets.
+  It only pays off when the upstream controls — supplier master, PO discipline and three-way match — are strong enough to automate against.
 ---
 
 ## Why it matters

@@ -46,7 +46,7 @@ function TopicLink({ slug, children }: { slug: string; children?: string }) {
 }
 
 function ProgrammePage() {
-  const { programme } = Route.useLoaderData();
+  const { programme } = Route.useLoaderData() as { programme: Programme };
   const scope = computeScope(programme.picks);
   const pick = serialisePicks(programme.picks);
 

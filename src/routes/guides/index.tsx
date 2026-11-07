@@ -102,7 +102,7 @@ function GuideLibrary() {
   // be sent back to the heading.
   const set = (patch: Partial<GuideSearch>) =>
     navigate({
-      search: (prev) => ({ ...prev, ...patch }),
+      search: (prev: GuideSearch) => ({ ...prev, ...patch }),
       replace: true,
       resetScroll: false,
     });

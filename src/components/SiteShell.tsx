@@ -13,6 +13,7 @@ const nav = [
   { to: "/", label: "Map" },
   { to: "/start", label: "Start here" },
   { to: "/guides", label: "Guides" },
+  { to: "/locales", label: "Locales" },
   { to: "/framework", label: "Framework" },
 ] as const;
 
@@ -120,6 +121,13 @@ export function SiteShell({ children }: { children: ReactNode }) {
               argue with the model
             </a>
             .
+          </p>
+          <p className="mt-4 text-sm text-muted-foreground">
+            <Link to="/disclaimer" className="text-primary hover:underline">
+              Disclaimer and privacy
+            </Link>
+            <span className="mx-2 text-border">·</span>
+            Not legal or tax advice; rates omitted by design.
           </p>
         </div>
       </footer>

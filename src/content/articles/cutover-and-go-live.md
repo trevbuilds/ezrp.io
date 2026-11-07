@@ -3,7 +3,7 @@ slug: cutover-and-go-live
 source: authored
 intro: >-
   Cutover is the execution of the switch: a sequenced plan run against the clock, with checkpoints, a command structure and a defined point beyond which there is no going back.
-  It is a logistics exercise more than a technical one.
+  Most cutover failures are logistics — unreachable people, unsequenced dependencies, decisions with no owner at 3am — not software defects.
 ---
 
 ## Why it matters
