@@ -100,10 +100,12 @@ function Framework() {
         </section>
 
         <section className="panel mt-10 rounded-lg p-6">
-          <h2 className="font-display text-xl font-semibold">Not sure where to start?</h2>
+          <h2 className="font-display text-xl font-semibold">Not sure how to describe the change?</h2>
           <p className="mt-2 text-sm text-muted-foreground">
-            Ask for a guide using the button in the corner — the assistant answers only from
-            this library and tells you when something isn't covered yet.
+            Use <span className="text-foreground">Describe a change</span> in the corner — the
+            assistant helps you name what is in scope, maps it to modules and guides in this
+            library, and points you toward Start, Scope, Build and Locales. It will not invent
+            topics that are not recorded yet. Corrections belong in Feedback → GitHub.
           </p>
           <Link
             to="/guides"

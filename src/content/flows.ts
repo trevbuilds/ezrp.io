@@ -17,6 +17,8 @@ export type FlowLane = {
   layer: string;
   blurb: string;
   slug?: string;
+  /** Optional AU / demo note shown under the blurb — not a step. */
+  callout?: string;
   steps: FlowStep[];
 };
 
