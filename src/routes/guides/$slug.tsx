@@ -22,9 +22,11 @@ export const Route = createFileRoute("/guides/$slug")({
   head: ({ loaderData }) => {
     const guide = loaderData?.guide as Guide | undefined;
     const title = guide ? `${guide.topic} — EZRP guide` : "Guide — EZRP";
+    // Prefer the article intro for meta when present — it is written for the
+    // first screen. Fall back to the taxonomy definition, then a generic line.
     const description =
-      guide?.definition ??
       (loaderData?.article as Article | undefined)?.intro ??
+      guide?.definition ??
       (guide
         ? `Where ${guide.topic} sits in the EZRP delivery map, plus its recorded workflow and related guides.`
         : "EZRP guide");
@@ -125,8 +127,10 @@ function GuidePage() {
           ))}
         </div>
 
-        {(guide.definition ?? article) ? (
-          <p className="mt-5 text-lg text-muted-foreground">{guide.definition ?? article?.intro}</p>
+        {(article?.intro ?? guide.definition) ? (
+          <p className="mt-5 text-lg text-muted-foreground">
+            {article?.intro ?? guide.definition}
+          </p>
         ) : (
           <p className="mt-5 text-sm text-muted-foreground">
             No written definition recorded for this topic yet — the map position and links below are

@@ -3,7 +3,7 @@ slug: governance
 source: authored
 intro: >-
   Programme governance is the structure that decides things: who can approve what, at what forum, on what evidence.
-  Most programme delay is not work that could not be done — it is decisions nobody had the authority to make.
+  Most programme delay is not work that could not be done — it is decisions that had nowhere to land.
 ---
 
 ## Why it matters
